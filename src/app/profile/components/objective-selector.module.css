@@ -1,0 +1,39 @@
+.investment-objective-selector {
+  grid-column-gap: 16px;
+  grid-row-gap: 16px;
+  grid-template-rows: auto auto auto;
+  grid-template-columns: 1fr 1fr;
+  grid-auto-columns: 1fr;
+  display: grid;
+  grid-area: span 1 / span 1 / span 1 / span 1;
+}
+
+.select-option-inner {
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 32px 24px;
+  display: flex;
+}
+
+.select-option {
+  cursor: pointer;
+  transform-style: preserve-3d;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  background-color: #ffffff;
+}
+
+.select-option:hover {
+  transform: scale3d(1.01, 1.01, 1.06);
+}
+
+.select-option.selected {
+  box-shadow: none;
+  background-color: #eaf4ff;
+}
+
+.select-option.unselected {
+  box-shadow: none;
+}
