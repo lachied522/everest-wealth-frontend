@@ -1,14 +1,14 @@
 "use client";
 import { useState } from "react";
 
-export default function SelectWrapper({ name, handleProfileChange, children, initialState="" }) {
+export default function SelectWrapper({ name, updateProfile, children, initialState="" }) {
     const [selected, setSelected] = useState(initialState);
   
     const handleChange = (event) => {
       let e = event.target;
       const newValue = event.target.value;
       setSelected(newValue);
-      handleProfileChange({
+      updateProfile({
         name: name,
         value: newValue
       });

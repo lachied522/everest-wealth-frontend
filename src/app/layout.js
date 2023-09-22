@@ -16,7 +16,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <head>
         <link
-          href="https://uploads-ssl.webflow.com/64afbac816bb17eb2fdc3f03/css/everest-wealth.webflow.2f2aa5550.css"
+          href="https://uploads-ssl.webflow.com/64afbac816bb17eb2fdc3f03/css/everest-wealth.webflow.16b3dffc1.css"
           rel="stylesheet"
           type="text/css"
         />

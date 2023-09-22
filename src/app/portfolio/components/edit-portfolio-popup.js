@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { useGlobalContext } from "@/context/GlobalState";
 import Popup from "@/components/popup";
@@ -18,7 +18,7 @@ const SearchHit = ({ hit, selectHit }) => {
     );
 };
 
-const NewHoldingRow = ({ data, update }) => {
+const HoldingRow = ({ data, update, remove }) => {
     //value column pre-populates if user fills units column and vice versa
     const changeValue = (e) => {
         const input = e.target.value;
@@ -48,13 +48,17 @@ const NewHoldingRow = ({ data, update }) => {
       });
     }
 
+    const removeHolding = () => {
+      remove(data);
+    }
+
     return (
         <div className="add-holding-row" >
             <div
                 id="w-node-_30654599-6362-208c-d8b9-90b6b8929f48-2fdc3ff5"
                 className="stock-data symbol"
             >
-                {data.symbol}
+              {data.symbol.toUpperCase()}
             </div>
             <input
                 type="number"
@@ -90,19 +94,28 @@ const NewHoldingRow = ({ data, update }) => {
                 value={data.cost || ""}
                 onChange={changeCost}
             />
+            <div 
+              className="custom-icon delete-icon"
+              onClick={removeHolding}
+            ></div>
         </div>
     );
 };
 
-export default function AddNewHoldingPopup({ isOpen, setIsOpen }) {
-  const { portfolioData, universeData, addHolding, commitChanges } = useGlobalContext();
+export default function EditPortfolioPopup({ isOpen, setIsOpen }) {
+  const { portfolioData, universeData, updatePortfolio } = useGlobalContext();
   const [searchString, setSearchString] = useState('');
   const [searchHits, setSearchHits] = useState([]);
-  const [newHoldingData, setNewHoldingData] = useState([]);
+  const [allHoldingData, setAllHoldingData] = useState(); //contains all existing holdings and new holdings
 
   const closePopup = () => {
     setIsOpen(false);
   };
+
+  useEffect(() => {
+    const sortedData = portfolioData?.sort((a, b) => a.symbol.localeCompare(b.symbol)); //sort data alphabetically 
+    setAllHoldingData(sortedData);
+  }, [portfolioData]);
 
   const searchStocks = (e) => {
     /**
@@ -141,50 +154,52 @@ export default function AddNewHoldingPopup({ isOpen, setIsOpen }) {
     /**
      * when user selects a hit from stock search
      */
-    const newValue = [...newHoldingData, hit];
-    setNewHoldingData(newValue);
+    const newValue = [...allHoldingData, hit];
+    setAllHoldingData(newValue);
     //reset search bar
     setSearchString('');
     //clear search hits
     setSearchHits([]);
   }
 
-  const updateNewHolding = (newHolding) => {
+  const updateHolding = (holding) => {
     /**
      * when user updates the value of a new holding
      */
-    const filteredHoldings = newHoldingData.filter(holding => {
-      holding.symbol !== newHolding.symbol
-    });
-    const newValue = [...filteredHoldings, newHolding];
-    setNewHoldingData(newValue);
+    const newArray = [...allHoldingData]; //create copy of all holdings
+    const index = allHoldingData.findIndex((obj) => obj.symbol === holding.symbol); //get index of holding
+    newArray[index] = holding;
+    setAllHoldingData(newArray);
   }
 
-  const confirmAddHoldings = () => {
+  const removeHolding = (holding) => {
+    const newValue = allHoldingData.filter(obj => obj.symbol !== holding.symbol);
+    setAllHoldingData(newValue);
+  }
+
+  const confirmHoldings = async () => {
     //check if any data is missing
-    const empty = newHoldingData.filter(holding => !holding.hasOwnProperty('units') || holding.units === 0);
+    const empty = allHoldingData.filter(holding => !holding.hasOwnProperty('units') || holding.units === 0);
     if (empty.length === 0) {
-      for (const newHolding of newHoldingData) {
-        //check if holding already in portfolio
-        //TO DO: holdings should be checked against a unique id instead of symbol
-        const symbols = portfolioData.map(d => d.symbol.toUpperCase());
-        if (symbols.includes(newHolding.symbol)) continue;
-        
-        addHolding(newHolding);
+      if (allHoldingData !== portfolioData) {
+        //update portfolio
+        await updatePortfolio(allHoldingData);
       }
-      
       //close the popup
       closePopup();
-      //reset new holding data
-      setNewHoldingData([]);
-      //commit changes to DB
-      commitChanges();
     }
+  }
+
+  const cancelEdit = () => {
+    //reset
+    setAllHoldingData(portfolioData);
+    //close the popup
+    closePopup();
   }
 
   if (isOpen) {
     return (
-      <Popup title="Add Holding" closePopup={closePopup}>
+      <Popup title="Add or Remove Holdings" closePopup={closePopup}>
         <div className="holding-search-container">
           <form action="/search" className="stock-search-bar-wrapper w-form">
             <input
@@ -202,15 +217,17 @@ export default function AddNewHoldingPopup({ isOpen, setIsOpen }) {
           <div className="w-form">
             <form>
               <div className="position-relative">
-                <div className="holding-search-results">
-                  {searchHits.map((hit, index) => (
-                    <SearchHit
-                      key={index}
-                      hit={hit}
-                      selectHit={selectHit}
-                    />
-                  ))}
-                </div>
+                {searchHits.length > 0 && (
+                  <div className="holding-search-results">
+                    {searchHits.map((hit, index) => (
+                      <SearchHit
+                        key={index}
+                        hit={hit}
+                        selectHit={selectHit}
+                      />
+                    ))}
+                  </div>
+                )}
                 <div className="add-holdings-wrapper">
                   <div className="new-holdings-table">
                     <div className="add-holding-row header">
@@ -239,18 +256,19 @@ export default function AddNewHoldingPopup({ isOpen, setIsOpen }) {
                         COST ($)
                       </div>
                     </div>
-                    {newHoldingData.length === 0 && (
+                    {allHoldingData?.length === 0 && (
                       <div className="holding-search-empty">
                         <div className="text-200">
                           Search stocks to add to your portfolio
                         </div>
                       </div>
                     )}
-                    {newHoldingData.map((holding, index) => (
-                        <NewHoldingRow 
+                    {allHoldingData?.map((holding, index) => (
+                        <HoldingRow 
                             key={index}
                             data={holding}
-                            update={updateNewHolding}
+                            update={updateHolding}
+                            remove={removeHolding}
                         />
                     ))}
                   </div>
@@ -262,13 +280,13 @@ export default function AddNewHoldingPopup({ isOpen, setIsOpen }) {
         <div className="grid-2-columns gap-18px _2-columns-mbl">
           <button
             className="btn-secondary small w-button"
-            onClick={closePopup}
+            onClick={cancelEdit}
           >
             Cancel
           </button>
           <button
             className="btn-primary small w-button"
-            onClick={confirmAddHoldings}
+            onClick={confirmHoldings}
           >
             Done
           </button>

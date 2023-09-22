@@ -1,16 +1,16 @@
 "use client";
 import { useState } from "react";
 
-import AddHoldingPopup from "./new-holding-popup";
+import EditPortfolioPopup from "./edit-portfolio-popup";
 import NewAdvicePopup from "./new-advice-popup";
 import PortfolioTable from "./portfolio-table";
 
 export default function PortfolioPage() {
-  const [newHoldingPopupOpen, setNewHoldingPopupOpen] = useState(false);
+  const [editPortfolioPopupOpen, setEditPortfolioPopupOpen] = useState(false);
   const [newAdvicePopupOpen, setNewAdvicePopupOpen] = useState(false);
 
-  const openNewHoldingPopup = () => {
-    setNewHoldingPopupOpen(true);
+  const openEditPortfolioPopup = () => {
+    setEditPortfolioPopupOpen(true);
   }
 
   const openNewAdvicePopup = () => {
@@ -19,9 +19,9 @@ export default function PortfolioPage() {
 
   return (    
     <div className="container-default w-container">
-      <AddHoldingPopup
-        isOpen={newHoldingPopupOpen}
-        setIsOpen={setNewHoldingPopupOpen}
+      <EditPortfolioPopup
+        isOpen={editPortfolioPopupOpen}
+        setIsOpen={setEditPortfolioPopupOpen}
       />
       <NewAdvicePopup
         isOpen={newAdvicePopupOpen}
@@ -42,31 +42,26 @@ export default function PortfolioPage() {
             id="w-node-af3e5895-bd37-10bd-e54f-dda9951422c4-2fdc3ff5"
             className="flex gap-column-12px"
           >
-            <div
-              data-w-id="9a36722d-8aa5-34a7-299c-a8e21ca3d0ec"
-              className="display-inline-block"
+            <button
+              className="btn-secondary small w-button"
             >
-              <button
-                className="btn-secondary w-button"
-                onClick={openNewHoldingPopup}
-              >
-                <span className="line-rounded-icon link-icon-left"></span>Add
-                Holding
-              </button>
-            </div>
-            <div
-              id="w-node-eeb57ff6-678d-99bd-3a14-ccd27109b3f5-2fdc3ff5"
-              data-w-id="eeb57ff6-678d-99bd-3a14-ccd27109b3f5"
-              className="display-inline-block"
+            <span className="line-rounded-icon link-icon-left"></span>Link
+            Broker
+            </button>
+            <button
+              className="btn-secondary small w-button"
+              onClick={openEditPortfolioPopup}
             >
-              <button
-                className="btn-primary w-button"
-                onClick={openNewAdvicePopup}
-              >
-                <span className="line-rounded-icon link-icon-left"></span>Get
-                Advice
-              </button>
-            </div>
+              <span className="line-rounded-icon link-icon-left"></span>Edit
+              Portfolio
+            </button>
+            <button
+              className="btn-primary small w-button"
+              onClick={openNewAdvicePopup}
+            >
+              <span className="line-rounded-icon link-icon-left"></span>Get
+              Advice
+            </button>
           </div>
         </div>
       </div>

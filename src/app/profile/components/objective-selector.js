@@ -1,41 +1,39 @@
 "use client";
-import { useState } from "react";
-
 import styles from "./objective-selector.module.css";
 
-function Objective(props) {
+function Objective({ name, iconSrc, text, timeHorizon, selected, handleChange }) {
 
     const handleClick = () => {
-      props.handleChange(props.index);
+      handleChange(name);
     };
-  
+
     return (
       <div
-        className={styles["select-option"] + (props.selected ? styles["selected"] : styles["unselected"])}
+        className={styles["select-option"] + (selected ? styles["selected"] : styles["unselected"])}
         onClick={handleClick}
       >
         <div className={styles["select-option-inner"]}>
           <div className="flex align-center mg-bottom-12px">
             <img
               loading="lazy"
-              src={props.iconSrc}
+              src={iconSrc}
               alt=""
               className="icon medium mg-right-12px"
             />
-            <div className="heading-h6-size text-center">{props.name}</div>
+            <div className="heading-h6-size text-center">{name}</div>
           </div>
           <div className="text-center">
             <div className="text-200 text-center color-neutral-700 mg-bottom-6px">
-              {props.text}
+              {text}
             </div>
-            <div className="text-100">Time Horizon {props.timeHorizon}</div>
+            <div className="text-100">Time Horizon {timeHorizon}</div>
           </div>
         </div>
       </div>
     );
-  }
+}
   
-export default function ObjectiveSelector({ handleProfileChange }) {
+export default function ObjectiveSelector({ handleChange, value }) {
     const objectives = [
       {
         name: "Long-term/Retirement Savings",
@@ -81,14 +79,10 @@ export default function ObjectiveSelector({ handleProfileChange }) {
       }
     ];  
   
-    const [selected, setSelected] = useState(null);
-  
-    const handleChange = (index) => {
-      //set the selected index and update profile data
-      setSelected(index);
-      handleProfileChange({
+    const selectObjective = (name) => {
+      handleChange({
         name: "objective",
-        value: objectives[index].name
+        value: name,
       });
     }
   
@@ -99,13 +93,9 @@ export default function ObjectiveSelector({ handleProfileChange }) {
         {objectives.map((obj, i) => (
           <Objective 
             key={i}
-            index={i}
-            selected={(selected===i)} 
-            name={obj.name}
-            text={obj.text}
-            timeHorizon={obj.timeHorizon}
-            iconSrc={obj.iconSrc}
-            handleChange={handleChange}
+            selected={(value===obj.name)} 
+            handleChange={selectObjective}
+            {...obj}
           />
         ))}
       </div>

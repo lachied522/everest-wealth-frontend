@@ -22,7 +22,7 @@ const columns = [
     },
     {
         name: "Cost",
-        dataName: "cost"
+        dataName: "totalCost"
     },
     {
         name: "Value",
@@ -30,7 +30,7 @@ const columns = [
     },
     {
         name: "Profit",
-        dataName: "profit"
+        dataName: "totalProfit"
     },
     {
         name: "Sector",
@@ -38,14 +38,11 @@ const columns = [
     }
 ]
 
-const ColumnHeader = ({ name, index, sort, setSort }) => {
+const ColumnHeader = ({ name, index, sort, sortPortfolio }) => {
     const { sortCol, descending } = sort;
 
     const onClick = () => {
-        setSort({
-            sortCol: index,
-            descending: sortCol===index? !descending: false,
-        });
+        sortPortfolio(index);
     }
 
     return (
@@ -59,18 +56,15 @@ const ColumnHeader = ({ name, index, sort, setSort }) => {
     )
 }
 
-const TableRow = ({ data, deleteHolding }) => {
+const TableRow = ({ data }) => {
     const symbol = data.symbol?.toUpperCase();
     const name = data.name;
-    const cost = USDollar.format(data.cost? data.cost*data.units: 0);
+    const cost = USDollar.format(data.totalCost);
     const value = USDollar.format(data.value);
     const sector = data.sector;
 
-    const profit =  USDollar.format(data.value - (data.cost? data.cost*data.units: 0));
+    const profit =  USDollar.format(data.totalProfit);
 
-    const onDeleteClick = () => {
-        deleteHolding(data);
-    }
 
     return (
         <div className="portfolio-table-row">
@@ -94,12 +88,6 @@ const TableRow = ({ data, deleteHolding }) => {
             </div>
             <div className="table-item last">
                 <div className="flex align-center">
-                <div className="custom-icon view-icon mg-right-8px"></div>
-                <div className="custom-icon edit-icon mg-right-8px"></div>
-                <div 
-                    className="custom-icon delete-icon"
-                    onClick={onDeleteClick}
-                ></div>
                 </div>
             </div>
         </div>
@@ -115,27 +103,42 @@ export default function PortfolioTable() {
     });
     const [totalValue, setTotalValue] = useState(0);
 
-    useEffect(() => {
-        //sort portfolio
-        if (portfolioData.length === 0) return;
-        const { sortCol, descending } = sort;
-        const dataName = columns[sortCol].dataName;
+    const sortPortfolio = (column) => {
+        if (!portfolioData || portfolioData?.length === 0) return;
+
+        const dataName = columns[column].dataName;
         const newArray = portfolioData?.sort(function (a, b) {
             const valueA = a[dataName] || "";
             const valueB = b[dataName] || "";
             
             //check if value is number
             if (parseFloat(valueA)) {
-                return valueA - valueB;
+                return valueB - valueA;
             }
         
             return valueA.toString().localeCompare(valueB.toString());
         });
-        if (!descending) newArray.reverse();
+        
+
+        if (sort.sortCol===column && sort.descending) {
+            newArray.reverse();
+            setSort({
+                sortCol: column,
+                descending: false,
+            });
+        } else {
+            setSort({
+                sortCol: column,
+                descending: true,
+            });
+        }
+
         setDataArray(newArray);
-    }, [portfolioData, sort]);
+    }
 
     useEffect(() => {
+        //set data array on change in portfolio data
+        setDataArray(portfolioData || []);
         //set total portfolio value
         const newValue = portfolioData?.reduce((acc, obj) => acc + parseFloat(obj.value), 0);
         setTotalValue(newValue || 0);
@@ -165,7 +168,7 @@ export default function PortfolioTable() {
                         name={col.name}
                         index={index}
                         sort={sort}
-                        setSort={setSort}
+                        sortPortfolio={sortPortfolio}
                     />
                 ))}
             </div>
@@ -173,7 +176,6 @@ export default function PortfolioTable() {
                 <TableRow 
                     key={index}
                     data={data}
-                    deleteHolding={deleteHolding}
                 />
             ))}
             {dataArray.length === 0 && (

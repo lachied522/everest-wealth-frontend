@@ -10,7 +10,7 @@ export const useProfileContext = () => {
 export const ProfileProvider = ({ children, initialState }) => {
     const [profileData, setProfileData] = useState(initialState);
 
-    const handleProfileChange = ({ name, value }) => {
+    const updateProfile = ({ name, value }) => {
         setProfileData((prevData) => ({
           ...prevData,
           [name]: value
@@ -18,7 +18,7 @@ export const ProfileProvider = ({ children, initialState }) => {
     }
     
     return (
-        <ProfileContext.Provider value={{ profileData, handleProfileChange }}>
+        <ProfileContext.Provider value={{ profileData, updateProfile }}>
             {children}
         </ProfileContext.Provider>
     )

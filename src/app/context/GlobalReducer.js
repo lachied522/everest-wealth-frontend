@@ -1,4 +1,4 @@
-export default function PortfolioReducer(state, action) {
+export default function GlobalReducer(state, action) {
     switch(action.type) {
         case 'SET_DATA': {
             return action.payload;

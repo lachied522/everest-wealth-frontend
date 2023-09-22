@@ -3,12 +3,12 @@ import { useState } from "react";
 import { useRouter } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
+import { useGlobalContext } from "@/context/GlobalState";
+
 export default function () {
   const router = useRouter();
   const supabase = createClientComponentClient();
-
-  // const [email, setEmail] = useState("");
-  // const [password, setPassword] = useState("");
+  const { setSession } = useGlobalContext();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -22,6 +22,8 @@ export default function () {
         });
         
         if (error) throw new Error(error);
+
+        setSession(data.session);
 
         router.refresh(); //middleware will redirect user
     } catch (e) {

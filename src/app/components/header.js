@@ -37,9 +37,11 @@ export default function Header({ currentPage }) {
                     </div>
                   </div>
                 </div>
-                <div className={styles["logout-icon"]}>
-                  
-                </div>
+                <form action="/auth/signout" method="post">
+                  <button className={styles["logout-icon"]} type="submit">
+                    
+                  </button>
+                </form>
               </div>
             </div>
           </div>
