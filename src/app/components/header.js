@@ -1,6 +1,9 @@
 import styles from "./header.module.css";
 
 export default function Header({ currentPage }) {
+  const today = new Date().toUTCString().slice(5, 16);
+
+
   return (
     <div className={styles["main-container"]}>
       <div className="container-default w-container">
@@ -9,6 +12,7 @@ export default function Header({ currentPage }) {
             <div className="mg-right-24px">
               <div className="text-400 medium color-neutral-800">{currentPage}</div>
             </div>
+            <div>{today}</div>
           </div>
           <div className={styles["right-content"]}>
             <a

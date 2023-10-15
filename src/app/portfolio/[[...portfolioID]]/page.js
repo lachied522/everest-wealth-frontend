@@ -1,9 +1,8 @@
-"use client";
 import PortfolioPage from "./components/portfolio-page";
 import Sidebar from "@/components/sidebar";
 import Header from "@/components/header";
 
-export default async function Page() {
+export default async function Page({ params }) {
 
   return (
       <div className="dashboard-main">

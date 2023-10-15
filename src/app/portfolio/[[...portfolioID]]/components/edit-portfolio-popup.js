@@ -102,20 +102,22 @@ const HoldingRow = ({ data, update, remove }) => {
     );
 };
 
-export default function EditPortfolioPopup({ isOpen, setIsOpen }) {
-  const { portfolioData, universeData, updatePortfolio } = useGlobalContext();
+export default function EditPortfolioPopup({ isOpen, setIsOpen, portfolio }) {
+  const { universeData, updatePortfolio } = useGlobalContext();
   const [searchString, setSearchString] = useState('');
   const [searchHits, setSearchHits] = useState([]);
-  const [allHoldingData, setAllHoldingData] = useState(); //contains all existing holdings and new holdings
+  const [allHoldingData, setAllHoldingData] = useState(portfolio); //contains all existing holdings and new holdings
 
   const closePopup = () => {
     setIsOpen(false);
   };
 
   useEffect(() => {
-    const sortedData = portfolioData?.sort((a, b) => a.symbol.localeCompare(b.symbol)); //sort data alphabetically 
-    setAllHoldingData(sortedData);
-  }, [portfolioData]);
+    if (portfolio) {
+      const sortedData = portfolio.data?.sort((a, b) => a.symbol.localeCompare(b.symbol)); //sort data alphabetically 
+      setAllHoldingData(sortedData);
+    }
+  }, [portfolio]);
 
   const searchStocks = (e) => {
     /**
@@ -154,8 +156,13 @@ export default function EditPortfolioPopup({ isOpen, setIsOpen }) {
     /**
      * when user selects a hit from stock search
      */
-    const newValue = [...allHoldingData, hit];
-    setAllHoldingData(newValue);
+    if (allHoldingData) {
+      const newValue = [...allHoldingData, hit];
+      setAllHoldingData(newValue);
+    } else {
+      setAllHoldingData([hit]);
+    }
+
     //reset search bar
     setSearchString('');
     //clear search hits
@@ -181,9 +188,12 @@ export default function EditPortfolioPopup({ isOpen, setIsOpen }) {
     //check if any data is missing
     const empty = allHoldingData.filter(holding => !holding.hasOwnProperty('units') || holding.units === 0);
     if (empty.length === 0) {
-      if (allHoldingData !== portfolioData) {
+      if (allHoldingData !== portfolio.data) {
         //update portfolio
-        await updatePortfolio(allHoldingData);
+        await updatePortfolio(
+          portfolio.id,
+          allHoldingData
+        );
       }
       //close the popup
       closePopup();
@@ -192,7 +202,7 @@ export default function EditPortfolioPopup({ isOpen, setIsOpen }) {
 
   const cancelEdit = () => {
     //reset
-    setAllHoldingData(portfolioData);
+    setAllHoldingData(portfolio.data);
     //close the popup
     closePopup();
   }
@@ -217,7 +227,7 @@ export default function EditPortfolioPopup({ isOpen, setIsOpen }) {
           <div className="w-form">
             <form>
               <div className="position-relative">
-                {searchHits.length > 0 && (
+                {searchString.length > 0 && (
                   <div className="holding-search-results">
                     {searchHits.map((hit, index) => (
                       <SearchHit

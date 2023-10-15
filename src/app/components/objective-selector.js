@@ -59,7 +59,7 @@ export default function ObjectiveSelector({ handleChange, value }) {
       {
         name: "First Home",
         text: "Save for a deposit on your first home",
-        timeHorizon: "5-7 years",
+        timeHorizon: "4-5 years",
         iconSrc:
           "https://uploads-ssl.webflow.com/64afbac816bb17eb2fdc3f03/64afbac916bb17eb2fdc4180_icon-brix-template-Increase%20Graph.svg",
       },

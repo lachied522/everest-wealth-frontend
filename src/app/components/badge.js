@@ -1,4 +1,4 @@
-const Badge = (type) => {
+const Badge = ({ type }) => {
     return (
       <>
         {type==="buy"? (

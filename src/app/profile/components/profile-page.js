@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 
 import { useGlobalContext } from "@/context/GlobalState";
-import ObjectiveSelector from "./objective-selector";
+import ObjectiveSelector from "@/components/objective-selector";
 import RangeSlider from "./range-slider";
 import IndustryPreferences from "./industry-preferences";
 import styles from "./profile-page.module.css";
@@ -508,11 +508,11 @@ export default function ProfilePage() {
                     What proportion of your portfolio do you wish to invest in
                     international stocks?
                   </div>
-                  <RangeSlider name="international" intialValue={data?.international || 50} />
+                  <RangeSlider name="international" handleChange={handleChange} value={data?.international || 50} />
                   <div className="text-400 color-neutral-800">
                     What proportion of your portfolio do you wish to invest in ETFs?
                   </div>
-                  <RangeSlider name="passive" intialValue={data?.passive || 50} />
+                  <RangeSlider name="passive" handleChange={handleChange} value={data?.passive || 50} />
                 </div>
                 <div className="text-400 color-neutral-800">
                     Do you have any preferences?

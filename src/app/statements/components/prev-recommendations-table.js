@@ -166,7 +166,6 @@ const Recommendation = ({ rec }) => {
 }
 
 export default function PrevRecommendationsTable({ data }) {
-  console.log(data);
 
   return (
     <div

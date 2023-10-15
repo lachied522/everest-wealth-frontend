@@ -29,15 +29,30 @@ function getNewAdvice(data, session) {
     }
 }    
 
-export default function NewAdvicePopup({ isOpen, setIsOpen}) {
-    const { portfolioData, profileData, session } = useGlobalContext(); //raw portfolio data
+export default function NewAdvicePopup({ isOpen, setIsOpen, portfolio }) {
+    const { session } = useGlobalContext(); //raw portfolio data
     const [adviceType, setAdviceType] = useState(''); //none, deposit, withdraw
     const [amount, setAmount] = useState(0);
     
-
     //calculate current portfolio value
-    const currentValue = portfolioData?.reduce((acc, obj) => acc + parseFloat(obj.value), 0) || 0;
-    const [proposedValue, setProposedValue] = useState(currentValue);
+    
+    const [currentValue, setCurrentValue] = useState(0)
+    const [proposedValue, setProposedValue] = useState(0);
+
+    useEffect(() => {
+        const v = portfolio?.data?.reduce((acc, obj) => acc + parseFloat(obj.value), 0) || 0;
+        setCurrentValue(v);
+        setProposedValue(v);
+        setAmount(0);
+    }, [portfolio]);
+
+    useEffect(() => {
+        if (adviceType === 'withdraw') {
+            setProposedValue(Math.max(currentValue - parseFloat(amount), 0));
+        } else {
+            setProposedValue(currentValue + parseFloat(amount));
+        }
+    }, [adviceType, amount]);
 
     const closePopup = () => {
         setIsOpen(false);
@@ -48,21 +63,11 @@ export default function NewAdvicePopup({ isOpen, setIsOpen}) {
         setAmount(parseFloat(input));
     }
 
-    useEffect(() => {
-        if (adviceType === 'withdraw') {
-            setProposedValue(Math.max(currentValue - parseFloat(amount), 0));
-        } else {
-            setProposedValue(currentValue + parseFloat(amount));
-        }
-    }, [adviceType, amount]);
-
     const onSubmit = () => {
         getNewAdvice({
             value: proposedValue,
             reason: adviceType,
-            n: -1,
-            portfolio: portfolioData,
-            profile: profileData,
+            portfolio_id: portfolio.id,
         }, session);
         //closePopup();
     }

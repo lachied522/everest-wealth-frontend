@@ -1,38 +1,21 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+import { useGlobalContext } from "@/context/GlobalState";
 
 import Badge from "./badge";
 
-const TransactionRow = ({ transaction }) => {
-
-  const { symbol, difference } = transaction;
+const TransactionRow = ({ transaction: { symbol, name, difference, last_price } }) => {
 
   return (
     <div className="recommendations-table-row">
+      
       <div
         id="w-node-_1c004669-7206-f90e-7b1a-bc8e4ee0042a-2fdc3ff5"
         className="table-item"
       >
         <div className="flex align-center">
-          <div className="mg-bottom-0 mg-right-12px hidden-on-mbl w-form">
-            <form>
-              <label className="w-checkbox checkbox-field-wrapper">
-                <div className="w-checkbox-input w-checkbox-input--inputType-custom checkbox"></div>
-                <input
-                  type="checkbox"
-                  name="checkbox-2"
-                  id="checkbox-2"
-                  data-name="Checkbox 2"
-                />
-                <span
-                  className="hidden-on-desktop w-form-label"
-                  htmlFor="checkbox-2"
-                >
-                  Placeholder
-                </span>
-              </label>
-            </form>
-          </div>
+          <Badge type={difference > 0? "buy": "sell"}/>
           <div className="stock-data symbol">{symbol.toUpperCase()}</div>
         </div>
       </div>
@@ -40,37 +23,28 @@ const TransactionRow = ({ transaction }) => {
         id="w-node-_1c004669-7206-f90e-7b1a-bc8e4ee0043d-2fdc3ff5"
         className="table-item"
       >
-        <div className="table-item-mobile-caption">
-          <div className="text-100 medium text-uppercase">Customer</div>
-        </div>
         <div
           id="w-node-_1c004669-7206-f90e-7b1a-bc8e4ee00441-2fdc3ff5"
           className="stock-data name"
         >
-          John Carter
+          {name ?? ""}
         </div>
       </div>
       <div
         id="w-node-_1c004669-7206-f90e-7b1a-bc8e4ee00443-2fdc3ff5"
         className="table-item"
       >
-        <div className="table-item-mobile-caption">
-          <div className="text-100 medium text-uppercase">Date</div>
-        </div>
         <div
           id="w-node-_1c004669-7206-f90e-7b1a-bc8e4ee00447-2fdc3ff5"
           className="stock-data cost"
         >
-          $10,000
+          {Math.round(difference)}
         </div>
       </div>
       <div
         id="w-node-_1c004669-7206-f90e-7b1a-bc8e4ee00449-2fdc3ff5"
         className="table-item"
       >
-        <div className="table-item-mobile-caption">
-          <div className="text-100 medium text-uppercase">Amount</div>
-        </div>
         <div
           id="w-node-_1c004669-7206-f90e-7b1a-bc8e4ee0044d-2fdc3ff5"
           className="stock-data value"
@@ -83,8 +57,7 @@ const TransactionRow = ({ transaction }) => {
         className="table-item"
       >
         <div className="flex gap-column-24px">
-          <Badge type={difference > 0? "buy": "sell"}/>
-          <div className="stock-data units">{Math.round(Math.abs(difference)).toLocaleString()}</div>
+          <div className="stock-data units">${Math.round(Math.abs(last_price * difference)).toLocaleString()}</div>
         </div>
       </div>
       <div
@@ -97,45 +70,48 @@ const TransactionRow = ({ transaction }) => {
           className="display-inline-block"
         >
           <div className="custom-icon view-soa"></div>
-          <div className="popup-wrapper">
-            <div id="add-holding-popup" className="popup">
-              <div
-                data-w-id="b769fd57-11ac-4a78-32e8-eac03bc604b2"
-                className="close-button-popup-module"
-              >
-                
-              </div>
-              <div className="grid-2-columns gap-18px _2-columns-mbl">
-                <a
-                  id="w-node-b769fd57-11ac-4a78-32e8-eac03bc604b5-2fdc3ff5"
-                  data-w-id="b769fd57-11ac-4a78-32e8-eac03bc604b5"
-                  href="#"
-                  className="btn-secondary small w-button"
-                >
-                  Cancel
-                </a>
-                <a
-                  id="add-holding"
-                  href="#"
-                  className="btn-primary small w-node-b769fd57-11ac-4a78-32e8-eac03bc604b7-2fdc3ff5 w-button"
-                >
-                  Done
-                </a>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
   );
 };
 
-export default function RecommendationsTable({ data }) {
-  
-  const transactions = data.transactions || [];
+export default function RecommendationsTable({ portfolio, advice }) {
+  const { session, updatePortfolio, updateAdvice } = useGlobalContext();
+  const [currentAdvice, setCurrentAdvice] = useState({
+    transactions: []
+  });
+  const [total, setTotal] = useState(0);
+  const [brokerage, setBrokerage] = useState(-100);
+    
+  useEffect(() => {
+    if (advice) {
+      setCurrentAdvice(advice);
+      //calculate total value (negative = sell, positive = buy)
+      setTotal(advice.transactions?.reduce((acc, obj) => acc - parseFloat(obj.difference), 0));
+    }
+  }, [advice]);
 
-  //calculate total value
-  const total = 10000;
+  const confirmTransactions = async () => {
+    const res = await fetch('api/confirm-advice', {
+        method: "POST",
+        body: JSON.stringify(advice),
+        headers: {
+            "Content-Type": "application/json",
+            token: session.access_token,
+        }
+    });
+    return;
+    if (!portfolio) return;
+    //update advice to 'actioned'
+    // const index = adviceData.indexOf(currentAdvice);
+    // adviceData[index].actioned = true;
+    // await updateAdvice(adviceData);
+    //remove current recommendation
+    setCurrentAdvice({
+      transactions: []
+    });
+  }
 
   return (
     <div
@@ -146,6 +122,13 @@ export default function RecommendationsTable({ data }) {
         <div className="text-300 medium color-neutral-800">CURRENT RECOMMENDATION</div>
       </div>
       <div className="recommendations-table-row header">
+        <div
+          className="table-column-header"
+        >
+          <div className="text-100 medium text-uppercase text-align-left">
+            Recommended transaction
+          </div>
+        </div>
         <div className="flex align-center">
           <div className="table-column-header sort-column descending">
             <div className="text-100 medium text-uppercase">Symbol</div>
@@ -167,27 +150,19 @@ export default function RecommendationsTable({ data }) {
           <div className="text-100 medium text-uppercase">Price</div>
         </div>
         <div
-          id="w-node-_1c004669-7206-f90e-7b1a-bc8e4ee00424-2fdc3ff5"
-          className="table-column-header"
-        >
-          <div className="text-100 medium text-uppercase text-align-left">
-            Recommended transaction
-          </div>
-        </div>
-        <div
           id="w-node-_6c0fb0b5-73db-3fc0-f04f-37c224c1bcda-2fdc3ff5"
           className="table-column-header"
         >
           <div className="text-100 medium text-uppercase">Soa</div>
         </div>
       </div>
-      {transactions.map((transaction, index) => (
+      {currentAdvice.transactions?.map((transaction, index) => (
         <TransactionRow 
           key={index}
           transaction={transaction} 
         />
       ))}
-      {transactions.length !== 0 && (
+      {currentAdvice.transactions?.length !== 0 && (
         <div className="recommendations-table-add-container">
           <div
             id="w-node-_83f1f5d0-ba11-e66d-bbfc-5311259b8a18-2fdc3ff5"
@@ -204,7 +179,19 @@ export default function RecommendationsTable({ data }) {
                 id="w-node-d2aed6f9-bad4-2de3-1338-f0c43c8f40f8-2fdc3ff5"
                 className="recommendations-summary brokerage"
               >
-                $0
+                ${brokerage.toLocaleString()}
+              </div>
+              <div
+                id="w-node-_31366139-2879-9f70-b0c1-2605dde4e3d0-2fdc3ff5"
+                className="stock-data"
+              >
+                Gross
+              </div>
+              <div
+                id="w-node-_86346ebe-1460-b30f-a601-4bd9df445ec5-2fdc3ff5"
+                className="recommendations-summary net"
+              >
+                ${total.toLocaleString()}
               </div>
               <div
                 id="w-node-_31366139-2879-9f70-b0c1-2605dde4e3d0-2fdc3ff5"
@@ -216,20 +203,19 @@ export default function RecommendationsTable({ data }) {
                 id="w-node-_86346ebe-1460-b30f-a601-4bd9df445ec5-2fdc3ff5"
                 className="recommendations-summary net"
               >
-                ${total.toLocaleString()}
+                ${(total-brokerage).toLocaleString()}
               </div>
             </div>
-            <a
-              id="add-recommendations"
-              href="#"
+            <button
               className="btn-primary small w-button"
+              onClick={confirmTransactions}
             >
               Make These Changes
-            </a>
+            </button>
           </div>
         </div>
       )}
-      {transactions.length === 0 && (
+      {(!currentAdvice.transactions | currentAdvice.transactions?.length === 0) && (
         <div className="recommendations-table-empty-container">
           <div className="text-300">No Recommendations</div>
         </div>

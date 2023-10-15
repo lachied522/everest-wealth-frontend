@@ -23,17 +23,28 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@/components/*": ["src/app/components/*"],
-      "@/context/*": ["src/app/context/*"],
-      "@/layouts/*": ["src/app/layouts/*"]
-    }
+      "@/components/*": [
+        "src/app/components/*"
+      ],
+      "@/context/*": [
+        "src/app/context/*"
+      ],
+      "@/layouts/*": [
+        "src/app/layouts/*"
+      ]
+    },
+    "strictNullChecks": true
   },
   "include": [
     "next-env.d.ts",
     ".next/types/**/*.ts",
     "**/*.ts",
-    "**/*.tsx"
-, "src/app/portfolio/page.js", "src/app/portfolio/components/portfolio-table-row.js", "src/app/portfolio/components/portfolio-table.js", "src/app/layout.js"  ],
+    "**/*.tsx",
+    "src/app/portfolio/[[...portfolioID]]/page.js",
+    "src/app/portfolio/[[...portfolioID]]/components/portfolio-table-row.js",
+    "src/app/portfolio/[[...portfolioID]]/components/portfolio-table.js",
+    "src/app/layout.js"
+  ],
   "exclude": [
     "node_modules"
   ]

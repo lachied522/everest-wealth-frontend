@@ -23,8 +23,6 @@ export default function () {
         
         if (error) throw new Error(error);
 
-        setSession(data.session);
-
         router.refresh(); //middleware will redirect user
     } catch (e) {
         console.log(e);

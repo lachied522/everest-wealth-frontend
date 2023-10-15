@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useGlobalContext } from "@/context/GlobalState";
-import RecommendationsTable from './recommendations-table';
+import RecommendationsTable from '../../components/recommendations-table';
 import PrevRecommendationsTable from "./prev-recommendations-table";
 
 const checkDate = (dateTimeString) => {
@@ -15,8 +15,10 @@ const checkDate = (dateTimeString) => {
 }
 
 export default function StatementsPage() {
-  const { portfolioData, adviceData, universeData } = useGlobalContext();
+  const { adviceData } = useGlobalContext();
   const [currentRec, setCurrentRec] = useState([]); //current recommendations
+
+  console.log(adviceData);
 
   //get current recommendations if any
   useEffect(() => {

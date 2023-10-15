@@ -4,98 +4,17 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 
 import GlobalReducer from "./GlobalReducer";
 
-
-const parsePortfolioData = (portfolioData) => {
-    /**
-     * where per share holding data is given, calculate total value
-     */ 
-    
-    const newArray = portfolioData.map(data => {
-        const price = data.last_price? data.last_price: data.price; //conform 'last_price' to 'price'
-        const totalCost = data.cost? data.cost * data.units: 0;
-        const totalProfit = (data.cost? (price - data.cost): price) * data.units;
-        return { ...data, price, totalCost, totalProfit };
-    });
-
-    return newArray;
-}
-
-const fetchData = async (session, supabase) => {
-    //fetch universe data
-    const { data: universeData, error: universeError } = await supabase
-    .from("universe")
-    .select("*");
-    
-    //fetch user data
-    const { data: userData, error: userError } = await supabase
-    .from("users")
-    .select("portfolio, profiles!users_profile_fkey(*), advice(*)")
-    .eq("id", session.user.id);
-  
-    //fetch profile data
-    // const { data: profileData, error: profileError } = await supabase
-    // .from("profiles")
-    // .select("*")
-    // .eq("user_id", session.user.id)
-    // .order("created_at", { ascending: false })
-    // .limit(1);
-  
-    if (userError) console.log(userError);
-    console.log('data fetched');
-
-    return [
-      userData, 
-      universeData
-    ];    
-}
-
 const GlobalContext = createContext();
 
 export const useGlobalContext = () => {
     return useContext(GlobalContext);
 }
 
-export const GlobalProvider = ({ children }) => {
+export const GlobalProvider = ({ children, session, userData, universeData }) => {
     const supabase = createClientComponentClient();
-    const [session, setSession] = useState(null);
-    const [universeData, setUniverseData] = useState(null); 
-    const [portfolioState, portfolioDispatch] = useReducer(GlobalReducer, null); //use reducer for portfolio data
-    const [profileData, setProfileData] = useState(null);
-    const [adviceData, setAdviceData] = useState(null);
-
-    useEffect(() => {
-        //get session
-        const getSession = async () => {
-            const {
-                data,
-            } = await supabase.auth.getSession();
-            setSession(data.session);
-        }
-        getSession();
-    }, [supabase]);
-
-    useEffect(() => {
-        const getData = async () => {
-            const [user, universe] = await fetchData(session, supabase);
-            //set portfolio state
-            portfolioDispatch({
-                type: "SET_DATA",
-                payload: parsePortfolioData(user[0]['portfolio'])
-            });
-            //set profile data
-            setProfileData(user[0]['profiles']);
-            //set advice data
-            setAdviceData(user[0]['advice']);
-            //set universe data
-            setUniverseData(universe);
-        }
-
-        //if session exists and data is null, fetch data
-        if (session && !universeData) {
-            getData()
-            .catch((e) => console.log(e));
-        }
-    }, [session]);
+    const [portfolioState, portfolioDispatch] = useReducer(GlobalReducer, userData.portfolios); //use reducer for portfolio data
+    const [profileData, setProfileData] = useState(userData.profiles);
+    const [adviceData, setAdviceData] = useState(userData.advice);
 
     const commitPortfolio = async (portfolioData) => {
         if (!session) return;
@@ -104,18 +23,39 @@ export const GlobalProvider = ({ children }) => {
         .update({ portfolio: portfolioData })
         .eq('id', session.user.id)
         .select();
-        
+
         if (error) console.log(`Error committing changes: ${error}`);
     }
    
-    const updatePortfolio = async (portfolioData) => {
+    const updatePortfolio = async (id, data) => {
         //update state
         portfolioDispatch({
-            type: "SET_DATA",
-            payload: parsePortfolioData(portfolioData),
+            type: "UPDATE_DATA",
+            payload: {
+                id,
+                data,
+            },
         });
         //commit changes to DB
-        await commitPortfolio(portfolioData);
+        //await commitPortfolio(portfolioData);
+    }
+
+    const updatePortfolioName = async (id, name) => {
+        portfolioDispatch({
+            type: 'UPDATE_NAME',
+            payload: {
+                id,
+                name,
+            },
+        });
+        //commit to DB
+        const { data, error } = await supabase
+        .from('portfolios')
+        .update({ name: name })
+        .eq('id', id)
+        .select();
+
+        if (error) console.log(`Error committing changes: ${error}`);
     }
 
     const commitProfile = async (profileData) => {
@@ -140,6 +80,11 @@ export const GlobalProvider = ({ children }) => {
         await commitProfile(profileData)
     }
 
+    const updateAdvice = async (adviceData) => {
+        //update state
+        setAdviceData(adviceData);
+    }
+
     return (
         <GlobalContext.Provider value={{
             session, 
@@ -147,9 +92,10 @@ export const GlobalProvider = ({ children }) => {
             profileData,
             adviceData,
             universeData,
-            setSession,
             updatePortfolio,
-            updateProfile
+            updatePortfolioName,
+            updateProfile,
+            updateAdvice
         }}>
             {children}
         </GlobalContext.Provider>

@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 
@@ -9,7 +9,12 @@ import styles from "./sidebar.module.css";
 const pages = [
   {
     name: "Dashboard",
-    href: "/portfolio",
+    href: "/dashboard",
+    icon: "",
+  },
+  {
+    name: "Portfolio",
+    href: "/portfolio/",
     icon: "",
   },
   {
@@ -54,7 +59,6 @@ const NavLink = ({ page, activePath }) => {
 
 export default function SideBar() {
   const pathname = usePathname();
-  const { isReady } = useRouter();
   const [activePath, setActivePath] = useState();
 
   useEffect(() => {
@@ -75,10 +79,11 @@ export default function SideBar() {
         <div>
           <div className={styles["sidebar-logo-section-container"]}>
             <a href="/" className={styles["sidebar-logo-wrapper"]}>
-              <img
-                alt="Dashly X Webflow Template - Logo"
-                src="https://uploads-ssl.webflow.com/64afbac816bb17eb2fdc3f03/64afbac916bb17eb2fdc4107_dashly-webflow-template-logo.svg"
-                className="sidebar-logo"
+              <Image
+                src="/palladian.svg"
+                alt="Palladian Logo"
+                width={100}
+                height={100}
               />
             </a>
           </div>
