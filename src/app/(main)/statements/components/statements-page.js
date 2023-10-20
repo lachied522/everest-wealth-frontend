@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useGlobalContext } from "@/context/GlobalState";
-import RecommendationsTable from '../../components/recommendations-table';
+import RecommendationsTable from '../../../components/recommendations-table';
 import PrevRecommendationsTable from "./prev-recommendations-table";
 
 const checkDate = (dateTimeString) => {

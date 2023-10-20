@@ -12,9 +12,9 @@ export const useGlobalContext = () => {
 
 export const GlobalProvider = ({ children, session, userData, universeData }) => {
     const supabase = createClientComponentClient();
-    const [portfolioState, portfolioDispatch] = useReducer(GlobalReducer, userData.portfolios); //use reducer for portfolio data
-    const [profileData, setProfileData] = useState(userData.profiles);
-    const [adviceData, setAdviceData] = useState(userData.advice);
+    const [portfolioState, portfolioDispatch] = useReducer(GlobalReducer, userData?.portfolios); //use reducer for portfolio data
+    const [profileData, setProfileData] = useState(userData?.profiles);
+    const [adviceData, setAdviceData] = useState(userData?.advice);
 
     const commitPortfolio = async (portfolioData) => {
         if (!session) return;

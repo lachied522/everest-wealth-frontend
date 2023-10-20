@@ -1,119 +1,168 @@
 "use client";
+import { useState, useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
 
-import styles from "./sidebar.module.css";
+import { motion } from "framer-motion";
+
+import { cn } from "@/components/lib/utils";
+
+import { BiHomeAlt2, BiBriefcaseAlt } from "react-icons/bi";
+import {
+  LuFileLineChart,
+  LuFileBarChart,
+  LuUser2,
+  LuSettings
+ } from "react-icons/lu";
+
+import { useSidebarContext } from "@/context/SidebarState";
 
 const pages = [
   {
     name: "Dashboard",
     href: "/dashboard",
-    icon: "",
+    Icon: BiHomeAlt2,
   },
   {
     name: "Portfolio",
-    href: "/portfolio/",
-    icon: "",
+    href: "/portfolio",
+    Icon: BiBriefcaseAlt,
   },
   {
     name: "Performance",
     href: "",
-    icon: "",
+    Icon:  LuFileLineChart,
   },
   {
     name: "Advice",
     href: "/statements",
-    icon: "",
+    Icon: LuFileBarChart,
   },
   {
     name: "Profile",
     href: "/profile",
-    icon: "",
+    Icon: LuUser2,
   },
   // {
   //   name: "Settings",
   //   href: "",
-  //   icon: ""
+  //   Icon: LuSettings
   // }
 ];
 
 const NavLink = ({ page, activePath }) => {
+  const active = page.href === activePath;
   return (
     <Link
-      className={
-        page.href === activePath
-          ? styles["sidebar-nav-list-item-current"]
-          : styles["sidebar-nav-list-item-other"]
-      }
       href={page.href}
+      className={cn(
+        "w-full cursor-pointer text-[#303350] flex flex-col items-center p-3 gap-3 text-base no-underline transition-none hover:text-[#1476ff]",
+        active && "text-[#1476ff]"
+      )}
     >
-      <div className={styles["sidebar-text-container"]}>
-        <div className={styles["sidebar-icon"]}>{page.icon}</div>
-        <div className={styles["sidebar-text"]}>{page.name}</div>
-      </div>
+      <page.Icon size={25} />
+      {page.name}
     </Link>
   );
 };
 
 export default function SideBar() {
   const pathname = usePathname();
-  const [activePath, setActivePath] = useState();
+  const sidebarRef = useRef(null);
+
+  const { 
+    sidebarOpen: isOpen, 
+    setSidebarOpen: setIsOpen, 
+    isMobile 
+  } = useSidebarContext();
+
+  const closeSidebarOnOutsideClick = (event) => {
+    // on mobile, close sidebar when user clicks outside
+    if (isMobile && isOpen && sidebarRef.current && !sidebarRef.current.contains(event.target)) {
+      setIsOpen(false);
+    }
+  };
 
   useEffect(() => {
-    setActivePath(pathname);
+    if (isOpen) {
+      // add a click event listener to the document to close the sidebar on outside click
+      document.addEventListener('click', closeSidebarOnOutsideClick);
+    } else {
+      // remove the event listener when the sidebar is closed
+      document.removeEventListener('click', closeSidebarOnOutsideClick);
+    }
+
+    return () => {
+      // clean up the event listener when the component unmounts
+      document.removeEventListener('click', closeSidebarOnOutsideClick);
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
+    // close sidebar on nav click
+    if(isMobile) setIsOpen(false);
   }, [pathname]);
 
-  return (
+  return (    
     <>
-      <div
-        data-animation="over-left"
-        data-collapse="medium"
-        data-duration="400"
-        data-easing="ease"
-        data-doc-height="1"
+      {isMobile && (
+        <div 
+          className={cn(
+            "z-[499] bg-slate-700 justify-center items-center fixed inset-0 opacity-50 hidden",
+            isOpen && "flex"
+          )}
+        />
+      )}
+      <aside
+        ref={sidebarRef}
         role="banner"
-        className={styles["sidebar-wrapper"]}
+        className={cn(
+          "z-[500] h-screen max-w-[120px] bg-white border-r border-r-slate-50 px-5 fixed m-0 overflow-auto shadow-sm shadow-slate-400 transition-all ease-in-out duration-300 translate-x-0",
+          !isOpen && "translate-x-[-100%]"
+        )}
       >
         <div>
-          <div className={styles["sidebar-logo-section-container"]}>
-            <a href="/" className={styles["sidebar-logo-wrapper"]}>
+          <div className="min-h-[74px] content-center justify-center flex py-[22px]">
+            <Link
+              href="/"
+              className="max-w-[160px] transform transition duration-300 relative hover:scale-110"
+            >
               <Image
                 src="/palladian.svg"
                 alt="Palladian Logo"
-                width={100}
-                height={100}
+                width={48}
+                height={48}
               />
-            </a>
+            </Link>
           </div>
           <div>
-            <nav role="navigation" className={styles["sidebar-nav-menu"]}>
-              <div className={styles["sidebar-menu-wrapper"]}>
-                <div role="list" className={styles["sidebar-nav-menu-list"]}>
+            <nav role="navigation">
+              <div className="w-full flex flex-col gap-2 py-4">
+                <div role="list" className="w-full flex gap-2 flex-col">
                   {pages.map((page, index) => (
-                    <NavLink key={index} page={page} activePath={activePath} />
+                    <NavLink key={index} page={page} activePath={pathname} />
                   ))}
                 </div>
                 <div className="divider _40px bg-neutral-300"></div>
-                <div role="list" className={styles["sidebar-nav-menu-list"]}>
-                  <li className={styles["sidebar-nav-list-item-other"]}>
-                    <div className={styles["sidebar-text-container"]}>
-                      <div className={styles["sidebar-icon"]}></div>
-                      <div className={styles["sidebar-text"]}>Settings</div>
-                    </div>
-                  </li>
+                <div role="list" className="w-full flex gap-2 flex-col">
+                  <Link
+                    href={"/"}
+                    className={cn(
+                      "w-full cursor-pointer text-[#303350] flex flex-col items-center p-3 gap-3 text-base no-underline transition-none hover:text-[#1476ff]",
+                      "/settings" === pathname && "text-[#1476ff]"
+                    )}
+                  >
+                    <LuSettings size={25}/>
+                    Settings
+                  </Link>
                 </div>
               </div>
             </nav>
-            <div className={styles["hamburger-menu-wrapper"]}>
-              <div className={styles["hamburger-menu-bar"]} />
-              <div className={styles["hamburger-menu-bar"]} />
-            </div>
           </div>
         </div>
-      </div>
-      <div className="sidebar-spacer" />
+      </aside>
+      {!isMobile && <div className="w-[120px]" />}
     </>
   );
 }

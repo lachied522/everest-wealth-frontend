@@ -1,14 +1,16 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { Input } from "@/components/ui/input"
+import { Skeleton } from "@/components/ui/skeleton";
 import { LuPencil } from "react-icons/lu";
 
 import { useGlobalContext } from "@/context/GlobalState";
 
-
 export default function PortfolioName({ portfolio }) {
     const { updatePortfolioName } = useGlobalContext(); //raw portfolio data
+    const inputRef = useRef(null);
 
-    const [name, setName] = useState(portfolio?.name || "");
+    const [name, setName] = useState(portfolio?.name);
     const [isEdit, setIsEdit] = useState(false);
 
     const onChange = (e) => {
@@ -20,10 +22,12 @@ export default function PortfolioName({ portfolio }) {
             if (e.key === 'Enter') {
                 // user pressed Enter, save the changes
                 setIsEdit(false);
-                await updatePortfolioName(
-                    portfolio.id,
-                    e.target.value
-                );
+                if (e.target.value !== portfolio.name && e.target.value.length < 20) {
+                    await updatePortfolioName(
+                        portfolio.id,
+                        e.target.value
+                    );
+                }
             } else if (e.key === 'Escape') {
                 // cancel edit
                 setIsEdit(false);
@@ -37,13 +41,35 @@ export default function PortfolioName({ portfolio }) {
         setName(portfolio?.name);
     }, [portfolio]);
 
+    useEffect(() => {
+        if (isEdit) {
+          // focus the input element when isEdit becomes true
+          inputRef.current.focus();
+        }
+      }, [isEdit]);
+
     return (
-        <div className="flex align-center">
-            <LuPencil 
-                className="heading-h4-size color-neutral-700 mg-right-6px" 
-                onClick={() => setIsEdit(!isEdit)}
-            />
-            <input disabled={!isEdit} className="heading-h4-size mg-bottom-0" value={name} onChange={onChange} onKeyDown={handleKeyDown}/>
-        </div>
+       <>
+        {name ? (
+            <div className="flex items-center justify-items-stretch gap-4 sm:gap-2">
+                <LuPencil 
+                    className="text-lg text-slate-800 cursor-pointer hover:scale-110" 
+                    size={20}
+                    onClick={() => setIsEdit(!isEdit)}
+                />
+                <Input
+                    ref={inputRef}
+                    disabled={!isEdit}
+                    className="text-lg w-[200px] sm:w=[80px] border-0 bg-transparent text-slate-800 disabled:cursor-text disabled:opacity-100"
+                    value={name}
+                    maxLength={20}
+                    onChange={onChange} 
+                    onKeyDown={handleKeyDown}
+                />
+            </div>
+        ) : (
+            <Skeleton className="w-[240px] sm:w=[80px] h-10"/>
+        )}
+        </>
     )
 }
