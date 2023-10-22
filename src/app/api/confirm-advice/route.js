@@ -7,6 +7,7 @@ function updatePortfolio(currentPortfolio, transactions) {
     const newPortfolio = [...currentPortfolio]; //create copy of current portfolio
     const symbols = Array.from(newPortfolio, (obj) => { return obj.symbol });
     for (const { symbol, units, last_price } of transactions) {
+      if (units===0) continue; //prevent zero unit holdings
       const index = symbols.indexOf(symbol);
       if (index > -1) {
         //existing holding
@@ -14,7 +15,7 @@ function updatePortfolio(currentPortfolio, transactions) {
         newPortfolio[index] = {
           ...holding,
           symbol: symbol,
-          units: units,
+          units: Math.max(holding.units+units,0),
           cost: last_price,
         }
       } else {
@@ -22,6 +23,7 @@ function updatePortfolio(currentPortfolio, transactions) {
           symbol: symbol,
           units: units,
           cost: last_price,
+          locked: false,
         })
       }
     };
@@ -57,8 +59,7 @@ export async function POST(req) {
     );
 
     //update portfolio data and set advice to 'actioned'
-
-    const { error: commitError } = await supabase
+    const { data, error: commitError } = await supabase
     .from('portfolios')
     .update({ data: newPortfolio })
     .eq('id', body.portfolio_id)
@@ -94,8 +95,6 @@ export async function POST(req) {
     // .catch(error => console.error('Transaction failed:', error));
 
 
-    return new Response('', {
-        status: 200,
-    });
+    return Response.json(data);
     //return NextResponse.redirect(new URL(`/portfolio/${res.id}`, req.url));
 }

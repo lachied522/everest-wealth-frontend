@@ -20,46 +20,25 @@ import { cn } from "@/components/lib/utils";
 
 import { useGlobalContext } from "@/context/GlobalState";
 
-const WEB_SERVER_BASE_URL = process.env.NEXT_PUBLIC_WEB_SERVER_BASE_URL;
-
 const USDollar = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
 });
 
-function getNewAdvice(data, session) {
-    const url = `${WEB_SERVER_BASE_URL}/new_advice/${session.user.id}`;
-    try {
-        fetch(url, {
-            method: "POST",
-            body: JSON.stringify(data),
-            headers: {
-                "Content-Type": "application/json",
-                token: session.access_token,
-            }
-        })
-        .then(response => response.json())
-        .then(data => console.log(data));
-    } catch {
-        //pass
-    }
-}    
 
-export default function NewAdvicePopup({ portfolio }) {
+export default function NewAdvicePopup({ portfolio, onSubmit }) {
     const { session } = useGlobalContext(); //raw portfolio data
     const [adviceType, setAdviceType] = useState('deposit'); //none, deposit, withdraw
-    const [amount, setAmount] = useState(0);
-    
-    //calculate current portfolio value
-    
+    const [amount, setAmount] = useState(0);    
     const [currentValue, setCurrentValue] = useState(0)
     const [proposedValue, setProposedValue] = useState(0);
 
     useEffect(() => {
-        const v = portfolio?.data?.reduce((acc, obj) => acc + parseFloat(obj.value), 0) || 0;
-        setCurrentValue(v);
-        setProposedValue(v);
-        setAmount(0);
+        if (portfolio) {
+            setCurrentValue(parseFloat(portfolio.totalValue));
+            setProposedValue(parseFloat(portfolio.totalValue));
+            setAmount(0);
+        }
     }, [portfolio]);
 
     useEffect(() => {
@@ -81,21 +60,19 @@ export default function NewAdvicePopup({ portfolio }) {
         setAmount(0);
     }
 
-    const onSubmit = () => {
-        getNewAdvice({
+    const onAdviceSubmit = () => {
+        onSubmit({
             value: proposedValue,
             reason: adviceType,
             portfolio_id: portfolio.id,
-        }, session);
+        });
     }
 
     return (
         <Dialog>
             <DialogTrigger asChild>
                 <Button>
-                    <LuTrendingUp 
-                        className="mr-2"
-                    />
+                    <LuTrendingUp className="mr-2" />
                     Get Advice
                 </Button>
             </DialogTrigger>
@@ -165,12 +142,14 @@ export default function NewAdvicePopup({ portfolio }) {
                             Cancel
                         </Button>
                     </DialogClose>
-                    <Button
-                        type="button"
-                        onClick={onSubmit}
-                    >
-                        Submit
-                    </Button>
+                    <DialogClose asChild>
+                        <Button
+                            type="button"
+                            onClick={onAdviceSubmit}
+                        >
+                            Submit
+                        </Button>
+                    </DialogClose>
                 </div>
             </form>
             </DialogContent>

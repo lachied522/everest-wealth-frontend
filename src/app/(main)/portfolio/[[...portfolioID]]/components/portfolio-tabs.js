@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, forwardRef } from "react";
 
 import { Button } from "@/components/ui/button";
 
@@ -7,9 +7,12 @@ import { cn } from "@/components/lib/utils";
 
 import { useUniverseContext } from "@/context/UniverseState";
 
-import RecommendationsTable from "@/components/recommendations-table";
+import { addStockInfoToPortfolio } from "./portfolio-page";
+
+import AdviceTable from "@/components/advice-table";
 import PortfolioTable from "./portfolio-table";
-import { columns } from "./portfolio-columns";
+import { columns as portfolioColumns } from "./portfolio-columns";
+import { columns as adviceColumns } from "@/components/advice-table-columns";
 
 //define tabs and columns to display
 const TABS = [
@@ -43,66 +46,105 @@ const TABS = [
     }
 ]
 
-function addStockInfoToPortfolio (portfolioData, universeDataMap) {
-    if (!portfolioData) return;
 
-    //calculate total value of portfolio for weight calculations
-    //const totalValue = portfolioData.reduce((acc, obj) => acc + parseFloat(obj.price * obj.units), 0);
 
-    const newArray = portfolioData.map(({ symbol, units, cost }) => {
-        if (!universeDataMap.has(symbol)) return { symbol, units, cost };
+export function addInfoToTransactions(transactions, universeDataMap) {
+    if (!(transactions?.length > 0)) return [];
+
+    const newArray = transactions.map(({ symbol, units }) => {
+        if (!universeDataMap.has(symbol)) return { symbol, units };
+        const name = universeDataMap.get(symbol).name;
         const price = universeDataMap.get(symbol).last_price;
 
         const value = (price * units).toFixed(2);
-        //const weight =  (100*(value / totalValue)).toFixed(2);
-        const totalCost = cost? (cost * units).toFixed(2): 0;
-        const totalProfit = ((cost? (price - cost): price) * units).toFixed(2);
+        const transaction = units > 0? "BUY" : "SELL";
 
-        return { symbol, units, cost, value, price, totalCost, totalProfit, ...universeDataMap.get(symbol) };
+        return { symbol, units, name, transaction, value};
     });
-    
+
     return newArray;
 }
 
+const AdviceNotification = ({ transactions }) => {
+    if (!(transactions?.length > 0)) return null;
 
-export default function PortfolioTabs({ portfolioID, data }) {
+    return (
+        <div className="absolute flex top-0 right-0 items-center justify-center rounded-full h-4 w-4 text-xs bg-red-300 text-white">
+            {transactions.length}
+        </div>
+    )
+}
+
+const PortfolioTabs = ({ portfolioID, portfolioData, adviceData, onAdviceConfirm, loadingNewData, loadingNewAdvice }) => {
     const { universeDataMap } = useUniverseContext();
     const [currentData, setCurrentData] = useState([]);
+    const [currentTransactionsData, setCurrentTransactionsData] = useState([]);
     const [currentTab, setCurrentTab] = useState(TABS[1]); //keeps track of current tab, defaults to 'overview'
     const [visibleColumns, setVisibleColumns] = useState([]);
 
+    useEffect(() => {
+        if (portfolioData && universeDataMap) setCurrentData(addStockInfoToPortfolio(portfolioData, universeDataMap));
+    }, [portfolioData]);
 
     useEffect(() => {
-        if (data && universeDataMap) setCurrentData(addStockInfoToPortfolio(data, universeDataMap));
-    }, [data]);
+        if (adviceData && universeDataMap) setCurrentTransactionsData(addInfoToTransactions(adviceData.transactions, universeDataMap));
+    }, [adviceData]);
 
     useEffect(() => {
         // update visible columns on tab change
-        let newColumns = columns.filter((column) => currentTab.visibleColumns.includes(column.accessorKey));
+        let newColumns = portfolioColumns.filter((column) => currentTab.visibleColumns.includes(column.accessorKey));
         setVisibleColumns(newColumns);
     }, [currentTab]);
 
+    useEffect(() => {
+        // switch to 'overview' tab
+        if (loadingNewData) setCurrentTab(TABS[1]);
+    }, [loadingNewData]);
+
+    useEffect(() => {
+        // switch to 'recommendations' tab
+        if (loadingNewAdvice) setCurrentTab(TABS[0]);
+    }, [loadingNewAdvice]);
+
     return (
         <>
-            <div className="portfolio-tab-menu w-tab-menu">
-            {TABS.map((tab) => (
-                <Button
-                    key={tab.tabName}
-                    variant="tab"
-                    className={cn(
-                        tab === currentTab && "underline"
-                    )}
-                    onClick={() => {setCurrentTab(tab)}}
-                >
-                    {tab.tabName}
-                </Button>
+            <div className="flex gap-3 mb-4 px-3">
+            {TABS.map(tab => (
+                <>
+                    {tab.tabName==='Recommendations' ? (
+                    <div key={tab.tabName} className="relative">
+                        <AdviceNotification transactions={currentTransactionsData}/>
+                        <Button
+                            variant="tab"
+                            className={cn(
+                                tab === currentTab && "underline"
+                            )}
+                            onClick={() => {setCurrentTab(tab)}}
+                        >
+                            {tab.tabName}
+                        </Button>
+                    </div>
+                    ) : (
+                    <Button
+                        key={tab.tabName}
+                        variant="tab"
+                        className={cn(
+                            tab === currentTab && "underline"
+                        )}
+                        onClick={() => {setCurrentTab(tab)}}
+                    >
+                        {tab.tabName}
+                    </Button>)}
+                </>
             ))}
             </div>
             {currentTab === TABS[0] ? (
-                <RecommendationsTable />
+                <AdviceTable columns={adviceColumns} data={currentTransactionsData} onClick={onAdviceConfirm} loadingNewAdvice={loadingNewAdvice} />
             ) : (
                 <PortfolioTable columns={visibleColumns} data={currentData} />
             )}
         </>
     )
-}
+};
+
+export default PortfolioTabs;

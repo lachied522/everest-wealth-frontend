@@ -134,7 +134,7 @@ export const columns: ColumnDef<Holding & StockInfo>[] = [
           <PortfolioTableColumnHeader column={column} title={"Yield"} />
         ),
         cell: ({ row }) => (
-          Number(row.getValue('div_yield')).toFixed(2)+'%'
+          (100*Number(row.getValue('div_yield'))).toFixed(2)+'%'
         )
     },
     {

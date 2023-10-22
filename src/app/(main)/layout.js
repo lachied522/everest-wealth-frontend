@@ -36,27 +36,34 @@ export default async function RootLayout({ children }) {
     const {
       data: { session },
     } = await supabase.auth.getSession();
+
+    if (!session) {
+        // pass
+    }
   
     const [userData, universeData] = await fetchData(session, supabase);
   
-    //tag any current recommendations with 'current'
-    // for (const rec of userData['advice']) {
-    //   if (checkDate(rec.created_at) && !rec.actioned) {
-    //     rec['current'] = true;
-    //     break;
-    //   }
-    // }
-
-    const universeDataMap= new Map();
+    const universeDataMap = new Map();
     universeData.forEach(stock => {
         universeDataMap.set(stock.symbol, stock);
     });
 
     // calculate total portfolio values
-    
-  
+    const portfolioData = userData?.portfolios?.map((portfolio) => {
+        let totalValue = 0;
+        portfolio.data?.forEach(holding => {
+            if (universeDataMap.has(holding.symbol)) {
+                const price = universeDataMap.get(holding.symbol).last_price;
+                totalValue += price * holding.units;
+            }
+        });
+        return { ...portfolio, totalValue: totalValue };
+    });
+
+    const updatedUserData = { ...userData, portfolios: portfolioData };
+
     return (
-        <GlobalProvider session={session} userData={userData} universeData={universeData} >
+        <GlobalProvider session={session} userData={updatedUserData} universeData={universeData} >
             <UniverseProvider universeDataMap={universeDataMap} >
                 <SidebarProvider>
                     <div className="dashboard-main">

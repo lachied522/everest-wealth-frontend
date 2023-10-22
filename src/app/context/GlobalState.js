@@ -27,17 +27,32 @@ export const GlobalProvider = ({ children, session, userData, universeData }) =>
         if (error) console.log(`Error committing changes: ${error}`);
     }
    
-    const updatePortfolio = async (id, data) => {
-        //update state
+    const updatePortfolio = (id, data) => {
+        // calculate total portfolio values
+        const symbols = Array.from(data, (obj) => { return obj.symbol });
+
+        const universeDataMap = new Map();
+        universeData.forEach(stock => {
+            if (symbols.includes(stock.symbol)) universeDataMap.set(stock.symbol, stock);
+        });
+
+        let totalValue = 0;
+        data.forEach(holding => {
+            if (universeDataMap.has(holding.symbol)) {
+                const price = universeDataMap.get(holding.symbol).last_price;
+                totalValue += price * holding.units;
+            }
+        });
+
+        // update state
         portfolioDispatch({
             type: "UPDATE_DATA",
             payload: {
                 id,
                 data,
+                totalValue,
             },
         });
-        //commit changes to DB
-        //await commitPortfolio(portfolioData);
     }
 
     const updatePortfolioName = async (id, name) => {

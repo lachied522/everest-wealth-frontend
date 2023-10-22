@@ -24,7 +24,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 
-import { cn } from "@/components/lib/utils";
+
 
 import { BiLockAlt, BiLockOpenAlt } from "react-icons/bi";
 import { LuGlobe2, LuChevronsUpDown } from "react-icons/lu";
@@ -92,47 +92,49 @@ export default function PortfolioTable<TData, TValue>({
     })
 
     return (
-        <Table>
-            <TableHeader>
-            {table?.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                    return (
-                    <TableHead key={header.id}>
-                        {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                            )}
-                    </TableHead>
-                    )
-                })}
-                </TableRow>
-            ))}
-            </TableHeader>
-            <TableBody>
-            {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
-                >
-                    {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="items-center">
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+        <div className="rounded-md bg-white border">
+            <Table>
+                <TableHeader className="bg-slate-100/50 transition-none">
+                {table?.getHeaderGroups().map((headerGroup) => (
+                    <TableRow key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => {
+                        return (
+                        <TableHead key={header.id}>
+                            {header.isPlaceholder
+                            ? null
+                            : flexRender(
+                                header.column.columnDef.header,
+                                header.getContext()
+                                )}
+                        </TableHead>
+                        )
+                    })}
+                    </TableRow>
+                ))}
+                </TableHeader>
+                <TableBody>
+                {table.getRowModel().rows?.length ? (
+                    table.getRowModel().rows.map((row) => (
+                    <TableRow
+                        key={row.id}
+                        data-state={row.getIsSelected() && "selected"}
+                    >
+                        {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id} className="items-center">
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </TableCell>
+                        ))}
+                    </TableRow>
+                    ))
+                ) : (
+                    <TableRow>
+                    <TableCell colSpan={columns.length} className="h-24 text-center">
+                        No holdings.
                     </TableCell>
-                    ))}
-                </TableRow>
-                ))
-            ) : (
-                <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
-                    No holdings.
-                </TableCell>
-                </TableRow>
-            )}
-            </TableBody>
-        </Table>
+                    </TableRow>
+                )}
+                </TableBody>
+            </Table>
+        </div>
     );
 }

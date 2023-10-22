@@ -49,27 +49,21 @@ export default function PortfolioName({ portfolio }) {
       }, [isEdit]);
 
     return (
-       <>
-        {name ? (
-            <div className="flex items-center justify-items-stretch gap-4 sm:gap-2">
-                <LuPencil 
-                    className="text-lg text-slate-800 cursor-pointer hover:scale-110" 
-                    size={20}
-                    onClick={() => setIsEdit(!isEdit)}
-                />
-                <Input
-                    ref={inputRef}
-                    disabled={!isEdit}
-                    className="text-lg w-[200px] sm:w=[80px] border-0 bg-transparent text-slate-800 disabled:cursor-text disabled:opacity-100"
-                    value={name}
-                    maxLength={20}
-                    onChange={onChange} 
-                    onKeyDown={handleKeyDown}
-                />
-            </div>
-        ) : (
-            <Skeleton className="w-[240px] sm:w=[80px] h-10"/>
-        )}
-        </>
+        <div className="flex items-center justify-items-stretch gap-4 sm:gap-2">
+            <LuPencil 
+                className="text-lg text-slate-800 cursor-pointer hover:scale-110" 
+                size={20}
+                onClick={() => setIsEdit(!isEdit)}
+            />
+            <Input
+                ref={inputRef}
+                disabled={!isEdit}
+                className="text-lg w-[200px] sm:w=[80px] border-0 bg-transparent text-slate-800 disabled:cursor-text disabled:opacity-100"
+                value={name}
+                maxLength={20}
+                onChange={onChange} 
+                onKeyDown={handleKeyDown}
+            />
+        </div>
     )
 }

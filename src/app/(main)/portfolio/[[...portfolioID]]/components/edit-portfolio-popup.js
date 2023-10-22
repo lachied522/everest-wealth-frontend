@@ -5,15 +5,17 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger
 } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 import { LuPencil, LuSearch, LuTrash } from "react-icons/lu";
+
+import { addStockInfoToPortfolio } from "./portfolio-page";
 
 import { useUniverseContext } from "@/context/UniverseState";
 import { useGlobalContext } from "@/context/GlobalState";
@@ -186,17 +188,15 @@ export default function EditPortfolioPopup({ portfolio }) {
     setAllHoldingData(newValue);
   }
 
-  const confirmHoldings = async () => {
-    //check if any data is missing
-    const empty = allHoldingData.filter(holding => !holding.hasOwnProperty('units') || holding.units === 0);
-    if (empty.length === 0) {
-      if (allHoldingData !== portfolio.data) {
-        //update portfolio
-        await updatePortfolio(
-          portfolio.id,
-          allHoldingData
-        );
-      }
+  const confirmHoldings = () => {
+    // check if any data is missing
+    // const empty = allHoldingData.filter(holding => !holding.hasOwnProperty('units') || holding.units === 0);
+    if (allHoldingData !== portfolio.data) {
+      //update portfolio
+      updatePortfolio(
+        portfolio.id,
+        allHoldingData
+      );
     }
   }
 
@@ -248,35 +248,27 @@ export default function EditPortfolioPopup({ portfolio }) {
               )}
               <div className="min-h-[240px] max-h-[500px] overflow-auto">
                 <div className="grid grid-rows-[auto] gap-0 grid-cols-[0.5fr_0.75fr_1fr_1fr_20px] auto-cols-[1fr] items-center justify-items-center p-1.5 bg-[#e9eaf3]">
-                  <div
-                    className="stock-data symbol"
-                  >
+                  <div>
                     SYMBOL
                   </div>
-                  <div
-                    className="stock-data symbol"
-                  >
+                  <div>
                     UNITS
                   </div>
-                  <div
-                    className="stock-data symbol"
-                  >
+                  <div>
                     VALUE ($)
                   </div>
-                  <div
-                    className="stock-data symbol"
-                  >
+                  <div>
                     COST ($)
                   </div>
                 </div>
                 {allHoldingData?.length === 0 && (
                   <div className="flex p-8 items-center justify-center">
-                    <div className="">
+                    <div>
                       Search stocks to add to your portfolio
                     </div>
                   </div>
                 )}
-                {allHoldingData?.map((holding, index) => (
+                {addStockInfoToPortfolio(allHoldingData ?? [], universeDataMap).map((holding, index) => (
                     <HoldingRow 
                         key={index}
                         data={holding}

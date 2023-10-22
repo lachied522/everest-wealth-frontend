@@ -40,10 +40,8 @@
     ".next/types/**/*.ts",
     "**/*.ts",
     "**/*.tsx",
-    "src/app/portfolio/[[...portfolioID]]/page.js",
-    "src/app/portfolio/[[...portfolioID]]/components/portfolio-table-row.js",
-    "src/app/portfolio/[[...portfolioID]]/components/portfolio-table.js",
-    "src/app/layout.js"
+    "**/*.js",
+    "**/*.jsx",
   ],
   "exclude": [
     "node_modules"

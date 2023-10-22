@@ -11,6 +11,7 @@ export default function GlobalReducer(state, action) {
                     return {
                         ...p,
                         data: action.payload.data,
+                        totalValue: action.payload.totalValue,
                     }
                 }
                 return p;
