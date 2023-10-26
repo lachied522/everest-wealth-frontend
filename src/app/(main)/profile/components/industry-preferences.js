@@ -1,4 +1,8 @@
 "use client";
+
+import { cn } from "@/components/lib/utils";
+
+
 import { useGlobalContext } from "@/context/GlobalState";
 
 const SectorPrefence = ({ sectorName, preference, togglePreference }) => {
@@ -8,22 +12,31 @@ const SectorPrefence = ({ sectorName, preference, togglePreference }) => {
       });
     }
 
-    let color = "";
-
-    if (preference) {
-      color = preference==="like"? "green": "red"
-    }
-
     return (
-        <div className={`badge-secondary ${color}`} onClick={onClick}>
+        <div className={cn(
+              "flex border rounded-full p-6 text-xs items-center justify-center h-[30px] w-[90px] text-center text-slate-800 cursor-pointer",
+              preference==="like" && "text-[#13a570] bg-[#edfbee] border-solid border-[#edfbee]",
+              preference==="dislike" && "text-[#dc2b2b] bg-[#ffeff0] border-[#ffeff0]"
+          )} onClick={onClick}>
             <div>{sectorName}</div>
         </div>
     )
 }
 
 export default function IndustryPreferences({ handleChange, value }) {
-  const { universeData } = useGlobalContext();
-  const sectors = [...new Set(universeData?.map((obj) => obj.sector))];
+  const sectors = [
+    'financials',
+    'energy',
+    'materials',
+    'consumer discretionary',
+    'communication services',
+    'industrials',
+    'consumer staples',
+    'real estate',
+    'information technology',
+    'health care',
+    'utilities'
+  ]
 
   const togglePreference = ({ sectorName }) => {
     const newValue = {...value}; //clone preferences
@@ -46,17 +59,19 @@ export default function IndustryPreferences({ handleChange, value }) {
 
   return (
     <>
-      <div>
-        <div className="flex">
-          <div className="badge-secondary green">Green</div>
-          <div>= like</div>
+      <div className="flex flex-col gap-6">
+        <div className="flex gap-4 items-center">
+          <div className="flex border rounded-full px-2.5 py-2 text-xs items-center justify-center h-[30px] w-[90px] text-center text-[#13a570] bg-[#edfbee] border-solid border-[#edfbee]">Green</div>
+          <span>=</span>
+          <span>like</span>
         </div>
-        <div className="flex">
-          <div className="badge-secondary red">Red</div>
-          <div>= dislike</div>
+        <div className="flex gap-4 items-center">
+          <div className="flex border rounded-full px-2.5 py-2 text-xs items-center justify-center h-[30px] w-[90px] text-center text-[#dc2b2b] bg-[#ffeff0] border-[#ffeff0]">Red</div>
+          <span>=</span>
+          <span>dislike</span>
         </div>
       </div>
-      <div className="preferences-container">
+      <div className="flex flex-wrap max-w-[80%] gap-4 text-center justify-center items-center justify-items-center p-1.5">
         {sectors.map((sectorName, index) => (
             <SectorPrefence 
                 key={index}

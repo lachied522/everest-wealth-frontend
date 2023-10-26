@@ -1,17 +1,36 @@
 "use client";
 import { useState, useEffect } from "react";
 
+import { LuPencil, LuSave, LuMapPin, LuCalendar } from "react-icons/lu";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import { Card } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+
+import { cn } from "@/components/lib/utils";
+
 import { useGlobalContext } from "@/context/GlobalState";
 import ObjectiveSelector from "@/components/objective-selector";
-import RangeSlider from "./range-slider";
 import IndustryPreferences from "./industry-preferences";
-import styles from "./profile-page.module.css";
 
-export default function ProfilePage() {
-  const { profileData, updateProfile } = useGlobalContext();
+
+export default function ProfilePage({ profileData }) {
+  const { updateProfile } = useGlobalContext();
   const [data, setData] = useState(profileData || {}); //object to keep track of user changes
   const [edit, setEdit] = useState(false); //defines whether user is in edit mode
 
+  console.log(profileData);
   useEffect(() => {
     setData(profileData || {});
   }, [profileData]);
@@ -39,139 +58,145 @@ export default function ProfilePage() {
   }
 
   return (
-    <>
-      <div className="container-default w-container">
-        <div className={styles["profile-top-container"]}>
-          <img
-            src="https://uploads-ssl.webflow.com/64afbac816bb17eb2fdc3f03/64afbac916bb17eb2fdc40b7_profile-bg-banner-medium-dashboardly-webflow-template.jpg"
-            loading="eager"
-            sizes="(max-width: 767px) 100vw, (max-width: 991px) 96vw, (max-width: 1439px) 79vw, 1044px"
-            srcSet="
-                  https://uploads-ssl.webflow.com/64afbac816bb17eb2fdc3f03/64afbac916bb17eb2fdc40b7_profile-bg-banner-medium-dashboardly-webflow-template-p-500.jpeg   500w,
-                  https://uploads-ssl.webflow.com/64afbac816bb17eb2fdc3f03/64afbac916bb17eb2fdc40b7_profile-bg-banner-medium-dashboardly-webflow-template-p-800.jpeg   800w,
-                  https://uploads-ssl.webflow.com/64afbac816bb17eb2fdc3f03/64afbac916bb17eb2fdc40b7_profile-bg-banner-medium-dashboardly-webflow-template-p-1080.jpeg 1080w,
-                  https://uploads-ssl.webflow.com/64afbac816bb17eb2fdc3f03/64afbac916bb17eb2fdc40b7_profile-bg-banner-medium-dashboardly-webflow-template-p-1600.jpeg 1600w,
-                  https://uploads-ssl.webflow.com/64afbac816bb17eb2fdc3f03/64afbac916bb17eb2fdc40b7_profile-bg-banner-medium-dashboardly-webflow-template-p-2000.jpeg 2000w,
-                  https://uploads-ssl.webflow.com/64afbac816bb17eb2fdc3f03/64afbac916bb17eb2fdc40b7_profile-bg-banner-medium-dashboardly-webflow-template.jpg         2088w
-                "
-            alt=""
-            className={styles["profile-bg-banner-image"]}
-          />
-          <div className={styles["profile-bg-banner-gradient"]} />
-          <div className={styles["profile-name-container"]}>
-            <div className="flex align-center">
-              <div>
-                <div className="heading-h3-size color-neutral-100 mg-bottom-8px">
-                  John Carter
-                </div>
-                <div className="heading-h5-size color-neutral-100 opacity-80">
-                  CEO at Dashly X
-                </div>
-              </div>
-            </div>
-            {edit ? (
-              <button className="btn-secondary small" onClick={handleSave}>
-                Save
-              </button>
-            ) : (
-              <button className="btn-secondary small" onClick={handleEditClick}>
-                Edit Profile
-              </button>
-            )}
+    <div className="md:max-w-screen-lg px-6 mx-auto">
+      <div className='flex flex-col justify-end min-h-[274px] rounded relative overflow-hidden p-6 mb-6'>
+        <img
+          src="https://uploads-ssl.webflow.com/64afbac816bb17eb2fdc3f03/64afbac916bb17eb2fdc40b7_profile-bg-banner-medium-dashboardly-webflow-template.jpg"
+          loading="eager"
+          sizes="(max-width: 767px) 100vw, (max-width: 991px) 96vw, (max-width: 1439px) 79vw, 1044px"
+          srcSet="
+                https://uploads-ssl.webflow.com/64afbac816bb17eb2fdc3f03/64afbac916bb17eb2fdc40b7_profile-bg-banner-medium-dashboardly-webflow-template-p-500.jpeg   500w,
+                https://uploads-ssl.webflow.com/64afbac816bb17eb2fdc3f03/64afbac916bb17eb2fdc40b7_profile-bg-banner-medium-dashboardly-webflow-template-p-800.jpeg   800w,
+                https://uploads-ssl.webflow.com/64afbac816bb17eb2fdc3f03/64afbac916bb17eb2fdc40b7_profile-bg-banner-medium-dashboardly-webflow-template-p-1080.jpeg 1080w,
+                https://uploads-ssl.webflow.com/64afbac816bb17eb2fdc3f03/64afbac916bb17eb2fdc40b7_profile-bg-banner-medium-dashboardly-webflow-template-p-1600.jpeg 1600w,
+                https://uploads-ssl.webflow.com/64afbac816bb17eb2fdc3f03/64afbac916bb17eb2fdc40b7_profile-bg-banner-medium-dashboardly-webflow-template-p-2000.jpeg 2000w,
+                https://uploads-ssl.webflow.com/64afbac816bb17eb2fdc3f03/64afbac916bb17eb2fdc40b7_profile-bg-banner-medium-dashboardly-webflow-template.jpg         2088w
+              "
+          alt='Cover Image'
+          className='z-[-1] h-full object-cover absolute inset-0'
+        />
+        <div className='z-[-1] opacity-60 bg-[linear-gradient(rgba(0,0,0,0),rgba(0,0,0,0.84))] absolute top-[24%] bottom-0 inset-x-0' />
+        <div className='flex justify-between items-end'>
+          <div>
+            <h3 className="text-slate-800 mb-2">
+              John Carter
+            </h3>
+            <h5 className="text-slate-500 opacity-80 mb-0">
+              CEO at Dashly X
+            </h5>
           </div>
         </div>
       </div>
-      <form>
-        <div className={styles["user-profile"]}>
-          <div
-            className={styles["user-profile-overlay"] + (edit ? styles["hidden"] : "")}
-          ></div>
-          <div>
-            <div className="grid-4-columns align-center">
-              <h4 className="display-4 mg-bottom-0">About Me</h4>
-              <div className="flex align-center">
-                <div className="custom-icon color-accent-1 mg-right-8px"></div>
-                <div className="text-300 color-neutral-800">john@dashly.com</div>
-              </div>
-              <div className="flex align-center">
-                <div className="custom-icon color-accent-1 mg-right-8px"></div>
-                <div className="text-300 color-neutral-800">Los Angeles, CA</div>
-              </div>
-              <div className="flex align-center">
-                <div className="custom-icon color-accent-1 mg-right-8px"></div>
-                <div className="text-300 color-neutral-800">Jan 2, 2021</div>
-              </div>
+      <div>
+          <div className='grid grid-cols-4 items-center justify-items-center'>
+            <h4 className='mb-0'>About Me</h4>
+            <div className="flex items-center gap-2">
+              <LuMapPin size={16} className='text-blue-800'/>
+              <div className="text-slate-800">Los Angeles, CA</div>
             </div>
+            <div className="flex align-center gap-2">
+              <LuCalendar size={16} className="text-blue-800"/>
+              <div className="text-slate-800">Jan 2, 2021</div>
+            </div>
+            {edit ? (
+            <Button onClick={handleSave}>
+              <LuSave
+                className="mr-2"
+              />
+              Save
+            </Button>
+            ) : (
+            <Button onClick={handleEditClick}>
+              <LuPencil 
+                className="mr-2"
+              />
+              Edit Profile
+            </Button>
+            )}
           </div>
-          <div className="divider _18px" />
+      </div>
+      <form>
+        <div className='flex flex-col gap-12 px-6 relative'>
+            <div className={cn(
+              'absolute inset-0 bg-slate-50/40',
+              edit && 'hidden'
+            )}/>
+          <Separator className="my-4"/>
           <div>
-            <div className="mg-bottom-24px">
-              <h4 className="display-4 mg-bottom-24px">Investment Objective</h4>
-              <div className="text-400 color-neutral-800">
+            <div className="mb-6">
+              <h4 className="mb-6">Investment Objective</h4>
+              <div className="text-lg text-slate-800">
                 What is your primary investment objective?
               </div>
             </div>
             <ObjectiveSelector handleChange={handleChange} value={data?.objective} />
           </div>
-          <div className="divider _18px"></div>
-          <div className="w-form">
-              <div className="display-4 mg-bottom-24px">Finances</div>
-              <div className="grid-2-columns _1-2fr---1fr gap-48px">
-                <div className="text-400 color-neutral-800">Employment type</div>
-                <select
-                  className="input select small w-select"
+          <Separator className="my-4"/>
+          <div>
+              <h4 className="mb-6">Finances</h4>
+              <div className="grid grid-cols-2 items-center justify-items-center gap-12">
+                <div className="w-full text-left text-lg text-slate-800">Employment type</div>
+                <Select
                   name="employment"
                   value={data?.employment || ""}
                   onChange={onDataChange}
                 >
-                  <option value="">Select one...</option>
-                  <option value="student">Student</option>
-                  <option value="casual">Casual</option>
-                  <option value="part-time">Part Time</option>
-                  <option value="full-time">Full Time</option>
-                  <option value="freelance">Freelance</option>
-                  <option value="retired">Retired</option>
-                </select>
-                <div className="text-400 color-neutral-800">
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Select one..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="student">Student</SelectItem>
+                    <SelectItem value="casual">Casual</SelectItem>
+                    <SelectItem value="part-time">Part Time</SelectItem>
+                    <SelectItem value="full-time">Full Time</SelectItem>
+                    <SelectItem value="freelance">Freelance</SelectItem>
+                    <SelectItem value="retired">Retired</SelectItem>
+                  </SelectContent>
+                </Select>
+                <div className="w-full text-left text-lg text-slate-800">
                   What proportion of your monthly income do you usually invest?
                 </div>
-                <select
-                  className="input select small w-select"
+                <Select
                   name="salary"
                   value={data?.salary || ""}
                   onChange={onDataChange}
                 >
-                  <option value="">Select one...</option>
-                  <option value="0">0%</option>
-                  <option value="1">1% - 5%</option>
-                  <option value="2">5% - 10%</option>
-                  <option value="3">10% - 25%</option>
-                  <option value="4">25% - 50%</option>
-                  <option value="5">50% +</option>
-                </select>
-                <div className="text-400 color-neutral-800">
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Select one..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="0">0%</SelectItem>
+                    <SelectItem value="1">1% - 5%</SelectItem>
+                    <SelectItem value="2">5% - 10%</SelectItem>
+                    <SelectItem value="3">10% - 25%</SelectItem>
+                    <SelectItem value="4">25% - 50%</SelectItem>
+                    <SelectItem value="5">50% +</SelectItem>
+                  </SelectContent>
+                </Select>
+                <div className="w-full text-left text-lg text-slate-800">
                   What proportion of your net worth does your portfolio make up?
                 </div>
-                <select
-                  className="input select small w-select"
+                <Select
                   name="assets"
                   value={data?.assets || ""}
                   onChange={onDataChange}
                 >
-                  <option value="">Select one...</option>
-                  <option value="0">0% - 10%</option>
-                  <option value="1">10% - 25%</option>
-                  <option value="2">25% - 50%</option>
-                  <option value="3">50% - 75%</option>
-                  <option value="4">75% +</option>
-                </select>
-                <div className="text-400 color-neutral-800">
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Select one..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="0">0% - 10%</SelectItem>
+                    <SelectItem value="1">10% - 25%</SelectItem>
+                    <SelectItem value="2">25% - 50%</SelectItem>
+                    <SelectItem value="3">50% - 75%</SelectItem>
+                    <SelectItem value="4">75% +</SelectItem>
+                  </SelectContent>
+                </Select>
+                <div className="w-full text-left text-lg text-slate-800">
                   Are you borrowing to invest in shares?
                 </div>
-                <div className="flex align-center justify-center gap-column-12px">
-                  <label className="radio-button-field-wrapper w-radio">
-                    <div className="w-form-formradioinput w-form-formradioinput--inputType-custom radio-button w-radio-input"></div>
-                    <input
+                <RadioGroup className="flex items-center justify-center gap-4">
+                    <RadioGroupItem
                       type="radio"
                       name="borrowing"
                       value={true}
@@ -179,11 +204,8 @@ export default function ProfilePage() {
                       checked={data? data.borrowing: false}
                       onChange={onDataChange}
                     />
-                    <span className="text-300 w-form-label">Yes</span>
-                  </label>
-                  <label className="radio-button-field-wrapper w-radio">
-                    <div className="w-form-formradioinput w-form-formradioinput--inputType-custom radio-button w-radio-input"></div>
-                    <input
+                    <Label htmlFor={true}>Yes</Label>
+                    <RadioGroupItem
                       type="radio"
                       name="borrowing"
                       value={false}
@@ -191,40 +213,42 @@ export default function ProfilePage() {
                       checked={data? !data.borrowing: true}
                       onChange={onDataChange}
                     />
-                    <span className="text-300 w-form-label">No</span>
-                  </label>
-                </div>
+                    <Label htmlFor={false} >No</Label>
+                </RadioGroup>
               </div>
           </div>
-          <div className="divider _18px"></div>
-          <div className="w-form">
-              <div className="display-4 mg-bottom-24px">Experience</div>
-              <div className="grid-2-columns _1-2fr---1fr gap-row-48px">
-                <div className="text-400 color-neutral-800">
+          <Separator className="my-4"/>
+          <div>
+              <h4 className="mb-6">Experience</h4>
+              <div className="grid grid-cols-2 items-center justify-items-center gap-12">
+                <div className="text-lg text-slate-800">
                   How many years&#x27; experience do you have investing in stocks?
                 </div>
-                <select
-                  className="input select small w-select"
+                <Select
                   name="experience"
                   value={data?.experience || ""}
                   onChange={onDataChange}
                 >
-                  <option value="">Select one...</option>
-                  <option value="0">0</option>
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                  <option value="3">3</option>
-                  <option value="4">4</option>
-                  <option value="5">5 +</option>
-                </select>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Select one..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="0">0</SelectItem>
+                    <SelectItem value="1">1</SelectItem>
+                    <SelectItem value="2">2</SelectItem>
+                    <SelectItem value="3">3</SelectItem>
+                    <SelectItem value="4">4</SelectItem>
+                    <SelectItem value="5">5 +</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
           </div>
-          <div className="divider _18px"></div>
-          <div className="w-form">
-              <div className="display-4 mg-bottom-24px">Risk Tolerance</div>
-              <div className="grid-1-column justify-center gap-row-80px">
-                <div className="flex vertical gap-row-24px">
-                  <div className="text-400 color-neutral-800">
+          <Separator className="my-4"/>
+          <div>
+              <h4 className="mb-6">Risk Tolerance</h4>
+              <Card className="flex flex-col justify-center gap-16 py-16">
+                <div className="flex flex-col gap-6 items-center">
+                  <div className="text-lg text-slate-800">
                     Which of the following best describes your association with
                     financial risk?
                   </div>
@@ -286,13 +310,11 @@ export default function ProfilePage() {
                     </label>
                   </div>
                 </div>
-                <div className="flex vertical gap-row-24px">
-                  <div className="text-400 color-neutral-800">
+                <div className="flex flex-col gap-4 items-center">
+                  <div className="text-lg text-slate-800">
                     What is your willingness to take on financial risk?
                   </div>
-                  <div
-                    className="flex"
-                  >
+                  <div className="flex">
                     <label className="radio-button-field-wrapper w-radio">
                       <div className="w-form-formradioinput w-form-formradioinput--inputType-custom radio-button w-radio-input"></div>
                       <input
@@ -355,15 +377,12 @@ export default function ProfilePage() {
                     </label>
                   </div>
                 </div>
-                <div className="flex vertical gap-row-24px">
-                  <div className="text-400 color-neutral-800">
+                <div className="flex flex-col gap-4 items-center">
+                  <div className="text-lg text-slate-800">
                     What range of returns do you expect to receive from your
                     portfolio?
                   </div>
-                  <div
-                    id="w-node-_0a887c7b-caea-b82d-49a3-7e6aeef64787-2fdc4015"
-                    className="flex"
-                  >
+                  <div className="flex">
                     <label className="radio-button-field-wrapper w-radio">
                       <div className="w-form-formradioinput w-form-formradioinput--inputType-custom radio-button w-radio-input"></div>
                       <input
@@ -426,15 +445,12 @@ export default function ProfilePage() {
                     </label>
                   </div>
                 </div>
-                <div className="flex vertical gap-row-24px">
-                  <div className="text-400 color-neutral-800">
+                <div className="flex flex-col gap-4 items-center">
+                  <div className="text-lg text-slate-800">
                     How much could the <strong>total value</strong> of all your
                     portfolio fall before you begin to feel uncomfortable?
                   </div>
-                  <div
-                    id="w-node-_0a887c7b-caea-b82d-49a3-7e6aeef647a2-2fdc4015"
-                    className="flex"
-                  >
+                  <div className="flex">
                     <label className="radio-button-field-wrapper w-radio">
                       <div className="w-form-formradioinput w-form-formradioinput--inputType-custom radio-button w-radio-input"></div>
                       <input
@@ -497,31 +513,56 @@ export default function ProfilePage() {
                     </label>
                   </div>
                 </div>
-              </div>
+              </Card>
           </div>
-          <div className="divider _18px"></div>
-          <div className="w-form">
-              <div className="display-4 mg-bottom-24px">Preferences</div>
-              <div className="flex vertical gap-48px">
-                <div className="grid-1-column justify-center gap-48px">
-                  <div className="text-400 color-neutral-800">
+          <Separator className="my-4"/>
+          <div>
+              <h4 className="mb-6">Preferences</h4>
+              <Card className="flex flex-col gap-12 items-center py-16">
+                <div className="flex flex-col gap-12 items-center">
+                  <div className="text-lg text-slate-800">
                     What proportion of your portfolio do you wish to invest in
                     international stocks?
                   </div>
-                  <RangeSlider name="international" handleChange={handleChange} value={data?.international || 50} />
-                  <div className="text-400 color-neutral-800">
+                  <div className="flex gap-4 justify-stretch">
+                    <span>0</span>
+                    <Slider name="international" handleChange={handleChange} className="w-[240px]"/>
+                    <span>100</span>
+                  </div>
+                  <div className="text-lg text-slate-800">
                     What proportion of your portfolio do you wish to invest in ETFs?
                   </div>
-                  <RangeSlider name="passive" handleChange={handleChange} value={data?.passive || 50} />
+                  <div className="flex gap-4 justify-stretch">
+                    <span>0</span>
+                    <Slider name="passive" handleChange={handleChange} className="w-[240px]" />
+                    <span>100</span>
+                  </div>
                 </div>
-                <div className="text-400 color-neutral-800">
-                    Do you have any preferences?
+                <div className="text-lg text-slate-800">
+                    Do you have any industry preferences?
                 </div>
                 <IndustryPreferences handleChange={handleChange} value={data?.preferences} />
-              </div>
+              </Card>
           </div>
         </div>
       </form>
-    </>
+      <div className="flex justify-end p-12">
+        {edit ? (
+        <Button onClick={handleSave}>
+          <LuSave
+            className="mr-2"
+          />
+          Save
+        </Button>
+        ) : (
+        <Button onClick={handleEditClick}>
+          <LuPencil 
+            className="mr-2"
+          />
+          Edit Profile
+        </Button>
+        )}
+      </div>
+    </div>
   );
 }

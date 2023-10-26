@@ -76,17 +76,25 @@ function PortfolioTableColumnHeader<TData, TValue> ({
   }
 
 export const columns: ColumnDef<Holding & StockInfo>[] = [
-    {
-        accessorKey: 'domestic',
-        header: '', //empty header
-        cell: ({ row }) => (
-            row.getValue('domestic')? <GiAustralia />: <LuGlobe2 />
-          )
-    },
+    // {
+    //     accessorKey: 'domestic',
+    //     header: '', //empty header
+    //     cell: ({ row }) => (
+    //       <div className="flex items-center justify-center">
+    //         {row.getValue('domestic')? <GiAustralia size={20} />: <LuGlobe2 size={20} />}
+    //       </div>
+    //     )
+    // },
     {
         accessorKey: 'symbol',
         header: ({ column }) => (
           <PortfolioTableColumnHeader column={column} title={"Symbol"} />
+        ),
+        cell: ({ row }) => (
+          <div className="flex items-center gap-2">
+            {row.original['domestic']? <GiAustralia size={18} />: <LuGlobe2 size={18} />}
+            {row.getValue('symbol')}
+          </div>
         )
     },
     {

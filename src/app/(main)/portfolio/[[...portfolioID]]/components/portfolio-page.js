@@ -24,8 +24,8 @@ export function addStockInfoToPortfolio(portfolioData, universeDataMap) {
   //calculate total value of portfolio for weight calculations
   //const totalValue = portfolioData.reduce((acc, obj) => acc + parseFloat(obj.price * obj.units), 0);
 
-  const newArray = portfolioData.map(({ symbol, units, cost }) => {
-      if (!universeDataMap.has(symbol)) return { symbol, units, cost };
+  const newArray = portfolioData.map(({ id, symbol, units, cost, locked }) => {
+      if (!universeDataMap.has(symbol)) return { id, symbol, units, cost };
       const price = universeDataMap.get(symbol).last_price;
 
       const value = (price * units).toFixed(2);
@@ -33,9 +33,9 @@ export function addStockInfoToPortfolio(portfolioData, universeDataMap) {
       const totalCost = cost? (cost * units).toFixed(2): 0;
       const totalProfit = ((cost? (price - cost): price) * units).toFixed(2);
 
-      return { symbol, units, cost, value, price, totalCost, totalProfit, ...universeDataMap.get(symbol) };
+      return { ...universeDataMap.get(symbol), id, symbol, units, cost, locked, value, price, totalCost, totalProfit };
   });
-  
+
   return newArray;
 }
 
@@ -52,7 +52,7 @@ const checkDate = (dateTimeString) => {
 
 export default function PortfolioPage() {
   const searchParams = useSearchParams();
-  const { session, portfolioData, updatePortfolio, adviceData } = useGlobalContext(); //raw portfolio data
+  const { session, portfolioData, updatePortfolio } = useGlobalContext(); //raw portfolio data
   const [currentPortfolio, setCurrentPortfolio] = useState(null); //keeps track of current portfolio being viewed
   const [currentAdvice, setCurrentAdvice] = useState(null);
   const [loadingNewData, setLoadingNewData] = useState(false);
@@ -75,9 +75,9 @@ export default function PortfolioPage() {
   }, [searchParams, portfolioData]);
 
   useEffect(() => {
-    //check if any current recommendations
-    if (adviceData && currentPortfolio) {
-        const recs = adviceData.filter(obj => obj.portfolio_id === currentPortfolio.id);
+    // check if any current recommendations
+    if (currentPortfolio) {
+        const recs = currentPortfolio.advice;
         if (recs.length > 0 && !recs[recs.length - 1].actioned) {
           setCurrentAdvice(recs[recs.length - 1]);
         } else {
@@ -86,7 +86,7 @@ export default function PortfolioPage() {
           });
         };
     };
-  }, [adviceData, currentPortfolio]);
+  }, [currentPortfolio]);
 
   const confirmTransactions = async () => {
     setCurrentAdvice({
@@ -132,7 +132,7 @@ export default function PortfolioPage() {
   }    
 
   return (    
-    <div className="container-default w-container">
+    <div className="md:max-w-screen-xl px-6 mx-auto">
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div className="flex gap-4 sm:gap-2 items-center">
@@ -163,8 +163,7 @@ export default function PortfolioPage() {
       </div>
       <PortfolioStatBar portfolio={currentPortfolio} />
       <PortfolioTabs 
-        portfolioID={currentPortfolio?.id} 
-        portfolioData={currentPortfolio?.data} 
+        portfolioData={currentPortfolio} 
         adviceData={currentAdvice}
         onAdviceConfirm={confirmTransactions}
         loadingNewData={loadingNewData}

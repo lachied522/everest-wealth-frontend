@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 
 import {
     ColumnDef,
+    Row,
     SortingState,
     flexRender,
     getCoreRowModel,
@@ -22,52 +23,26 @@ import {
     TableRow,
 } from "@/components/ui/table"
 
-import { Button } from "@/components/ui/button";
+import { cn } from "@/components/lib/utils";
 
-
-
-import { BiLockAlt, BiLockOpenAlt } from "react-icons/bi";
-import { LuGlobe2, LuChevronsUpDown } from "react-icons/lu";
-import { GiAustralia } from "react-icons/gi";
+import { LuStar } from "react-icons/lu";
 
 import { useGlobalContext } from "@/context/GlobalState";
 
-//define format for currencies
 
-
-//define map for column formatting and data
-const COLUMN_MAP = {
-    "Symbol": {
-        dataName: "symbol",
-        format: "upper",
-    },
-    "Name": {
-        dataName: "name",
-        format: "upper",
-    },
-    "Cost": {
-        dataName: "totalCost",
-        format: "dollar",
-    },
-    "Value": {
-        dataName: "value",
-        format: "dollar",
-    },
-    "Profit": {
-        dataName: "totalProfit",
-        format: "dollar",
-    },
-    "Sector": {
-        name: "Sector",
-        dataName: "sector",
-        format: "lower",
-    },
-    "Yield": {
-        name: "Yield",
-        dataName: "div_yield",
-        format: "percent",
-    }
-}
+const Star = ({ selected, onClick } : { selected: boolean, onClick: () => void }) => {
+    console.log(selected)
+    return (
+      <LuStar 
+        size={20}
+        onClick={onClick}
+        className={cn(
+            'cursor-pointer hover:scale-105',
+            selected && 'text-yellow-400'
+        )}
+      />
+    )
+  }
 
 interface PortfolioTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
@@ -76,8 +51,9 @@ interface PortfolioTableProps<TData, TValue> {
 
 export default function PortfolioTable<TData, TValue>({
     columns,
-    data
+    data,
 }: PortfolioTableProps<TData, TValue>) {
+    const { toggleFavourite } = useGlobalContext()
     const [sorting, setSorting] = useState<SortingState>([])
 
     const table = useReactTable({
@@ -97,7 +73,8 @@ export default function PortfolioTable<TData, TValue>({
                 <TableHeader className="bg-slate-100/50 transition-none">
                 {table?.getHeaderGroups().map((headerGroup) => (
                     <TableRow key={headerGroup.id}>
-                    {headerGroup.headers.map((header) => {
+                        <TableHead /> {/* add spacer for 'locked' column */}
+                        {headerGroup.headers.map((header) => {
                         return (
                         <TableHead key={header.id}>
                             {header.isPlaceholder
@@ -108,7 +85,7 @@ export default function PortfolioTable<TData, TValue>({
                                 )}
                         </TableHead>
                         )
-                    })}
+                        })}
                     </TableRow>
                 ))}
                 </TableHeader>
@@ -119,6 +96,9 @@ export default function PortfolioTable<TData, TValue>({
                         key={row.id}
                         data-state={row.getIsSelected() && "selected"}
                     >
+                        <TableCell className="flex items-center justify-center">
+                            <Star selected={row.original['locked']} onClick={() => toggleFavourite(row.original['id'])}/>
+                        </TableCell>
                         {row.getVisibleCells().map((cell) => (
                         <TableCell key={cell.id} className="items-center">
                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -128,9 +108,9 @@ export default function PortfolioTable<TData, TValue>({
                     ))
                 ) : (
                     <TableRow>
-                    <TableCell colSpan={columns.length} className="h-24 text-center">
-                        No holdings.
-                    </TableCell>
+                        <TableCell colSpan={columns.length} className="h-24 text-center">
+                            No holdings.
+                        </TableCell>
                     </TableRow>
                 )}
                 </TableBody>

@@ -19,7 +19,6 @@ import { Button } from '@/components/ui/button';
 import AdviceTable from '@/components/advice-table';
 import { columns as adviceColumns } from '@/components/advice-table-columns';
 
-import { useGlobalContext } from "@/context/GlobalState";
 import { useUniverseContext } from '@/context/UniverseState';
 
 
@@ -49,7 +48,7 @@ function addInfoToTransactions(transactions, universeDataMap) {
 
 const TableSubRow = ({ data }) => {
     const { universeDataMap } = useUniverseContext();
-    const [isOpen, setIsOpen] = useState(true);
+    const [isOpen, setIsOpen] = useState(false);
 
     const toggleOpen = () => {
         setIsOpen(!isOpen);
@@ -81,8 +80,8 @@ const TableSubRow = ({ data }) => {
                 </TableCell>
             </TableRow>
             {isOpen && (
-            <TableRow className='bg-white transition-none hover:bg-white'>
-                <TableCell colSpan={5}>
+            <TableRow className='bg-white transition-none hover:bg-white p-0'>
+                <TableCell colSpan={5} className='p-0'>
                     <AdviceTable columns={adviceColumns} data={transactionsData} actioned={true}/>
                 </TableCell>
             </TableRow>
@@ -92,9 +91,8 @@ const TableSubRow = ({ data }) => {
 }
 
 
-const AllAdviceTable = () => {
-    const { adviceData } = useGlobalContext();
-    
+const AllAdviceTable = ({ adviceData }) => {
+
     return (
         <div className="rounded-md bg-white border">
             <Table>

@@ -1,5 +1,7 @@
 "use client";
-import styles from "./objective-selector.module.css";
+import { Card } from "@/components/ui/card";
+
+import { cn } from "@/components/lib/utils";
 
 function Objective({ name, iconSrc, text, timeHorizon, selected, handleChange }) {
 
@@ -8,28 +10,31 @@ function Objective({ name, iconSrc, text, timeHorizon, selected, handleChange })
     };
 
     return (
-      <div
-        className={styles["select-option"] + (selected ? styles["selected"] : styles["unselected"])}
+      <Card
+        className={cn(
+          'cursor-pointer',
+          selected && 'bg-blue-100 border-blue-200'
+        )}
         onClick={handleClick}
       >
-        <div className={styles["select-option-inner"]}>
-          <div className="flex align-center mg-bottom-12px">
+        <div className='flex flex-col items-center justify-center p-6'>
+          <div className="flex items-center mb-3">
             <img
               loading="lazy"
               src={iconSrc}
               alt=""
               className="icon medium mg-right-12px"
             />
-            <div className="heading-h6-size text-center">{name}</div>
+            <h6 className="text-center">{name}</h6>
           </div>
           <div className="text-center">
-            <div className="text-200 text-center color-neutral-700 mg-bottom-6px">
+            <div className="text-sm text-center text-slate-700 mb-1">
               {text}
             </div>
-            <div className="text-100">Time Horizon {timeHorizon}</div>
+            <div className="text-xs">Time Horizon {timeHorizon}</div>
           </div>
         </div>
-      </div>
+      </Card>
     );
 }
   
@@ -88,7 +93,7 @@ export default function ObjectiveSelector({ handleChange, value }) {
   
     return (
       <div
-        className={styles["investment-objective-selector"]}
+        className='grid gap-4 grid-cols-2'
       >
         {objectives.map((obj, i) => (
           <Objective 

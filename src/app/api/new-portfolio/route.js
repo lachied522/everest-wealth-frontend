@@ -4,12 +4,12 @@ import { NextResponse } from 'next/server';
 
 const WEB_SERVER_BASE_URL = process.env.NEXT_PUBLIC_WEB_SERVER_BASE_URL;
 
-async function newPortfolio(data, session) {
+async function newPortfolio({ name, amount, objective, session }) {
     const url = `${WEB_SERVER_BASE_URL}/new_portfolio/${session.user.id}`;
     try {
         const response = await fetch(url, {
             method: "POST",
-            body: JSON.stringify(data),
+            body: JSON.stringify({ name, amount, objective }),
             headers: {
                 "Content-Type": "application/json",
                 token: session.access_token,
@@ -31,10 +31,9 @@ export async function POST(req) {
     const body = await req.json();
 
     const res = await newPortfolio({
-        name: body.name,
-        value: body.value,
-        objective: body.objective,
-    }, session);
+        session,
+        ...body,
+    }, );
 
     return NextResponse.redirect(new URL(`/portfolio/${res.id}`, req.url));
 }

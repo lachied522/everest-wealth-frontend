@@ -17,15 +17,12 @@ const fetchData = async (session, supabase) => {
 
     //fetch user data
     const { data: userData, error: userError } = await supabase
-    .from("users")
-    .select("portfolios!portfolios_user_id_fkey(id, name, objective, data), profiles!users_profile_fkey(*), advice(*)")
-    .eq("id", session.user.id);
+    .from("portfolios")
+    .select("id, name, objective, data, advice(*), holdings(*)")
+    .eq("user_id", session.user.id);
     
-    if (userError) console.log(userError);
-    console.log("data fetched");
-  
     return [
-      userData[0], 
+      userData, 
       universeData
     ];    
 }
@@ -49,7 +46,7 @@ export default async function RootLayout({ children }) {
     });
 
     // calculate total portfolio values
-    const portfolioData = userData?.portfolios?.map((portfolio) => {
+    const updatedUserData = userData?.map((portfolio) => {
         let totalValue = 0;
         portfolio.data?.forEach(holding => {
             if (universeDataMap.has(holding.symbol)) {
@@ -60,10 +57,8 @@ export default async function RootLayout({ children }) {
         return { ...portfolio, totalValue: totalValue };
     });
 
-    const updatedUserData = { ...userData, portfolios: portfolioData };
-
     return (
-        <GlobalProvider session={session} userData={updatedUserData} universeData={universeData} >
+        <GlobalProvider session={session} userData={updatedUserData} universeDataMap={universeDataMap} >
             <UniverseProvider universeDataMap={universeDataMap} >
                 <SidebarProvider>
                     <div className="dashboard-main">

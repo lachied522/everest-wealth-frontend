@@ -10,11 +10,28 @@ export default function GlobalReducer(state, action) {
                 if (p.id === action.payload.id) {
                     return {
                         ...p,
-                        data: action.payload.data,
+                        holdings: action.payload.data,
                         totalValue: action.payload.totalValue,
                     }
                 }
                 return p;
+            });
+        }
+
+        case 'TOGGLE_FAVOURITE': {
+            return state.map(p => {
+                return {
+                    ...p,
+                    holdings: p.holdings.map(holding => {
+                        if (holding.id === action.payload.id) {
+                            return {
+                                ...holding,
+                                locked: !holding.locked,
+                            }
+                        }
+                        return holding;
+                    })
+                }
             });
         }
 
@@ -29,17 +46,6 @@ export default function GlobalReducer(state, action) {
                 return p;
             });
         }
-
-        // case 'ADD_HOLDING': {
-        //     return [
-        //         action.payload, 
-        //         ...state
-        //     ];
-        // };
-
-        // case 'DELETE_HOLDING': {
-        //     return state.filter(holding => holding.symbol !== action.payload.symbol);
-        // };
 
         default:
             return state;

@@ -126,7 +126,7 @@ export default function EditPortfolioPopup({ portfolio }) {
 
   useEffect(() => {
     if (portfolio) {
-      const sortedData = portfolio.data?.sort((a, b) => a.symbol.localeCompare(b.symbol)); //sort data alphabetically 
+      const sortedData = portfolio.holdings?.sort((a, b) => a.symbol.localeCompare(b.symbol)); //sort data alphabetically 
       setAllHoldingData(sortedData);
     }
   }, [portfolio]);
@@ -191,7 +191,7 @@ export default function EditPortfolioPopup({ portfolio }) {
   const confirmHoldings = () => {
     // check if any data is missing
     // const empty = allHoldingData.filter(holding => !holding.hasOwnProperty('units') || holding.units === 0);
-    if (allHoldingData !== portfolio.data) {
+    if (allHoldingData !== portfolio.holdings) {
       //update portfolio
       updatePortfolio(
         portfolio.id,

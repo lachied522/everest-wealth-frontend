@@ -23,7 +23,6 @@ const TABS = [
     {
         tabName: "Overview",
         visibleColumns: [
-            'domestic',
             "symbol",
             "name",
             "totalCost",
@@ -35,7 +34,6 @@ const TABS = [
     {
         tabName: "Income",
         visibleColumns: [
-            'domestic',
             "symbol",
             "name",
             "totalCost",
@@ -75,7 +73,7 @@ const AdviceNotification = ({ transactions }) => {
     )
 }
 
-const PortfolioTabs = ({ portfolioID, portfolioData, adviceData, onAdviceConfirm, loadingNewData, loadingNewAdvice }) => {
+const PortfolioTabs = ({ portfolioData, adviceData, onAdviceConfirm, loadingNewData, loadingNewAdvice }) => {
     const { universeDataMap } = useUniverseContext();
     const [currentData, setCurrentData] = useState([]);
     const [currentTransactionsData, setCurrentTransactionsData] = useState([]);
@@ -83,11 +81,11 @@ const PortfolioTabs = ({ portfolioID, portfolioData, adviceData, onAdviceConfirm
     const [visibleColumns, setVisibleColumns] = useState([]);
 
     useEffect(() => {
-        if (portfolioData && universeDataMap) setCurrentData(addStockInfoToPortfolio(portfolioData, universeDataMap));
+        if (portfolioData && universeDataMap) setCurrentData(addStockInfoToPortfolio(portfolioData?.holdings, universeDataMap));
     }, [portfolioData]);
 
     useEffect(() => {
-        if (adviceData && universeDataMap) setCurrentTransactionsData(addInfoToTransactions(adviceData.transactions, universeDataMap));
+        if (adviceData && universeDataMap) setCurrentTransactionsData(addInfoToTransactions(adviceData?.transactions, universeDataMap));
     }, [adviceData]);
 
     useEffect(() => {
@@ -110,9 +108,9 @@ const PortfolioTabs = ({ portfolioID, portfolioData, adviceData, onAdviceConfirm
         <>
             <div className="flex gap-3 mb-4 px-3">
             {TABS.map(tab => (
-                <>
+                <div key={tab.tabName} className="relative">
                     {tab.tabName==='Recommendations' ? (
-                    <div key={tab.tabName} className="relative">
+                    <>
                         <AdviceNotification transactions={currentTransactionsData}/>
                         <Button
                             variant="tab"
@@ -123,7 +121,7 @@ const PortfolioTabs = ({ portfolioID, portfolioData, adviceData, onAdviceConfirm
                         >
                             {tab.tabName}
                         </Button>
-                    </div>
+                    </>
                     ) : (
                     <Button
                         key={tab.tabName}
@@ -135,7 +133,7 @@ const PortfolioTabs = ({ portfolioID, portfolioData, adviceData, onAdviceConfirm
                     >
                         {tab.tabName}
                     </Button>)}
-                </>
+                </div>
             ))}
             </div>
             {currentTab === TABS[0] ? (

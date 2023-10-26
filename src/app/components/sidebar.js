@@ -36,7 +36,7 @@ const pages = [
   },
   {
     name: "Advice",
-    href: "/statements",
+    href: "/advice",
     Icon: LuFileBarChart,
   },
   {

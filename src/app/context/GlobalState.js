@@ -10,11 +10,9 @@ export const useGlobalContext = () => {
     return useContext(GlobalContext);
 }
 
-export const GlobalProvider = ({ children, session, userData, universeData }) => {
+export const GlobalProvider = ({ children, session, userData, universeDataMap }) => {
     const supabase = createClientComponentClient();
-    const [portfolioState, portfolioDispatch] = useReducer(GlobalReducer, userData?.portfolios); //use reducer for portfolio data
-    const [profileData, setProfileData] = useState(userData?.profiles);
-    const [adviceData, setAdviceData] = useState(userData?.advice);
+    const [state, dispatch] = useReducer(GlobalReducer, userData); //use reducer for portfolio data
 
     const commitPortfolio = async (portfolioData) => {
         if (!session) return;
@@ -29,13 +27,6 @@ export const GlobalProvider = ({ children, session, userData, universeData }) =>
    
     const updatePortfolio = (id, data) => {
         // calculate total portfolio values
-        const symbols = Array.from(data, (obj) => { return obj.symbol });
-
-        const universeDataMap = new Map();
-        universeData.forEach(stock => {
-            if (symbols.includes(stock.symbol)) universeDataMap.set(stock.symbol, stock);
-        });
-
         let totalValue = 0;
         data.forEach(holding => {
             if (universeDataMap.has(holding.symbol)) {
@@ -45,7 +36,7 @@ export const GlobalProvider = ({ children, session, userData, universeData }) =>
         });
 
         // update state
-        portfolioDispatch({
+        dispatch({
             type: "UPDATE_DATA",
             payload: {
                 id,
@@ -55,8 +46,29 @@ export const GlobalProvider = ({ children, session, userData, universeData }) =>
         });
     }
 
+    const toggleFavourite = async (id) => {
+        dispatch({
+            type: "TOGGLE_FAVOURITE",
+            payload: {
+                id
+            }
+        });
+
+        // update DB
+        if (!session) return;
+        const { data, error } = await supabase.rpc('toggle_locked', { holding_id: id });
+
+        if (error) console.log(`Error committing changes: ${error}`);
+    }
+
+    const updateAdvice = async (adviceData) => {
+        //update state
+        
+    }
+
+
     const updatePortfolioName = async (id, name) => {
-        portfolioDispatch({
+        dispatch({
             type: 'UPDATE_NAME',
             payload: {
                 id,
@@ -88,28 +100,13 @@ export const GlobalProvider = ({ children, session, userData, universeData }) =>
         if (error) console.log(error);
     }
 
-    const updateProfile = async (profileData) => {
-        //update state
-        setProfileData(profileData);
-        //commit changes to DB
-        await commitProfile(profileData)
-    }
-
-    const updateAdvice = async (adviceData) => {
-        //update state
-        setAdviceData(adviceData);
-    }
-
     return (
         <GlobalContext.Provider value={{
             session, 
-            portfolioData: portfolioState,
-            profileData,
-            adviceData,
-            universeData,
+            portfolioData: state,
             updatePortfolio,
+            toggleFavourite,
             updatePortfolioName,
-            updateProfile,
             updateAdvice
         }}>
             {children}

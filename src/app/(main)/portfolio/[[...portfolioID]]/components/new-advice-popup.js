@@ -62,7 +62,7 @@ export default function NewAdvicePopup({ portfolio, onSubmit }) {
 
     const onAdviceSubmit = () => {
         onSubmit({
-            value: proposedValue,
+            amount: amount,
             reason: adviceType,
             portfolio_id: portfolio.id,
         });
