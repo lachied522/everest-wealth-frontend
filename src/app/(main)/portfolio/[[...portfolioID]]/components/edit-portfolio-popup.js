@@ -34,11 +34,11 @@ const SearchHit = ({ hit, selectHit }) => {
     );
 };
 
-const HoldingRow = ({ data, update, remove }) => {
+const HoldingRow = ({ data, update }) => {
     //value column pre-populates if user fills units column and vice versa
     const changeValue = (e) => {
         const input = e.target.value;
-        const units = Math.floor(input / data.last_price);
+        const units = Math.max(Math.floor(input / data.last_price), 1);
         update({
           ...data,
           value: parseFloat(input),
@@ -65,7 +65,12 @@ const HoldingRow = ({ data, update, remove }) => {
     }
 
     const removeHolding = () => {
-      remove(data);
+      // holding is removed by setting units to zero
+      update({
+        ...data,
+        value: 0,
+        units: 0,
+      });
     }
 
     return (
@@ -81,7 +86,7 @@ const HoldingRow = ({ data, update, remove }) => {
                 maxLength="256"
                 name="units"
                 data-name="units"
-                min="0"
+                min={1}
                 placeholder="e.g. 100"
                 value={data.units || ""}
                 onChange={changeUnits}
@@ -92,7 +97,7 @@ const HoldingRow = ({ data, update, remove }) => {
                 maxLength="256"
                 name="value"
                 data-name="value"
-                min="0"
+                min={data.last_price}
                 placeholder="e.g. $1000"
                 value={data.value || ""}
                 onChange={changeValue}
@@ -105,7 +110,7 @@ const HoldingRow = ({ data, update, remove }) => {
                 data-name="cost"
                 min="0"
                 placeholder="e.g. $500"
-                required=""
+                required
                 value={data.cost || ""}
                 onChange={changeCost}
             />
@@ -119,7 +124,7 @@ const HoldingRow = ({ data, update, remove }) => {
 
 export default function EditPortfolioPopup({ portfolio }) {
   const { universeDataMap } = useUniverseContext();
-  const { updatePortfolio } = useGlobalContext();
+  const { updatePortfolio, commitPortfolio } = useGlobalContext();
   const [searchString, setSearchString] = useState('');
   const [searchHits, setSearchHits] = useState([]);
   const [allHoldingData, setAllHoldingData] = useState([]); //contains all existing holdings and new holdings
@@ -158,14 +163,14 @@ export default function EditPortfolioPopup({ portfolio }) {
 
   const selectHit = (hit) => {
     /**
-     * when user selects a hit from stock search
+     * when user selects a hit from stock search add to all holdings with units of 1
      */
-    if (allHoldingData) {
-      const newValue = [...allHoldingData, hit];
-      setAllHoldingData(newValue);
-    } else {
-      setAllHoldingData([hit]);
-    }
+
+    const newValue = [...allHoldingData, {
+      ...hit,
+      units: 1
+    }];
+    setAllHoldingData(newValue);
 
     //reset search bar
     setSearchString('');
@@ -183,26 +188,28 @@ export default function EditPortfolioPopup({ portfolio }) {
     setAllHoldingData(newArray);
   }
 
-  const removeHolding = (holding) => {
-    const newValue = allHoldingData.filter(obj => obj.symbol !== holding.symbol);
-    setAllHoldingData(newValue);
-  }
-
-  const confirmHoldings = () => {
-    // check if any data is missing
-    // const empty = allHoldingData.filter(holding => !holding.hasOwnProperty('units') || holding.units === 0);
+  const confirmHoldings = async () => {
     if (allHoldingData !== portfolio.holdings) {
-      //update portfolio
-      updatePortfolio(
+      // commit portfolio to DB
+      const success = await commitPortfolio(
         portfolio.id,
-        allHoldingData
-      );
+        allHoldingData,
+      )
+
+      // update portfolio state
+      if (success) {
+        updatePortfolio(
+          portfolio.id,
+          allHoldingData.filter((obj) => obj.units !== 0), // remove zero unit holdings
+        );
+      }
+
     }
   }
 
   const cancelEdit = () => {
     //reset data
-    setAllHoldingData(portfolio.data);
+    setAllHoldingData(portfolio.holdings);
   }
 
   return (
@@ -268,14 +275,18 @@ export default function EditPortfolioPopup({ portfolio }) {
                     </div>
                   </div>
                 )}
-                {addStockInfoToPortfolio(allHoldingData ?? [], universeDataMap).map((holding, index) => (
-                    <HoldingRow 
+                {addStockInfoToPortfolio(allHoldingData, universeDataMap).map((holding, index) => {
+                  // zero unit holdings are filtered out
+                  if (holding.units>0) {
+                    return (
+                      <HoldingRow 
                         key={index}
                         data={holding}
                         update={updateHolding}
-                        remove={removeHolding}
                     />
-                ))}
+                    )
+                  }
+                })}
               </div>
             </div>
           </div>

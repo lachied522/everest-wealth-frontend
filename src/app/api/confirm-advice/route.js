@@ -3,32 +3,33 @@ import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
 
-function updatePortfolio(currentPortfolio, transactions) {
-    const newPortfolio = [...currentPortfolio]; //create copy of current portfolio
-    const symbols = Array.from(newPortfolio, (obj) => { return obj.symbol });
-    for (const { symbol, units, last_price } of transactions) {
-      if (units===0) continue; //prevent zero unit holdings
+function getNewHoldings(currentHoldings, transactions) {
+    const newHoldings = [...currentHoldings]; //create copy of current portfolio
+    const symbols = Array.from(newHoldings, (obj) => { return obj.symbol });
+    for (const { symbol, units, price } of transactions) {
       const index = symbols.indexOf(symbol);
       if (index > -1) {
-        //existing holding
-        const holding = newPortfolio[index];
-        newPortfolio[index] = {
+        // existing holding
+        const holding = newHoldings[index];
+        const newUnits = Math.max(holding.units + units, 0);
+
+        newHoldings[index] = {
           ...holding,
           symbol: symbol,
-          units: Math.max(holding.units+units,0),
-          cost: last_price,
+          units: newUnits, // zero unit holdings are removed automatically by DB
+          cost: price,
         }
       } else {
-        newPortfolio.push({
+        newHoldings.push({
           symbol: symbol,
           units: units,
-          cost: last_price,
+          cost: price,
           locked: false,
         })
       }
     };
 
-    return newPortfolio;
+    return newHoldings;
 }
 
 export async function POST(req) {
@@ -42,59 +43,47 @@ export async function POST(req) {
 
     const {
         data: { session },
-      } = await supabase.auth.getSession();
+    } = await supabase.auth.getSession();
 
+    if (!session) {
+      // redirect to login
+      return NextResponse.redirect(new URL('/login', req.url));
+    }
     
-    // get portfolio
-    const { data: portfolio, error: portfolioError } = await supabase
-    .from("portfolios")
-    .select("data")
-    .eq("id", body.portfolio_id);
+    // get all holdings matching symbols
+    const symbols = Array.from(body.transactions, (obj) => { return obj.symbol });
 
-    if (portfolioError) console.log(portfolioError); //should change status of api response
+    const { data: holdings, error: holdingsError } = await supabase
+    .from("holdings")
+    .select("*")
+    .eq("portfolio_id", body.portfolio_id)
+    .in("symbol", symbols);
 
-    const newPortfolio = updatePortfolio(
-        portfolio[0].data || [],
+    if (holdingsError) console.log(holdingsError); //should change status of api response
+
+    const newHoldingRecords = getNewHoldings(
+        holdings,
         body.transactions
-    );
+    ).map(holding => ({
+        ...holding,
+        portfolio_id: body.portfolio_id,
+    }));
 
-    //update portfolio data and set advice to 'actioned'
     const { data, error: commitError } = await supabase
-    .from('portfolios')
-    .update({ data: newPortfolio })
-    .eq('id', body.portfolio_id)
+    .from('holdings')
+    .upsert(newHoldingRecords)
     .select();
 
     if (!commitError) {
+      // set advice record to actioned
         await supabase
-        .from('advice')
-        .update({ actioned: true })
-        .eq('id', body.id)
-        .select();
+          .from('advice')
+          .update({ actioned: true })
+          .eq('id', body.id)
+          .select();
     } else {
         //pass
     }
 
-    // these transactions could be done simultaneously as the following
-    // const commitPortfolio = supabase
-    // .from('portfolios')
-    // .update({ data: newPortfolio })
-    // .eq('id', body.portfolio_id);
-
-    // const updateAdvice = supabase
-    // .from('advice')
-    // .update({ actioned: true })
-    // .eq('id', body.id);
-
-    // const { error } = await supabase
-    // .transaction([
-    //     commitPortfolio,
-    //     updateAdvice, 
-    // ])
-    // .then(() => console.log('Transaction completed successfully'))
-    // .catch(error => console.error('Transaction failed:', error));
-
-
     return Response.json(data);
-    //return NextResponse.redirect(new URL(`/portfolio/${res.id}`, req.url));
 }

@@ -4,8 +4,6 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 
-import { motion } from "framer-motion";
-
 import { cn } from "@/components/lib/utils";
 
 import { BiHomeAlt2, BiBriefcaseAlt } from "react-icons/bi";

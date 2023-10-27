@@ -31,7 +31,6 @@ import { useGlobalContext } from "@/context/GlobalState";
 
 
 const Star = ({ selected, onClick } : { selected: boolean, onClick: () => void }) => {
-    console.log(selected)
     return (
       <LuStar 
         size={20}
@@ -73,7 +72,7 @@ export default function PortfolioTable<TData, TValue>({
                 <TableHeader className="bg-slate-100/50 transition-none">
                 {table?.getHeaderGroups().map((headerGroup) => (
                     <TableRow key={headerGroup.id}>
-                        <TableHead /> {/* add spacer for 'locked' column */}
+                        <TableHead><div/></TableHead> {/* add spacer for 'locked' column */}
                         {headerGroup.headers.map((header) => {
                         return (
                         <TableHead key={header.id}>
@@ -96,7 +95,7 @@ export default function PortfolioTable<TData, TValue>({
                         key={row.id}
                         data-state={row.getIsSelected() && "selected"}
                     >
-                        <TableCell className="flex items-center justify-center">
+                        <TableCell className="items-center">
                             <Star selected={row.original['locked']} onClick={() => toggleFavourite(row.original['id'])}/>
                         </TableCell>
                         {row.getVisibleCells().map((cell) => (

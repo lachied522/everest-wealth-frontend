@@ -1,6 +1,6 @@
 "use client";
-import { createContext, useState, useContext, useReducer, useEffect } from "react";
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createContext, useContext, useReducer } from "react";
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 import GlobalReducer from "./GlobalReducer";
 
@@ -14,15 +14,51 @@ export const GlobalProvider = ({ children, session, userData, universeDataMap })
     const supabase = createClientComponentClient();
     const [state, dispatch] = useReducer(GlobalReducer, userData); //use reducer for portfolio data
 
-    const commitPortfolio = async (portfolioData) => {
-        if (!session) return;
-        const { data, error } = await supabase
-        .from('users')
-        .update({ portfolio: portfolioData })
-        .eq('id', session.user.id)
-        .select();
+    const commitPortfolio = async (id, data) => {
+        // upsert modified holdings to DB
+        // should this be handled server side?
+        const newHoldings = [];
+        // get current portfolio
+        const portfolio = userData.find((obj) => obj.id === id);
 
-        if (error) console.log(`Error committing changes: ${error}`);
+        if (!portfolio) return false;
+
+        const symbols = Array.from(portfolio.holdings, (obj) => { return obj.symbol });
+        for (const holding of data) {
+            const index = symbols.indexOf(holding.symbol);
+            if (index > -1) {
+                // existing holding
+                if (holding.units===portfolio.holdings[index].units) continue; // skip if holding has not been modified
+                    newHoldings.push({
+                        id: holding.id,
+                        symbol: holding.symbol,
+                        units: Math.max(holding.units, 0), // zero unit holdings are removed automatically by DB
+                        cost: holding.cost,
+                        portfolio_id: id,
+                    });
+            } else {
+                // new holding
+                newHoldings.push({
+                    symbol: holding.symbol,
+                    units: Math.max(holding.units, 0),
+                    cost: holding.cost,
+                    portfolio_id: id,
+                });
+            }
+        };
+
+        if (newHoldings.length > 0) {
+            const { error } = await supabase
+                .from('holdings')
+                .upsert(newHoldings)
+                .select();
+
+            if (error) {
+                return false;
+            };
+        } 
+
+        return true;
     }
    
     const updatePortfolio = (id, data) => {
@@ -107,7 +143,8 @@ export const GlobalProvider = ({ children, session, userData, universeDataMap })
             updatePortfolio,
             toggleFavourite,
             updatePortfolioName,
-            updateAdvice
+            updateAdvice,
+            commitPortfolio,
         }}>
             {children}
         </GlobalContext.Provider>

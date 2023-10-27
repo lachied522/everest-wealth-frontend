@@ -44,8 +44,6 @@ const TABS = [
     }
 ]
 
-
-
 export function addInfoToTransactions(transactions, universeDataMap) {
     if (!(transactions?.length > 0)) return [];
 
@@ -57,7 +55,7 @@ export function addInfoToTransactions(transactions, universeDataMap) {
         const value = (price * units).toFixed(2);
         const transaction = units > 0? "BUY" : "SELL";
 
-        return { symbol, units, name, transaction, value};
+        return { symbol, units, name, transaction, price, value};
     });
 
     return newArray;
@@ -73,7 +71,7 @@ const AdviceNotification = ({ transactions }) => {
     )
 }
 
-const PortfolioTabs = ({ portfolioData, adviceData, onAdviceConfirm, loadingNewData, loadingNewAdvice }) => {
+const PortfolioTabs = ({ portfolioData, adviceData, confirmTransactions, loadingNewData, loadingNewAdvice }) => {
     const { universeDataMap } = useUniverseContext();
     const [currentData, setCurrentData] = useState([]);
     const [currentTransactionsData, setCurrentTransactionsData] = useState([]);
@@ -103,6 +101,13 @@ const PortfolioTabs = ({ portfolioData, adviceData, onAdviceConfirm, loadingNewD
         // switch to 'recommendations' tab
         if (loadingNewAdvice) setCurrentTab(TABS[0]);
     }, [loadingNewAdvice]);
+
+    const onAdviceConfirm = () => {
+        confirmTransactions({
+            ...adviceData,
+            transactions: addInfoToTransactions(adviceData.transactions, universeDataMap),
+        })
+    }
 
     return (
         <>

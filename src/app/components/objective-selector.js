@@ -12,7 +12,7 @@ function Objective({ name, iconSrc, text, timeHorizon, selected, handleChange })
     return (
       <Card
         className={cn(
-          'cursor-pointer',
+          'w-[300px] cursor-pointer',
           selected && 'bg-blue-100 border-blue-200'
         )}
         onClick={handleClick}
@@ -93,7 +93,7 @@ export default function ObjectiveSelector({ handleChange, value }) {
   
     return (
       <div
-        className='grid gap-4 grid-cols-2'
+        className='flex flex-wrap gap-4 items-stretch justify-center'
       >
         {objectives.map((obj, i) => (
           <Objective 

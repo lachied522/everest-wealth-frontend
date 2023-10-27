@@ -88,14 +88,18 @@ export default function PortfolioPage() {
     };
   }, [currentPortfolio]);
 
-  const confirmTransactions = async () => {
+  const confirmTransactions = (adviceData) => {
+    // clear advice
     setCurrentAdvice({
       transactions: []
     });
+
+    // show loading animation
     setLoadingNewData(true);
+
     fetch('api/confirm-advice', {
         method: "POST",
-        body: JSON.stringify(currentAdvice),
+        body: JSON.stringify(adviceData),
         headers: {
             "Content-Type": "application/json",
             token: session.access_token,
@@ -105,8 +109,8 @@ export default function PortfolioPage() {
     .then(data => {
       const newPortfolio = data[0];
       updatePortfolio(
-        newPortfolio.id,
-        newPortfolio.data
+        currentPortfolio.id,
+        newPortfolio
       )
     })
     .catch(err => console.log(err))
@@ -165,7 +169,7 @@ export default function PortfolioPage() {
       <PortfolioTabs 
         portfolioData={currentPortfolio} 
         adviceData={currentAdvice}
-        onAdviceConfirm={confirmTransactions}
+        confirmTransactions={confirmTransactions}
         loadingNewData={loadingNewData}
         loadingNewAdvice={loadingNewAdvice}
       />

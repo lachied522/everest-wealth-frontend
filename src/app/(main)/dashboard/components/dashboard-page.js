@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 
 import { useGlobalContext } from "@/context/GlobalState";
-import NewPortfolioPopup from "./new-portfolio-popup";
+import NewPortfolioPopup from "@/components/new-portfolio-popup";
 
 export default function DashboardPage() {
     const { session, portfolioData } = useGlobalContext();
