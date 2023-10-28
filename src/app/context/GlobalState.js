@@ -102,7 +102,6 @@ export const GlobalProvider = ({ children, session, userData, universeDataMap })
         
     }
 
-
     const updatePortfolioName = async (id, name) => {
         dispatch({
             type: 'UPDATE_NAME',
@@ -121,19 +120,25 @@ export const GlobalProvider = ({ children, session, userData, universeDataMap })
         if (error) console.log(`Error committing changes: ${error}`);
     }
 
-    const commitProfile = async (profileData) => {
-        const profileCopy = {...profileData}; //create copy of profile
-        delete profileCopy['id']; //delete id from profile
-        if (!session) return;
-        const { data, error } = await supabase
-        .from('profiles')
-        .insert({
-            ...profileCopy,
-            'user_id': session.user.id
-        })
-        .select();
+    const deletePortfolio = async (id) => {
+        // delete record from DB
+        const { error } = await supabase
+            .from('portfolios')
+            .delete()
+            .eq('id', id);
 
-        if (error) console.log(error);
+        if (!error) {
+            // update state
+            dispatch({
+                type: "DELETE_PORTFOLIO",
+                payload: {
+                    id
+                },
+            });
+        } else {
+            console.log(error)
+        }
+
     }
 
     return (
@@ -145,6 +150,7 @@ export const GlobalProvider = ({ children, session, userData, universeDataMap })
             updatePortfolioName,
             updateAdvice,
             commitPortfolio,
+            deletePortfolio,
         }}>
             {children}
         </GlobalContext.Provider>

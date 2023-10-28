@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { LuLink } from "react-icons/lu";
 
 import PortfolioName from "@/components/portfolio-name";
+import PortfolioSettingsPopup from "./portfolio-settings-popup";
 import PortfolioDropdown from "@/components/portfolio-dropdown";
 import PortfolioStatBar from "./portfolio-stat-bar";
 import EditPortfolioPopup from "./edit-portfolio-popup";
@@ -139,14 +140,17 @@ export default function PortfolioPage() {
     <div className="md:max-w-screen-xl px-6 mx-auto">
       <div className="mb-8">
         <div className="flex items-center justify-between">
+          {currentPortfolio? (
           <div className="flex gap-4 sm:gap-2 items-center">
-              {currentPortfolio? (
-                <>
-                  <PortfolioName portfolio={currentPortfolio} />
-                  <PortfolioDropdown />
-                </>
-              ): <Skeleton className="w-[240px] sm:w=[80px] h-10"/>}
+            <PortfolioSettingsPopup portfolio={currentPortfolio} />
+            <div className="text-lg border-0 bg-transparent text-slate-800 disabled:cursor-text disabled:opacity-100 mr-4">
+              {currentPortfolio.name}
+            </div>
+            <PortfolioDropdown />
           </div>
+          ): (
+          <Skeleton className="w-[240px] h-10"/>
+          )}
           <div className="flex gap-4">
             <Button
               variant="secondary"

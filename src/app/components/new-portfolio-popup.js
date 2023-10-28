@@ -13,6 +13,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 import { LuPlus } from "react-icons/lu";
 
@@ -57,11 +58,11 @@ export const NewPortfolioModule = () => {
     }
 
     return (
-        <form className="gap-16 flex-col flex items-center justify-center md:px-3">
+        <form className="flex flex-col items-center justify-center gap-16 md:px-3">
             <div className="text-lg text-slate-800">Portfolio Name</div>
             <Input
                 type="text"
-                maxLength="256"
+                maxLength={20}
                 name="name"
                 data-name="Name"
                 placeholder="My Portfolio"
@@ -98,7 +99,7 @@ export const NewPortfolioModule = () => {
                         onChange={onDataChange}
                     />
                     <span className="w-form-label">
-                    No
+                        No
                     </span>
                 </label>
             </div>

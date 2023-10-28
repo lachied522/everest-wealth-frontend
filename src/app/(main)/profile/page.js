@@ -4,7 +4,6 @@ import { cookies } from 'next/headers';
 import ProfilePage from "./components/profile-page";
 
 export default async function () {
-
   const supabase = createServerComponentClient({ cookies });
 
   const {
@@ -16,11 +15,11 @@ export default async function () {
   }
 
   const { data, error } = await supabase
-  .from("profiles")
-  .select("*")
-  .eq("user_id", session.user.id)
-  .order('created_at', { ascending: false})
-  .limit(1);
+    .from("profiles")
+    .select("*")
+    .eq("user_id", session.user.id)
+    .order('created_at', { ascending: false})
+    .limit(1);
 
   if (error) {
     console.log(error);
@@ -28,6 +27,6 @@ export default async function () {
   }
   
   return (
-    <ProfilePage profileData={data[0]}/>
+    <ProfilePage profileData={data[0]} userName={session.user.user_metadata['name'] || 'Name'} />
   );
 };

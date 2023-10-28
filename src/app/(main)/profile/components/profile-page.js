@@ -1,6 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+
 import { LuPencil, LuSave, LuMapPin, LuCalendar } from "react-icons/lu";
 
 import { Button } from "@/components/ui/button";
@@ -20,24 +22,27 @@ import { Separator } from "@/components/ui/separator";
 
 import { cn } from "@/components/lib/utils";
 
-import { useGlobalContext } from "@/context/GlobalState";
-import ObjectiveSelector from "@/components/objective-selector";
 import IndustryPreferences from "./industry-preferences";
 
 
-export default function ProfilePage({ profileData }) {
-  const { updateProfile } = useGlobalContext();
-  const [data, setData] = useState(profileData || {}); //object to keep track of user changes
-  const [edit, setEdit] = useState(false); //defines whether user is in edit mode
+export default function ProfilePage({ profileData, userName }) {
+  const supabase = createClientComponentClient();
+  const [data, setData] = useState(profileData); // object to keep track of user changes
+  const [edit, setEdit] = useState(false); // defines whether user is in edit mode
 
-  console.log(profileData);
-  useEffect(() => {
-    setData(profileData || {});
-  }, [profileData]);
+  const commitProfile = async () => {
+    const profileCopy = {...data}; // create copy of profile
+    delete profileCopy['id']; // delete id from profile
+    const { data, error } = await supabase
+    .from('profiles')
+    .insert({
+        ...profileCopy,
+        'user_id': session.user.id
+    })
+    .select();
 
-  const handleEditClick = () => {
-    setEdit(true);
-  };
+    if (error) console.log(error);
+  }
 
   const handleSave = async () => {
     if (data !== profileData) {
@@ -46,7 +51,12 @@ export default function ProfilePage({ profileData }) {
     setEdit(false);
   }
 
+  const handleEditClick = () => {
+    setEdit(true);
+  };
+
   const handleChange = ({ name, value }) => {
+    
     setData((prevData) => ({
       ...prevData,
       [name]: value
@@ -54,7 +64,8 @@ export default function ProfilePage({ profileData }) {
   };
 
   const onDataChange = (e) => {
-    handleChange(e.target);
+    console.log(e);
+    //handleChange(e.target);
   }
 
   return (
@@ -77,14 +88,9 @@ export default function ProfilePage({ profileData }) {
         />
         <div className='z-[-1] opacity-60 bg-[linear-gradient(rgba(0,0,0,0),rgba(0,0,0,0.84))] absolute top-[24%] bottom-0 inset-x-0' />
         <div className='flex justify-between items-end'>
-          <div>
-            <h3 className="text-slate-800 mb-2">
-              John Carter
-            </h3>
-            <h5 className="text-slate-500 opacity-80 mb-0">
-              CEO at Dashly X
-            </h5>
-          </div>
+          <h3 className="text-slate-800 mb-2">
+            {userName}
+          </h3>
         </div>
       </div>
       <div>
@@ -123,18 +129,8 @@ export default function ProfilePage({ profileData }) {
             )}/>
           <Separator className="my-4"/>
           <div>
-            <div className="mb-6">
-              <h4 className="mb-6">Investment Objective</h4>
-              <div className="text-lg text-slate-800">
-                What is your primary investment objective?
-              </div>
-            </div>
-            <ObjectiveSelector handleChange={handleChange} value={data?.objective} />
-          </div>
-          <Separator className="my-4"/>
-          <div>
               <h4 className="mb-6">Finances</h4>
-              <div className="grid grid-cols-2 items-center justify-items-center gap-12">
+              <Card className="grid grid-cols-2 items-center justify-items-center gap-12 p-16">
                 <div className="w-full text-left text-lg text-slate-800">Employment type</div>
                 <Select
                   name="employment"
@@ -213,21 +209,21 @@ export default function ProfilePage({ profileData }) {
                       checked={data? !data.borrowing: true}
                       onChange={onDataChange}
                     />
-                    <Label htmlFor={false} >No</Label>
+                    <Label htmlFor={false}>No</Label>
                 </RadioGroup>
-              </div>
+              </Card>
           </div>
           <Separator className="my-4"/>
           <div>
               <h4 className="mb-6">Experience</h4>
-              <div className="grid grid-cols-2 items-center justify-items-center gap-12">
+              <Card className="grid grid-cols-2 items-center justify-items-center gap-12 p-16">
                 <div className="text-lg text-slate-800">
                   How many years&#x27; experience do you have investing in stocks?
                 </div>
                 <Select
                   name="experience"
                   value={data?.experience || ""}
-                  onChange={onDataChange}
+                  onValueChange={onDataChange}
                 >
                   <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Select one..." />
@@ -241,12 +237,12 @@ export default function ProfilePage({ profileData }) {
                     <SelectItem value="5">5 +</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
+              </Card>
           </div>
           <Separator className="my-4"/>
           <div>
               <h4 className="mb-6">Risk Tolerance</h4>
-              <Card className="flex flex-col justify-center gap-16 py-16">
+              <Card className="flex flex-col justify-center gap-16 p-16">
                 <div className="flex flex-col gap-6 items-center">
                   <div className="text-lg text-slate-800">
                     Which of the following best describes your association with
@@ -518,7 +514,7 @@ export default function ProfilePage({ profileData }) {
           <Separator className="my-4"/>
           <div>
               <h4 className="mb-6">Preferences</h4>
-              <Card className="flex flex-col gap-12 items-center py-16">
+              <Card className="flex flex-col gap-12 items-center p-16">
                 <div className="flex flex-col gap-12 items-center">
                   <div className="text-lg text-slate-800">
                     What proportion of your portfolio do you wish to invest in
@@ -526,7 +522,7 @@ export default function ProfilePage({ profileData }) {
                   </div>
                   <div className="flex gap-4 justify-stretch">
                     <span>0</span>
-                    <Slider name="international" handleChange={handleChange} className="w-[240px]"/>
+                    <Slider name="international" handleChange={handleChange}  disabled={!edit} className="w-[240px] cursor-pointer"/>
                     <span>100</span>
                   </div>
                   <div className="text-lg text-slate-800">
@@ -534,7 +530,7 @@ export default function ProfilePage({ profileData }) {
                   </div>
                   <div className="flex gap-4 justify-stretch">
                     <span>0</span>
-                    <Slider name="passive" handleChange={handleChange} className="w-[240px]" />
+                    <Slider name="passive" handleChange={handleChange} disabled={!edit} className="w-[240px] cursor-pointer"/>
                     <span>100</span>
                   </div>
                 </div>

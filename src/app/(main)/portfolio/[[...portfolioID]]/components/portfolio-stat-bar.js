@@ -58,7 +58,7 @@ export default function PortfolioStatBar({ portfolio }) {
                             <div className="text-xs font-bold text-slate-800">{portfolio?.objective}</div>
                         </div>
                     </>
-                    ) : <Skeleton className="w-[240px] sm:w=[80px] h-10"/>}
+                    ) : <Skeleton className="w-[240px] h-10"/>}
                 </CardContent>
             </Card>
             <Card>
@@ -73,7 +73,7 @@ export default function PortfolioStatBar({ portfolio }) {
                             <div className="text-sm font-medium">Value</div>
                             <div className="text-lg text-slate-800 font-bold mr-1">${totalValue.toLocaleString() || 0}</div>
                         </div>
-                    </>) : <Skeleton className="w-[240px] sm:w=[80px] h-10"/>}
+                    </>) : <Skeleton className="w-[240px] h-10"/>}
                 </CardContent>
             </Card>
             <Card>
@@ -82,7 +82,7 @@ export default function PortfolioStatBar({ portfolio }) {
                     <div>
                         <div className="text-sm font-medium">Week return</div>
                         <ChangeIndicator change={3.1}/>
-                    </div>) : <Skeleton className="w-[240px] sm:w=[80px] h-10"/>}
+                    </div>) : <Skeleton className="w-[240px] h-10"/>}
                 </CardContent>
             </Card>
             <Card>
@@ -90,7 +90,7 @@ export default function PortfolioStatBar({ portfolio }) {
                     {portfolio ? (<div>
                         <div className="text-sm font-medium">Total return</div>
                         <ChangeIndicator change={-2.8}/>
-                    </div>) : <Skeleton className="w-[240px] sm:w=[80px] h-10"/>}
+                    </div>) : <Skeleton className="w-[240px] h-10"/>}
                 </CardContent>
             </Card>
         </div>

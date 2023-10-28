@@ -6,7 +6,7 @@ import { cn } from "@/components/lib/utils";
 
 import { useSidebarContext } from "@/context/SidebarState";
 
-export default function Header({ currentPage }) {
+export default function Header({ currentPage, userName }) {
   const { 
     sidebarOpen: isOpen, 
     setSidebarOpen: setIsOpen, 
@@ -43,13 +43,12 @@ export default function Header({ currentPage }) {
         <img
           src="https://uploads-ssl.webflow.com/64afbac816bb17eb2fdc3f03/64afbac916bb17eb2fdc3fc2_john-carter-nav-avatar-dashboardly-webflow-template.jpg"
           loading="eager"
-          alt="John Carter - Dashly X Webflow Template"
           className="avatar-circle _02 mg-right-8px"
         />
         <div className="hidden-on-mbl">
           <div className="mg-bottom-4px">
             <div className="text-200 medium color-neutral-800">
-              John Carter
+              {userName}
             </div>
           </div>
         </div>

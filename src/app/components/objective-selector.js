@@ -92,9 +92,7 @@ export default function ObjectiveSelector({ handleChange, value }) {
     }
   
     return (
-      <div
-        className='flex flex-wrap gap-4 items-stretch justify-center'
-      >
+      <div className='flex flex-wrap gap-4 items-stretch justify-center'>
         {objectives.map((obj, i) => (
           <Objective 
             key={i}

@@ -47,6 +47,10 @@ export default function GlobalReducer(state, action) {
             });
         }
 
+        case 'DELETE_PORTFOLIO': {
+            return state.filter(p => p.id!==action.payload.id);
+        }
+
         default:
             return state;
     }

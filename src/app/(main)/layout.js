@@ -18,7 +18,7 @@ const fetchData = async (session, supabase) => {
     //fetch user data
     const { data: userData, error: userError } = await supabase
     .from("portfolios")
-    .select("id, name, objective, data, advice(*), holdings(*)")
+    .select("id, name, objective, brokerage, advice(*), holdings(*)")
     .eq("user_id", session.user.id);
     
     return [
@@ -64,7 +64,7 @@ export default async function RootLayout({ children }) {
                     <div className="dashboard-main">
                         <Sidebar />
                         <div className="dashboard-content">
-                            <Header currentPage={"Portfolio"} />
+                            <Header currentPage={"Portfolio"} userName={session.user.user_metadata['name'] || 'Name'} />
                             <div className="dashboard-main-content">
                                 {children}
                             </div>

@@ -37,7 +37,7 @@ const Star = ({ selected, onClick } : { selected: boolean, onClick: () => void }
         onClick={onClick}
         className={cn(
             'cursor-pointer hover:scale-105',
-            selected && 'text-yellow-400'
+            selected && 'fill-yellow-400 text-yellow-400'
         )}
       />
     )
