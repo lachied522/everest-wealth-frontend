@@ -4,11 +4,7 @@ import { cookies } from 'next/headers';
 import Link from "next/link";
 import Image from "next/image";
 
-import { Card } from "@/components/ui/card";
-import { Separator } from '@/components/ui/separator';
-
-
-import { NewPortfolioForm } from './components/new-portfolio-form';
+import { NewUserForm } from './components/new-user-form';
 
 export default async function NewUserPage() {
     const supabase = createServerComponentClient({ cookies });
@@ -33,18 +29,10 @@ export default async function NewUserPage() {
                     </Link>
             </div>
             <div className="h-full flex flex-col justify-center justify-items-center items-center px-12">
-                <Card className='p-12 xl:max-w-[60vw] lg:p-16'>
-                    <div className='flex flex-col gap-1 text-center mb-8'>
-                        <h1>Welcome {session?.user.user_metadata['name'] || 'Name'}</h1>
-                        <div className='text-lg text-slate-800'>Create your first portfolio</div>
-                    </div>
-                    <Separator className='my-16'/>
-                    <NewPortfolioForm session={session} />
-                </Card>
+                <h1 className='mb-4'>Welcome {session?.user.user_metadata['name'] || 'Name'}</h1>
+                <NewUserForm session={session} />
             </div>
-            <div
-                className="dashboard-footer-wrapper"
-            >
+            <div className="dashboard-footer-wrapper">
                 <div className="container-default w-container">
                 <div className="dashboard-footer-inner-wrapper">
                     <div>

@@ -84,20 +84,13 @@ export default function ObjectiveSelector({ handleChange, value }) {
       }
     ];  
   
-    const selectObjective = (name) => {
-      handleChange({
-        name: "objective",
-        value: name,
-      });
-    }
-  
     return (
       <div className='flex flex-wrap gap-4 items-stretch justify-center'>
         {objectives.map((obj, i) => (
           <Objective 
             key={i}
             selected={(value===obj.name)} 
-            handleChange={selectObjective}
+            handleChange={handleChange}
             {...obj}
           />
         ))}

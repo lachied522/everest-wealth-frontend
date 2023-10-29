@@ -134,32 +134,32 @@ export default function PortfolioSettingsPopup({ portfolio }) {
                         <div className="flex flex-col place-items-center gap-8">
                             <div className="text-lg text-center text-slate-800">Brokerage</div>
                             <div className="flex gap-8">
-                                    <Button
-                                        type="button"
-                                        variant='ghost'
-                                        onClick={toggleBrokerageType}
-                                    >
-                                        <div className="h-4 w-4 rounded-full border flex items-center justify-center mr-2">
-                                            <LuCircle className={cn(
-                                                "h-2.5 w-2.5 hidden",
-                                                brokerageType==='$' && "block fill-slate-700"
-                                            )}/>
-                                        </div>
-                                        Dollar ($)
-                                    </Button>
-                                    <Button
-                                        type="button"
-                                        variant='ghost'
-                                        onClick={toggleBrokerageType}
-                                    >
-                                        <div className="h-4 w-4 rounded-full border flex items-center justify-center mr-2">
-                                            <LuCircle className={cn(
-                                                "h-2.5 w-2.5 hidden",
-                                                brokerageType!=='$' && "block fill-slate-700"
-                                            )}/>
-                                        </div>
-                                        Percentage (%)
-                                    </Button>
+                                <Button
+                                    type="button"
+                                    variant='ghost'
+                                    onClick={toggleBrokerageType}
+                                >
+                                    <div className="h-4 w-4 rounded-full border flex items-center justify-center mr-2">
+                                        <LuCircle className={cn(
+                                            "h-2.5 w-2.5 hidden",
+                                            brokerageType==='$' && "block fill-slate-700"
+                                        )}/>
+                                    </div>
+                                    Dollar ($)
+                                </Button>
+                                <Button
+                                    type="button"
+                                    variant='ghost'
+                                    onClick={toggleBrokerageType}
+                                >
+                                    <div className="h-4 w-4 rounded-full border flex items-center justify-center mr-2">
+                                        <LuCircle className={cn(
+                                            "h-2.5 w-2.5 hidden",
+                                            brokerageType!=='$' && "block fill-slate-700"
+                                        )}/>
+                                    </div>
+                                    Percentage (%)
+                                </Button>
                             </div>
                             {brokerageType==='$' ? (
                             <div className="flex items-center gap-2 text-slate-800">

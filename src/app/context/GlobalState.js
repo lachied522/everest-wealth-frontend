@@ -64,7 +64,7 @@ export const GlobalProvider = ({ children, session, userData, universeDataMap })
     const updatePortfolio = (id, data) => {
         // calculate total portfolio values
         let totalValue = 0;
-        data.forEach(holding => {
+        data?.forEach(holding => {
             if (universeDataMap.has(holding.symbol)) {
                 const price = universeDataMap.get(holding.symbol).last_price;
                 totalValue += price * holding.units;
