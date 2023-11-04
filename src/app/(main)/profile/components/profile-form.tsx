@@ -31,11 +31,14 @@ import { Card } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
 
-import { LuPencil, LuSave, LuMapPin, LuCalendar } from "react-icons/lu"
+import { LuPencil, LuSave, LuMapPin } from "react-icons/lu"
 
+import DOBPicker from "@/components/dob-picker";
 import IndustryPreferences from "@/components/industry-preferences"
 
 const formSchema = z.object({
+    DOB: z.date().max(new Date(), { message: "Please select a valid DOB" }).optional(),
+    country: z.string().optional(),
     employment: z.string().optional(),
     salary: z.coerce.number().optional(),
     assets: z.coerce.number().optional(),
@@ -132,8 +135,17 @@ export default function ProfileForm({ data, userName } : ProfileFormProps) {
                         <div className="text-slate-800">Los Angeles, CA</div>
                     </div>
                     <div className="flex align-center gap-2">
-                        <LuCalendar size={16} className="text-blue-800"/>
-                        <div className="text-slate-800">Jan 2, 2021</div>
+                        <FormField  
+                            control={form.control}
+                            name="DOB"
+                            render={({field}) => (
+                                <FormItem>
+                                    <FormControl>
+                                        <DOBPicker value={field.value} onChange={field.onChange} />
+                                    </FormControl>
+                                </FormItem>
+                            )}
+                        />
                     </div>
                     {isEdit ? (
                     <Button type="submit" onClick={() => console.log(form.formState.errors)}>

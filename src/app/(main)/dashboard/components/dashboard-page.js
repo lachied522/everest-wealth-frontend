@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 
-import { useGlobalContext } from "@/context/GlobalState";
+import { useGlobalContext } from "src/app/(main)/context/GlobalState";
 import NewPortfolioPopup from "@/components/new-portfolio-popup";
 
 export default function DashboardPage() {

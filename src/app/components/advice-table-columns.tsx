@@ -6,10 +6,7 @@ import {
   LuChevronsUpDown, 
   LuChevronUp, 
   LuChevronDown,
-  LuGlobe2,
 } from "react-icons/lu";
-
-import { GiAustralia } from "react-icons/gi"
 
 import { Button } from "@/components/ui/button"
 
@@ -17,6 +14,7 @@ export type Transaction = {
     symbol: string;
     name: string;
     units: Number;
+    price: Number;
     transaction: string;
     value: Number;
 }
@@ -26,7 +24,9 @@ const USDollar = new Intl.NumberFormat("en-US", {
   currency: "USD",
 });
 
-const Badge = ({ type }) => {
+const Badge = ({ type }: {
+  type: string
+}) => {
     return (
       <>
         <div className={cn(
@@ -105,6 +105,15 @@ export const columns: ColumnDef<Transaction>[] = [
         )
     },
     {
+      accessorKey: 'price',
+      header: ({ column }) => (
+        <div>Price</div>
+      ),
+      cell: ({ row }) => (
+        USDollar.format(row.getValue('price'))
+      )
+    },
+    {
         accessorKey: 'value',
         header: ({ column }) => (
           <div>Value</div>
@@ -112,5 +121,23 @@ export const columns: ColumnDef<Transaction>[] = [
         cell: ({ row }) => (
           USDollar.format(row.getValue('value'))
         )
-    }
+    },
+    {
+      accessorKey: 'brokerage',
+      header: ({ column }) => (
+        <div>Brokerage</div>
+      ),
+      cell: ({ row }) => (
+        USDollar.format(row.getValue('brokerage') || 0)
+      )
+    },
+    {
+      accessorKey: 'net',
+      header: ({ column }) => (
+        <div>Net</div>
+      ),
+      cell: ({ row }) => (
+        USDollar.format(row.getValue('net'))
+      )
+    },
 ]

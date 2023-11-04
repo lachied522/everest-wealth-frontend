@@ -2,9 +2,6 @@
 
 import { cn } from "@/components/lib/utils";
 
-
-import { useGlobalContext } from "@/context/GlobalState";
-
 const SectorPrefence = ({ sectorName, preference, togglePreference }) => {
     const onClick = () => {
       togglePreference({

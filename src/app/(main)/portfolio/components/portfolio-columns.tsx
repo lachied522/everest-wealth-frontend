@@ -104,6 +104,15 @@ export const columns: ColumnDef<Holding & StockInfo>[] = [
         ),
     },
     {
+      accessorKey: 'units',
+      header: ({ column }) => (
+        <PortfolioTableColumnHeader column={column} title={"Units"} />
+      ),
+      cell: ({ row }) => (
+        <div className="text-center">{row.getValue('units')}</div>
+      )
+    },
+    {
         accessorKey: 'totalCost',
         header: ({ column }) => (
           <PortfolioTableColumnHeader column={column} title={"Cost"} />

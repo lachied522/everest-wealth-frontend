@@ -15,10 +15,10 @@ import { Input } from "@/components/ui/input";
 
 import { LuPencil, LuSearch, LuTrash } from "react-icons/lu";
 
-import { addStockInfoToPortfolio } from "./portfolio-page";
+import { addStockInfoToPortfolio } from "../utils";
 
-import { useUniverseContext } from "@/context/UniverseState";
-import { useGlobalContext } from "@/context/GlobalState";
+import { useUniverseContext } from "src/app/(main)/context/UniverseState";
+import { useGlobalContext } from "src/app/(main)/context/GlobalState";
 
 const SearchHit = ({ hit, selectHit }) => {
 
@@ -122,19 +122,19 @@ const HoldingRow = ({ data, update }) => {
     );
 };
 
-export default function EditPortfolioPopup({ portfolio }) {
+export default function EditPortfolioPopup() {
   const { universeDataMap } = useUniverseContext();
-  const { updatePortfolio, commitPortfolio } = useGlobalContext();
+  const { currentPortfolio, updatePortfolio, commitPortfolio } = useGlobalContext();
   const [searchString, setSearchString] = useState('');
   const [searchHits, setSearchHits] = useState([]);
   const [allHoldingData, setAllHoldingData] = useState([]); //contains all existing holdings and new holdings
 
   useEffect(() => {
-    if (portfolio) {
-      const sortedData = portfolio.holdings?.sort((a, b) => a.symbol.localeCompare(b.symbol)); //sort data alphabetically 
+    if (currentPortfolio) {
+      const sortedData = currentPortfolio.holdings.sort((a, b) => a.symbol.localeCompare(b.symbol)); //sort data alphabetically 
       setAllHoldingData(sortedData);
     }
-  }, [portfolio]);
+  }, [currentPortfolio]);
 
   const searchStocks = (e) => {
     /**
@@ -189,46 +189,44 @@ export default function EditPortfolioPopup({ portfolio }) {
   }
 
   const confirmHoldings = async () => {
-    if (allHoldingData !== portfolio.holdings) {
+    if (allHoldingData !== currentPortfolio.holdings) {
       // commit portfolio to DB
-      const success = await commitPortfolio(
-        portfolio.id,
-        allHoldingData,
-      )
+      const success = await commitPortfolio(currentPortfolio.id, allHoldingData);
 
       // update portfolio state
       if (success) {
         updatePortfolio(
-          portfolio.id,
-          allHoldingData.filter((obj) => obj.units !== 0), // remove zero unit holdings
+          currentPortfolio.id,
+          allHoldingData
         );
       }
-
     }
   }
 
   const cancelEdit = () => {
     //reset data
-    setAllHoldingData(portfolio.holdings);
+    setAllHoldingData(currentPortfolio.holdings);
   }
 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button>
+        <Button
+          disabled={!currentPortfolio}
+        >
           <LuPencil 
             className="mr-2"
           />
           Edit Portfolio
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="h-[80vh]">
         <DialogHeader>
           <DialogTitle>Add or Remove Holdings</DialogTitle>
         </DialogHeader>
         <form>
-          <div className="flex flex-col gap-6 items-stretch justify-center">
-            <div className="w-full flex items-center relative">
+          <div className="flex flex-col gap-6 items-stretch justify-center relative">
+            <div className="w-full flex items-center relative mb-6">
               <LuSearch 
                 className="z-[1] text-[#989aad] text-lg leading-[1em] absolute left-2"
               />

@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/card";
 
 import { Skeleton } from "@/components/ui/skeleton";
+import { useGlobalContext } from "@/context/GlobalState";
 
 
 const ChangeIndicator = ({ change }) => {
@@ -35,19 +36,20 @@ const ChangeIndicator = ({ change }) => {
 }
 
 
-export default function PortfolioStatBar({ portfolio }) {
-    const [totalValue, setTotalValue] = useState(0); //total portfolio value
+export default function PortfolioStatBar() {
+    const { currentPortfolio } = useGlobalContext();
+    const [totalValue, setTotalValue] = useState(0); // total portfolio value
 
     useEffect(() => {
         // update total value on portfolio change
-        if (portfolio) setTotalValue(portfolio.totalValue);
-    }, [portfolio]);
+        if (currentPortfolio) setTotalValue(currentPortfolio.totalValue);
+    }, [currentPortfolio]);
     
     return (
         <div className="gap-4 flex-wrap grid-rows-[auto] grid-cols-[repeat(auto-fit,minmax(248px,1fr))] auto-cols-[1fr] justify-between grid mb-6">
             <Card>
                 <CardContent className="flex items-center justify-center content-center p-2 gap-2">
-                    {portfolio ? (
+                    {currentPortfolio ? (
                     <>
                         <LuTarget 
                             className="w-8 h-8"
@@ -55,7 +57,7 @@ export default function PortfolioStatBar({ portfolio }) {
                         />
                         <div>
                             <div className="text-sm font-medium">Objective</div>
-                            <div className="text-xs font-bold text-slate-800">{portfolio?.objective}</div>
+                            <div className="text-xs font-bold text-slate-800">{currentPortfolio?.objective}</div>
                         </div>
                     </>
                     ) : <Skeleton className="w-[240px] h-10"/>}
@@ -63,7 +65,7 @@ export default function PortfolioStatBar({ portfolio }) {
             </Card>
             <Card>
                 <CardContent className="flex items-center justify-center content-center p-2 gap-2">
-                    {portfolio ? (  
+                    {currentPortfolio ? (  
                     <>
                         <LuDollarSign 
                             className="w-8 h-8"
@@ -78,7 +80,7 @@ export default function PortfolioStatBar({ portfolio }) {
             </Card>
             <Card>
                 <CardContent className="flex items-center justify-center p-2 gap-2">
-                    {portfolio ? (
+                    {currentPortfolio ? (
                     <div>
                         <div className="text-sm font-medium">Week return</div>
                         <ChangeIndicator change={3.1}/>
@@ -87,7 +89,7 @@ export default function PortfolioStatBar({ portfolio }) {
             </Card>
             <Card>
                 <CardContent className="flex items-center justify-center p-2 gap-2">
-                    {portfolio ? (<div>
+                    {currentPortfolio ? (<div>
                         <div className="text-sm font-medium">Total return</div>
                         <ChangeIndicator change={-2.8}/>
                     </div>) : <Skeleton className="w-[240px] h-10"/>}

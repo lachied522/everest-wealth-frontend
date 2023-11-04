@@ -1,18 +1,19 @@
 "use client";
-import { useEffect, useState, forwardRef } from "react";
+import { useState, useEffect, useMemo } from "react";
 
 import { Button } from "@/components/ui/button";
 
 import { cn } from "@/components/lib/utils";
 
-import { useUniverseContext } from "@/context/UniverseState";
+import { useUniverseContext } from "src/app/(main)/context/UniverseState";
 
-import { addStockInfoToPortfolio } from "./portfolio-page";
+import { addStockInfoToPortfolio } from "../utils";
+import { addInfoToTransactions } from "../utils";
 
 import AdviceTable from "@/components/advice-table";
 import PortfolioTable from "./portfolio-table";
 import { columns as portfolioColumns } from "./portfolio-columns";
-import { columns as adviceColumns } from "@/components/advice-table-columns";
+import { useGlobalContext } from "@/context/GlobalState";
 
 //define tabs and columns to display
 const TABS = [
@@ -25,10 +26,10 @@ const TABS = [
         visibleColumns: [
             "symbol",
             "name",
+            "units",
             "totalCost",
             "value",
-            "totalProfit",
-            "sector",
+            "totalProfit"
         ]
     },
     {
@@ -44,23 +45,6 @@ const TABS = [
     }
 ]
 
-export function addInfoToTransactions(transactions, universeDataMap) {
-    if (!(transactions?.length > 0)) return [];
-
-    const newArray = transactions.map(({ symbol, units }) => {
-        if (!universeDataMap.has(symbol)) return { symbol, units };
-        const name = universeDataMap.get(symbol).name;
-        const price = universeDataMap.get(symbol).last_price;
-
-        const value = (price * units).toFixed(2);
-        const transaction = units > 0? "BUY" : "SELL";
-
-        return { symbol, units, name, transaction, price, value};
-    });
-
-    return newArray;
-}
-
 const AdviceNotification = ({ transactions }) => {
     if (!(transactions?.length > 0)) return null;
 
@@ -71,25 +55,32 @@ const AdviceNotification = ({ transactions }) => {
     )
 }
 
-const PortfolioTabs = ({ portfolioData, adviceData, confirmTransactions, loadingNewData, loadingNewAdvice }) => {
+const PortfolioTabs = ({ loadingNewData, loadingNewAdvice }) => {
     const { universeDataMap } = useUniverseContext();
+    const { currentPortfolio, updatePortfolio, toggleAdviceActioned } = useGlobalContext();
     const [currentData, setCurrentData] = useState([]);
     const [currentTransactionsData, setCurrentTransactionsData] = useState([]);
-    const [currentTab, setCurrentTab] = useState(TABS[1]); //keeps track of current tab, defaults to 'overview'
-    const [visibleColumns, setVisibleColumns] = useState([]);
+    const [currentTab, setCurrentTab] = useState(TABS[1]); // keeps track of current tab, defaults to 'overview'
 
     useEffect(() => {
-        if (portfolioData && universeDataMap) setCurrentData(addStockInfoToPortfolio(portfolioData?.holdings, universeDataMap));
-    }, [portfolioData]);
+        if (currentPortfolio && universeDataMap) {
+            // set holding data for portfolio
+            setCurrentData(addStockInfoToPortfolio(currentPortfolio.holdings, universeDataMap));
+            // set advice data
+            const advice = currentPortfolio.advice[0];
+            if (!advice?.actioned && advice?.transactions) {
+                setCurrentTransactionsData(
+                    addInfoToTransactions(advice.transactions, universeDataMap)
+                );
+            } else {
+                setCurrentTransactionsData([])
+            }
+        };
+    }, [currentPortfolio]);
 
-    useEffect(() => {
-        if (adviceData && universeDataMap) setCurrentTransactionsData(addInfoToTransactions(adviceData?.transactions, universeDataMap));
-    }, [adviceData]);
-
-    useEffect(() => {
+    const visibleColumns = useMemo(() => {
         // update visible columns on tab change
-        let newColumns = portfolioColumns.filter((column) => currentTab.visibleColumns.includes(column.accessorKey));
-        setVisibleColumns(newColumns);
+        return portfolioColumns.filter((column) => currentTab.visibleColumns.includes(column.accessorKey));
     }, [currentTab]);
 
     useEffect(() => {
@@ -103,10 +94,32 @@ const PortfolioTabs = ({ portfolioData, adviceData, confirmTransactions, loading
     }, [loadingNewAdvice]);
 
     const onAdviceConfirm = () => {
-        confirmTransactions({
-            ...adviceData,
-            transactions: addInfoToTransactions(adviceData.transactions, universeDataMap),
+        fetch('api/confirm-advice', {
+            method: "POST",
+            body: JSON.stringify(currentPortfolio.advice[0]),
+            headers: {
+                "Content-Type": "application/json",
+            }
         })
+        .then(res => res.json())
+        .then(updatedHoldings => {
+            const updatedSymbols = Array.from(updatedHoldings, (obj) => { return obj.symbol });
+
+            const newHoldings = [
+                    ...currentPortfolio.holdings.filter((holding) => !updatedSymbols.includes(holding.symbol)),
+                    ...updatedHoldings,
+                ];
+
+            updatePortfolio(currentPortfolio.id, newHoldings)
+            // show loading animation
+            setCurrentTab(TABS[1]);
+            toggleAdviceActioned(currentPortfolio.id);
+        })
+        .catch(err => console.log(err))
+        .finally(() => {
+
+        });
+
     }
 
     return (
@@ -142,7 +155,7 @@ const PortfolioTabs = ({ portfolioData, adviceData, confirmTransactions, loading
             ))}
             </div>
             {currentTab === TABS[0] ? (
-                <AdviceTable columns={adviceColumns} data={currentTransactionsData} onClick={onAdviceConfirm} loadingNewAdvice={loadingNewAdvice} />
+                <AdviceTable data={currentTransactionsData} onClick={onAdviceConfirm} loadingNewAdvice={loadingNewAdvice} statementUrl={currentPortfolio.advice[0]?.url} />
             ) : (
                 <PortfolioTable columns={visibleColumns} data={currentData} />
             )}

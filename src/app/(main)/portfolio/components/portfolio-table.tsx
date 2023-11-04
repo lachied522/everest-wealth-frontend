@@ -27,7 +27,7 @@ import { cn } from "@/components/lib/utils";
 
 import { LuStar } from "react-icons/lu";
 
-import { useGlobalContext } from "@/context/GlobalState";
+import { useGlobalContext } from "src/app/(main)/context/GlobalState";
 
 
 const Star = ({ selected, onClick } : { selected: boolean, onClick: () => void }) => {
@@ -96,7 +96,7 @@ export default function PortfolioTable<TData, TValue>({
                         data-state={row.getIsSelected() && "selected"}
                     >
                         <TableCell className="items-center">
-                            <Star selected={row.original['locked']} onClick={() => toggleFavourite(row.original['id'])}/>
+                            <Star selected={Boolean(row.original['locked' as keyof TData])} onClick={() => toggleFavourite(row.original['id' as keyof TData])}/>
                         </TableCell>
                         {row.getVisibleCells().map((cell) => (
                         <TableCell key={cell.id} className="items-center">

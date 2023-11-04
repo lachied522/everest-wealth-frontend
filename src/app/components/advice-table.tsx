@@ -2,7 +2,7 @@
 /* 
  *  docs: https://ui.shadcn.com/docs/components/data-table 
 */
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 
 import {
     ColumnDef,
@@ -28,27 +28,43 @@ import { cn } from "@/components/lib/utils";
 
 import { LuFileText, LuLoader2 } from "react-icons/lu";
 
+import { columns } from "@/components/advice-table-columns";
+
+
+const USDollar = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+});
+
 
 interface AdviceTableProps<TData, TValue> {
-    columns: ColumnDef<TData, TValue>[]
     data: TData[]
     loadingNewAdvice: boolean
     actioned: boolean
+    statementUrl: string
     onClick: () => void
 }
 
 export default function AdviceTable<TData, TValue>({
-    columns,
     data,
     loadingNewAdvice,
     actioned,
+    statementUrl,
     onClick,
 }:  AdviceTableProps<TData, TValue>) {
     const [sorting, setSorting] = useState<SortingState>([])
 
+    const gross = useMemo(() => {
+        return data.reduce((acc, obj) => acc + (Number(obj["units" as keyof typeof obj] || 0) * Number(obj["price" as keyof typeof obj] || 0)), 0)
+    }, [data]);
+    
+    const brokerage = useMemo(() => {
+        return data.reduce((acc, obj) => acc + Number(obj["brokerage" as keyof typeof obj] || 0), 0)
+    }, [data]);
+
     const table = useReactTable({
         data,
-        columns,
+        columns: columns as ColumnDef<TData | any>[],
         getCoreRowModel: getCoreRowModel(),
         onSortingChange: setSorting,
         getSortedRowModel: getSortedRowModel(),
@@ -57,39 +73,40 @@ export default function AdviceTable<TData, TValue>({
         },
     })
 
+    // define loading state
     if (loadingNewAdvice) {
         return (
             <div className="rounded-md bg-white border">
-            <Table>
-                <TableHeader className="bg-slate-100/50 transition-none">
-                {table?.getHeaderGroups().map((headerGroup) => (
-                    <TableRow key={headerGroup.id}>
-                    {headerGroup.headers.map((header) => {
-                        return (
-                        <TableHead key={header.id}>
-                            {header.isPlaceholder
-                            ? null
-                            : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext()
-                                )}
-                        </TableHead>
-                        )
-                    })}
-                    </TableRow>
-                ))}
-                </TableHeader>
-                <TableBody>
-                    <TableRow>
-                        <TableCell colSpan={columns.length} className="h-48 text-center">
-                            <div className="w-full flex items-center justify-center">
-                                <LuLoader2 className="animate-spin" size={50}/>
-                            </div>
-                        </TableCell>
-                    </TableRow>
-                </TableBody>
-            </Table>
-        </div>
+                <Table>
+                    <TableHeader className="bg-slate-100/50 transition-none">
+                    {table?.getHeaderGroups().map((headerGroup) => (
+                        <TableRow key={headerGroup.id}>
+                        {headerGroup.headers.map((header) => {
+                            return (
+                            <TableHead key={header.id}>
+                                {header.isPlaceholder
+                                ? null
+                                : flexRender(
+                                    header.column.columnDef.header,
+                                    header.getContext()
+                                    )}
+                            </TableHead>
+                            )
+                        })}
+                        </TableRow>
+                    ))}
+                    </TableHeader>
+                    <TableBody>
+                        <TableRow>
+                            <TableCell colSpan={columns.length} className="h-48 text-center">
+                                <div className="w-full flex items-center justify-center">
+                                    <LuLoader2 className="animate-spin" size={50}/>
+                                </div>
+                            </TableCell>
+                        </TableRow>
+                    </TableBody>
+                </Table>
+            </div>
         )
     }
 
@@ -134,7 +151,7 @@ export default function AdviceTable<TData, TValue>({
                             <TableCell colSpan={columns.length} className="p-6 bg-slate-200/50 transition-none">
                                 <div className="flex justify-end items-end">
                                     <div className="flex items-start gap-6">                
-                                        <a href='/statement/123' target="_blank" className='flex items-center gap-2 no-underline font-medium text-slate-700 group-hover:text-blue-600 relative'>
+                                        <a href={statementUrl} target="_blank" download className='flex items-center gap-2 no-underline font-medium text-slate-700 group-hover:text-blue-600 relative'>
                                             <LuFileText size={30} className="absolute left-[-36px]"/>
                                             View Document
                                         </a>
@@ -144,19 +161,19 @@ export default function AdviceTable<TData, TValue>({
                                                     Est. Brokerage
                                                 </div>
                                                 <div className="text-right">
-                                                    $10
+                                                    {USDollar.format(brokerage)}
                                                 </div>
                                                 <div>
                                                     Gross
                                                 </div>
                                                 <div className="text-right">
-                                                    $100
+                                                    {USDollar.format(gross)}
                                                 </div>
                                                 <div>
                                                     Net
                                                 </div>
                                                 <div className="text-right">
-                                                    $110
+                                                    {USDollar.format(gross - brokerage)}
                                                 </div>
                                             </div>
                                             <Button onClick={onClick}>

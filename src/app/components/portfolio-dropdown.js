@@ -5,7 +5,7 @@ import { LuChevronDown } from "react-icons/lu";
 
 import { cn } from "@/components/lib/utils";
 
-import { useGlobalContext } from "@/context/GlobalState";
+import { useGlobalContext } from "src/app/(main)/context/GlobalState";
 
 export default function PortfolioDropdown() {
     const [isOpen, setIsOpen] = useState(false);

@@ -35,12 +35,39 @@ export default function GlobalReducer(state, action) {
             });
         }
 
-        case 'UPDATE_NAME': {
+        case 'NEW_ADVICE': {
             return state.map(p => {
                 if (p.id === action.payload.id) {
                     return {
                         ...p,
-                        name: action.payload.name,
+                        advice: [action.payload.data],
+                    }
+                }
+                return p;
+            })
+        }
+
+        case 'TOGGLE_ACTIONED': {
+            return state.map(p => {
+                if (p.id === action.payload.id) {
+                    return {
+                        ...p,
+                        advice: [{
+                            ...p.advice[0],
+                            actioned: true,
+                        }],
+                    }
+                }
+                return p;
+            })
+        }
+
+        case 'UPDATE_SETTINGS': {
+            return state.map(p => {
+                if (p.id === action.payload.id) {
+                    return {
+                        ...p,
+                        ...action.payload.data,
                     }
                 }
                 return p;

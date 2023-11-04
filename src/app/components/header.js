@@ -19,7 +19,7 @@ export default function Header({ currentPage, userName }) {
 
   return (
     <div className={cn(
-      "bg-white w-full shadow-[0_2px_12px_rgba(11,22,44,0.05)] z-[100] px-7 items-center py-[14px] flex min-h-[78px] relative",
+      "bg-white w-full shadow-[0_2px_12px_rgba(11,22,44,0.05)] z-[1] px-8 items-center py-[14px] flex min-h-[78px] relative",
       isMobile && "pl-24"
     )}>
       {isMobile && (

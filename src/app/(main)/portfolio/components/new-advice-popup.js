@@ -15,10 +15,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 import { LuTrendingUp } from "react-icons/lu";
-
-import { cn } from "@/components/lib/utils";
-
 import { useGlobalContext } from "@/context/GlobalState";
+
+
+const WEB_SERVER_BASE_URL = process.env.NEXT_PUBLIC_WEB_SERVER_BASE_URL;
 
 const USDollar = new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -26,20 +26,20 @@ const USDollar = new Intl.NumberFormat("en-US", {
 });
 
 
-export default function NewAdvicePopup({ portfolio, onSubmit }) {
-    const { session } = useGlobalContext(); //raw portfolio data
-    const [adviceType, setAdviceType] = useState('deposit'); //none, deposit, withdraw
+export default function NewAdvicePopup() {
+    const { session, currentPortfolio, addNewAdvice } = useGlobalContext();
+    const [adviceType, setAdviceType] = useState('deposit'); // none, deposit, withdraw
     const [amount, setAmount] = useState(0);    
     const [currentValue, setCurrentValue] = useState(0)
     const [proposedValue, setProposedValue] = useState(0);
 
     useEffect(() => {
-        if (portfolio) {
-            setCurrentValue(parseFloat(portfolio.totalValue));
-            setProposedValue(parseFloat(portfolio.totalValue));
+        if (currentPortfolio) {
+            setCurrentValue(parseFloat(currentPortfolio.totalValue));
+            setProposedValue(parseFloat(currentPortfolio.totalValue));
             setAmount(0);
         }
-    }, [portfolio]);
+    }, [currentPortfolio]);
 
     useEffect(() => {
         if (adviceType === 'withdraw') {
@@ -60,18 +60,32 @@ export default function NewAdvicePopup({ portfolio, onSubmit }) {
         setAmount(0);
     }
 
-    const onAdviceSubmit = () => {
-        onSubmit({
-            amount: amount,
-            reason: adviceType,
-            portfolio_id: portfolio.id,
-        });
-    }
+    const onSubmit = (data) => {
+        fetch(`${WEB_SERVER_BASE_URL}/new_advice/${session.user.id}`, {
+            method: "POST",
+            body: JSON.stringify({
+                amount: adviceType === 'withdraw' ? -amount : amount,
+                reason: adviceType,
+                portfolio_id: currentPortfolio.id,
+            }),
+            headers: {
+                "Content-Type": "application/json",
+                token: session.access_token,
+            }
+        })
+        .then(res => res.json())
+        .then(advice => {
+            addNewAdvice(advice)
+        })
+        .catch(err => console.log(err));
+    } 
 
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button>
+                <Button
+                    disabled={!currentPortfolio}
+                >
                     <LuTrendingUp className="mr-2" />
                     Get Advice
                 </Button>
@@ -145,7 +159,7 @@ export default function NewAdvicePopup({ portfolio, onSubmit }) {
                     <DialogClose asChild>
                         <Button
                             type="button"
-                            onClick={onAdviceSubmit}
+                            onClick={onSubmit}
                         >
                             Submit
                         </Button>

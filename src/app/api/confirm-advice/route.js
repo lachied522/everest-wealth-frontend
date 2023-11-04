@@ -4,8 +4,9 @@ import { NextResponse } from 'next/server';
 
 
 function getNewHoldings(currentHoldings, transactions) {
-    const newHoldings = [...currentHoldings]; //create copy of current portfolio
+    const newHoldings = [...currentHoldings]; // create copy of current portfolio
     const symbols = Array.from(newHoldings, (obj) => { return obj.symbol });
+    
     for (const { symbol, units, price } of transactions) {
       const index = symbols.indexOf(symbol);
       if (index > -1) {

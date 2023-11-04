@@ -19,7 +19,7 @@ import { Button } from '@/components/ui/button';
 import AdviceTable from '@/components/advice-table';
 import { columns as adviceColumns } from '@/components/advice-table-columns';
 
-import { useUniverseContext } from '@/context/UniverseState';
+import { useUniverseContext } from 'src/app/(main)/context/UniverseState';
 
 
 const USDollar = new Intl.NumberFormat("en-US", {

@@ -27,7 +27,7 @@
         "src/app/components/*"
       ],
       "@/context/*": [
-        "src/app/context/*"
+        "src/app/(main)/context/*"
       ],
       "@/layouts/*": [
         "src/app/layouts/*"
