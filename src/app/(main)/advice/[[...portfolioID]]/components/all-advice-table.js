@@ -62,8 +62,8 @@ const TableSubRow = ({ data }) => {
     return (
         <>
             <TableRow className='bg-white transition-none hover:bg-white'>
-                <TableCell className='flex justify-center'>
-                    <a href='/statement/123' target="_blank" className='text-slate-700 hover:text-blue-600'>
+                <TableCell className='text-center'>
+                    <a href={data?.url} target="_blank" className='flex justify-center text-slate-700 hover:text-blue-600'>
                         <LuFileText size={30} />
                     </a>
                 </TableCell>

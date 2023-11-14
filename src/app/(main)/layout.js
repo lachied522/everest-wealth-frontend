@@ -6,7 +6,7 @@ import { UniverseProvider } from "./context/UniverseState";
 import { SidebarProvider } from "./context/SidebarState"
 
 import Sidebar from "./sidebar";
-import Header from "@/components/header";
+import Header from "./header";
 
 const fetchData = async (session, supabase) => {
     //fetch universe data

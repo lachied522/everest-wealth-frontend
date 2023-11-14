@@ -59,11 +59,11 @@ const NavLink = ({ page, activePath, subPages }) => {
       <Link
         href={page.href}
         className={cn(
-          "w-full grid grid-cols-[30px,1fr] text-[#303350] items-center justify-start p-3 gap-2 text-base no-underline transition-none cursor-pointer hover:text-[#1476ff]",
+          "w-full grid grid-cols-[25px,1fr] text-[#303350] items-center justify-start p-3 gap-2 text-base no-underline transition-none cursor-pointer hover:text-[#1476ff]",
           active && "text-[#1476ff]"
         )}
       >
-        <page.Icon size={25} />
+        <page.Icon size={24} />
         {page.name}
       </Link>
       {subPages?.map((page) => (
@@ -147,28 +147,25 @@ export default function SideBar() {
             <nav role="navigation">
               <div className="w-full flex flex-col justify-between">
                 <div className="w-full flex flex-col">
-                  {/* {PAGES.map((page, index) => (
-                    <NavLink key={index} page={page} activePath={pathname} />
-                  ))} */}
                     <Separator className="my-4 bg-neutral-300" />
                     <div>
                       <Link
                         href="/dashboard"
                         className={cn(
-                          "w-full grid grid-cols-[30px,1fr] text-[#303350] items-center justify-start p-3 gap-2 text-base no-underline transition-none cursor-pointer hover:text-[#1476ff]",
+                          "w-full grid grid-cols-[25px,1fr] text-[#303350] items-center justify-start p-3 gap-2 text-base no-underline transition-none cursor-pointer hover:text-[#1476ff]",
                           pathname==="/dashboard" && "text-[#1476ff]"
                         )}
                       >
-                        <BiHomeAlt2 size={25} />
+                        <BiHomeAlt2 size={24} />
                         Dashboard
                       </Link>
                     </div>
                     <Separator className="my-4 bg-neutral-300" />
                     <div>
                       <div
-                        className="w-full grid grid-cols-[30px,1fr] text-[#303350] items-center justify-start p-3 gap-2 text-base cursor-default"
+                        className="w-full grid grid-cols-[25px,1fr] text-[#303350] items-center justify-start p-3 gap-2 text-base cursor-default"
                       > 
-                        <BiBriefcaseAlt size={25} />
+                        <BiBriefcaseAlt size={24} />
                         Portfolios
                       </div>
                       <div className="flex flex-col ml-7 my-1 gap-1.5">
@@ -191,11 +188,11 @@ export default function SideBar() {
                       <Link
                         href=""
                         className={cn(
-                          "w-full grid grid-cols-[30px,1fr] text-[#303350] items-center justify-start p-3 gap-2 text-base no-underline transition-none cursor-pointer hover:text-[#1476ff]",
+                          "w-full grid grid-cols-[25px,1fr] text-[#303350] items-center justify-start p-3 gap-2 text-base no-underline transition-none cursor-pointer hover:text-[#1476ff]",
                           pathname==="/perfomance" && "text-[#1476ff]"
                         )}
                       >
-                        <LuFileLineChart size={25} />
+                        <LuFileLineChart size={24} />
                         Performance
                       </Link>
                     </div>
@@ -204,11 +201,11 @@ export default function SideBar() {
                       <Link
                         href="/advice"
                         className={cn(
-                          "w-full grid grid-cols-[30px,1fr] text-[#303350] items-center justify-start p-3 gap-2 text-base no-underline transition-none cursor-pointer hover:text-[#1476ff]",
+                          "w-full grid grid-cols-[25px,1fr] text-[#303350] items-center justify-start p-3 gap-2 text-base no-underline transition-none cursor-pointer hover:text-[#1476ff]",
                           pathname==="/advice" && "text-[#1476ff]"
                         )}
                       >
-                        <LuFileBarChart size={25} />
+                        <LuFileBarChart size={24} />
                         Advice
                       </Link>
                     </div>
@@ -217,11 +214,11 @@ export default function SideBar() {
                       <Link
                         href="/profile"
                         className={cn(
-                          "w-full grid grid-cols-[30px,1fr] text-[#303350] items-center justify-start p-3 gap-2 text-base no-underline transition-none cursor-pointer hover:text-[#1476ff]",
+                          "w-full grid grid-cols-[25px,1fr] text-[#303350] items-center justify-start p-3 gap-2 text-base no-underline transition-none cursor-pointer hover:text-[#1476ff]",
                           pathname==="/profile" && "text-[#1476ff]"
                         )}
                       >
-                        <LuUser2 size={25} />
+                        <LuUser2 size={24} />
                         Profile
                       </Link>
                     </div>
@@ -231,11 +228,11 @@ export default function SideBar() {
                   <Link
                     href={"/"}
                     className={cn(
-                      "w-full grid grid-cols-[30px,1fr] text-[#303350] items-center justify-start p-3 gap-2 text-base no-underline transition-none cursor-pointer hover:text-[#1476ff]",
+                      "w-full grid grid-cols-[25px,1fr] text-[#303350] items-center justify-start p-3 gap-2 text-base no-underline transition-none cursor-pointer hover:text-[#1476ff]",
                       "/settings" === pathname && "text-[#1476ff]"
                     )}
                   >
-                    <LuSettings size={25}/>
+                    <LuSettings size={24}/>
                     Settings
                   </Link>
                 </div>

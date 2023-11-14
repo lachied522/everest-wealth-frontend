@@ -11,7 +11,7 @@ export async function middleware(req) {
 
   //if user is signed in
   if (user && req.nextUrl.pathname === '/login') {
-    return NextResponse.redirect(new URL('/portfolio', req.url));
+    return NextResponse.redirect(new URL('/dashboard', req.url));
   }
 
   //if user is not signed in and the current path is not / redirect the user to /

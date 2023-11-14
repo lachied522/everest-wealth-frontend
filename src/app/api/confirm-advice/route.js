@@ -77,11 +77,11 @@ export async function POST(req) {
 
     if (!commitError) {
       // set advice record to actioned
-        await supabase
-          .from('advice')
-          .update({ actioned: true })
-          .eq('id', body.id)
-          .select();
+      await supabase
+        .from('advice')
+        .update({ actioned: true })
+        .eq('id', body.id)
+        .select();
     } else {
         //pass
     }

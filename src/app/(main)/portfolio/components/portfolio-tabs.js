@@ -110,10 +110,11 @@ const PortfolioTabs = ({ loadingNewData, loadingNewAdvice }) => {
                     ...updatedHoldings,
                 ];
 
+            console.log(newHoldings);
             updatePortfolio(currentPortfolio.id, newHoldings)
             // show loading animation
-            setCurrentTab(TABS[1]);
-            toggleAdviceActioned(currentPortfolio.id);
+            // setCurrentTab(TABS[1]);
+            // toggleAdviceActioned(currentPortfolio.id);
         })
         .catch(err => console.log(err))
         .finally(() => {

@@ -75,7 +75,7 @@ export default function NewAdvicePopup() {
         })
         .then(res => res.json())
         .then(advice => {
-            addNewAdvice(advice)
+            addNewAdvice(currentPortfolio.id, advice)
         })
         .catch(err => console.log(err));
     } 

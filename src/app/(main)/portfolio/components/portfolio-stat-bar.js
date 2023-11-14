@@ -38,12 +38,6 @@ const ChangeIndicator = ({ change }) => {
 
 export default function PortfolioStatBar() {
     const { currentPortfolio } = useGlobalContext();
-    const [totalValue, setTotalValue] = useState(0); // total portfolio value
-
-    useEffect(() => {
-        // update total value on portfolio change
-        if (currentPortfolio) setTotalValue(currentPortfolio.totalValue);
-    }, [currentPortfolio]);
     
     return (
         <div className="gap-4 flex-wrap grid-rows-[auto] grid-cols-[repeat(auto-fit,minmax(248px,1fr))] auto-cols-[1fr] justify-between grid mb-6">
@@ -73,7 +67,7 @@ export default function PortfolioStatBar() {
                         />
                         <div>
                             <div className="text-sm font-medium">Value</div>
-                            <div className="text-lg text-slate-800 font-bold mr-1">${totalValue.toLocaleString() || 0}</div>
+                            <div className="text-lg text-slate-800 font-bold mr-1">${currentPortfolio.totalValue.toLocaleString() || 0}</div>
                         </div>
                     </>) : <Skeleton className="w-[240px] h-10"/>}
                 </CardContent>

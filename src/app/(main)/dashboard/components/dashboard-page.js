@@ -1,181 +1,30 @@
 "use client";
 import { useState, useEffect } from "react";
 
-import { useGlobalContext } from "src/app/(main)/context/GlobalState";
-import NewPortfolioPopup from "@/components/new-portfolio-popup";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+
+import { LuPlus } from "react-icons/lu";
+
+import { useGlobalContext } from "@/context/GlobalState";
+import NewPortfolioPopup from "./new-portfolio-popup";
+import UserPortfolioList from "./user-portfolio-list";
 
 export default function DashboardPage() {
     const { session, portfolioData } = useGlobalContext();
-    const [currentPortfolio, setCurrentPortfolio] = useState(null); //keeps track of current portfolio being viewed
-    const [portfolioDropdownOpen, setPortfolioDropdownOpen] = useState(false);
-    const [newPortfolioPopupOpen, setNewPortfolioPopupOpen] = useState(false);
-    const [totalValue, setTotalValue] = useState(0);
-
-    useEffect(() => {
-        setCurrentPortfolio(portfolioData[0]);
-        setTotalValue(portfolioData? portfolioData[0].data?.reduce((acc, obj) => acc + parseFloat(obj.value), 0): 0);
-    }, [portfolioData]);
-
-    const openNewPortfolioPopup = () => {
-        setNewPortfolioPopupOpen(true);
-    }
-
-    const togglePortfolioDropdown = () => {
-        setPortfolioDropdownOpen(!portfolioDropdownOpen);
-    }
-
-    const selectPortfolio = (p) => {
-        setCurrentPortfolio(p);
-        setPortfolioDropdownOpen(false);
-    }
     
     return (
-        <div className="container-default w-container">
-            <NewPortfolioPopup 
-                isOpen={newPortfolioPopupOpen}
-                setIsOpen={setNewPortfolioPopupOpen}
-                session={session}
-            />
-            <div
-                data-w-id="56bd30ef-cb82-658f-d493-6d640ecf97f0"
-                className="mg-bottom-40px"
-            >
-            <div className="grid-2-columns _2-col-mbl _1-col-mbp">
-                <div className="flex align-center">
-                    <div id="w-node-d824fe58-9d11-82a3-5bd0-f6415558c652-2fdc3fd8">
-                        <h1 className="heading-h4-size mg-bottom-8px">My Portfolio</h1>
-                        <div className="text-400">subtext</div>
-                    </div>
-                    <div
-                        data-hover="false"
-                        data-delay="0"
-                        className="dropdown-wrapper w-dropdown"
-                    >
-                        <div className="dropdown-toggle w-dropdown-toggle" onClick={togglePortfolioDropdown}>
-                            <div className="line-rounded-icon w-icon-dropdown-toggle" />
-                        </div>
-                        {portfolioDropdownOpen && (
-                            <div className="dropdown-column-wrapper w-dropdown-list w--open">
-                            {portfolioData.map(p => (
-                                <a 
-                                    className="w-dropdown-link" 
-                                    key={p.id}
-                                    onClick={() => {selectPortfolio(p)}}
-                                >
-                                    {p.name}
-                                </a>
-                            ))}
-                            </div>
-                        )}
-                    </div>
+        <div className="md:max-w-screen-xl px-6 mx-auto">
+            <div className="mb-8">
+            <div className="flex items-center justify-between">
+                <div className="text-xl font-medium text-slate-800 mb-0">
+                    My Portfolios
                 </div>
-                <button
-                    className="btn-primary w-button"
-                    onClick={openNewPortfolioPopup}
-                >
-                    <span className="line-rounded-icon link-icon-left"></span>New
-                    Portfolio
-                </button>
+                <NewPortfolioPopup />
             </div>
             </div>
-            <div className="reports-top-details-container">
-            <div
-                id="w-node-_189a64fb-05bb-b2aa-4063-67cbe8bd4d4f-2fdc3fd8"
-                data-w-id="189a64fb-05bb-b2aa-4063-67cbe8bd4d4f"
-                className="module reports-top-details"
-            >
-                <img
-                src="https://uploads-ssl.webflow.com/64afbac816bb17eb2fdc3f03/64afbac916bb17eb2fdc3fc9_users-icon-dashboardly-webflow-template.svg"
-                loading="eager"
-                alt="Users - Dashly X Webflow Template"
-                className="reports-top-details-icon"
-                />
-                <div>
-                <div className="text-200 medium">Objective</div>
-                <div className="flex align-end">
-                    <div className="text-100 bold color-neutral-800">{currentPortfolio?.objective}</div>
-                </div>
-                </div>
-            </div>
-            <div
-                id="w-node-_15bcd904-cca9-3107-d162-2cf33da79d40-2fdc3fd8"
-                data-w-id="15bcd904-cca9-3107-d162-2cf33da79d40"
-                className="module reports-top-details"
-            >
-                <img
-                src="https://uploads-ssl.webflow.com/64afbac816bb17eb2fdc3f03/64afbac916bb17eb2fdc3fc6_pageviews-icon-dashboardly-webflow-template.svg"
-                loading="eager"
-                alt="Pageviews - Dashly X Webflow Template"
-                className="reports-top-details-icon"
-                />
-                <div>
-                <div className="text-200 medium">Value</div>
-                <div className="flex align-end">
-                    <div className="display-4 mg-right-6px">{`$${totalValue?.toLocaleString()}`}</div>
-                    <div className="text-100 medium mg-bottom-4px">
-                    </div>
-                </div>
-                </div>
-            </div>
-            <div
-                id="w-node-_80250c7f-9d0b-c675-8fdf-c4c1d780000b-2fdc3fd8"
-                data-w-id="80250c7f-9d0b-c675-8fdf-c4c1d780000b"
-                className="module reports-top-details"
-            >
-                <img
-                src="https://uploads-ssl.webflow.com/64afbac816bb17eb2fdc3f03/64afbac916bb17eb2fdc3fc8_new-signups-icon-dashboardly-webflow-template.svg"
-                loading="eager"
-                alt="New Sign Ups - Dashly X Webflow Template"
-                className="reports-top-details-icon"
-                />
-                <div>
-                <div className="text-200 medium">Week return</div>
-                <div className="flex align-end">
-                    <div className="display-4 mg-right-6px">4.5K</div>
-                    <div className="text-100 medium mg-bottom-4px">
-                    <div className="flex">
-                        <div className="color-red-300">3.1% </div>
-                        <div className="custom-icon font-size-10px color-red-300">
-                        
-                        </div>
-                    </div>
-                    </div>
-                </div>
-                </div>
-            </div>
-            <div
-                id="w-node-_98d9c2d1-c1b4-226d-dbcc-f9bf7d5abdc9-2fdc3fd8"
-                data-w-id="98d9c2d1-c1b4-226d-dbcc-f9bf7d5abdc9"
-                
-                className="module reports-top-details"
-            >
-                <img
-                src="https://uploads-ssl.webflow.com/64afbac816bb17eb2fdc3f03/64afbac916bb17eb2fdc3fc7_subscriptions-icon-dashboardly-webflow-template.svg"
-                loading="eager"
-                alt="Subscriptions - Dashly X Webflow Template"
-                className="reports-top-details-icon"
-                />
-                <div>
-                <div className="text-200 medium">Total return</div>
-                <div className="flex align-end">
-                    <div className="display-4 mg-right-6px">3.3K</div>
-                    <div className="text-100 medium mg-bottom-4px">
-                    <div className="flex">
-                        <div className="color-green-300">11.3% </div>
-                        <div className="custom-icon font-size-10px color-green-300">
-                        
-                        </div>
-                    </div>
-                    </div>
-                </div>
-                </div>
-            </div>
-            </div>
-            <div
-            data-w-id="e5b429b5-439c-5fd1-b6c6-cc7ec4d25785"
-            
-            className="module graph-large"
-            >
+            <UserPortfolioList />
+            <div className="module graph-large">
             <div className="grid-2-columns _2-col-mbl _1-col-mbp">
                 <div className="text-300 bold color-neutral-800">Monthly pageviews</div>
                 <div id="w-node-_9e0982af-7013-efb2-9f4a-6038634a187a-2fdc3fd8">

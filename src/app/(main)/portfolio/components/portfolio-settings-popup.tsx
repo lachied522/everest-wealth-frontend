@@ -196,7 +196,7 @@ export default function PortfolioSettingsPopup() {
                     </div>
                     <div className="flex flex-col place-items-center gap-8">
                         <div className="text-lg text-center text-slate-800">
-                        Brokerage
+                            Brokerage
                         </div>
                         <div className="flex gap-8">
                         <Button

@@ -32,7 +32,6 @@ export const GlobalProvider = ({
     if (!state) return;
 
     const portfolioID = searchParams.get("p");
-
     if (portfolioID && state) {
       let index = state.findIndex((obj) => obj.id === portfolioID);
       if (index > 0) {
@@ -96,6 +95,7 @@ export const GlobalProvider = ({
   };
 
   const updatePortfolio = (id, data) => {
+    if (!data) return;
     // remove zero unit holdings
     const filteredData = data?.filter((obj) => obj.units !== 0) || [];
 
@@ -114,7 +114,7 @@ export const GlobalProvider = ({
       type: "UPDATE_DATA",
       payload: {
         id,
-        filteredData,
+        data: filteredData,
         totalValue,
       },
     });
@@ -137,8 +137,14 @@ export const GlobalProvider = ({
     if (error) console.log(`Error committing changes: ${error}`);
   };
 
-  const addNewAdvice = (id, adviceData) => {
-    console.log(adviceData);
+  const addNewAdvice = (id, data) => {
+    dispatch({
+      type: "NEW_ADVICE",
+      payload: {
+        id,
+        data
+      }
+    })
   };
 
   const toggleAdviceActioned = (id) => {
@@ -167,7 +173,7 @@ export const GlobalProvider = ({
             },
           });
     } else {
-        console.log(`Error committing changes: ${error}`)
+        console.log(error);
         return false;
     };
 
