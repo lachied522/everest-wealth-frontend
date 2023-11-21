@@ -1,6 +1,7 @@
 "use client";
 import {
   createContext,
+  useState,
   useMemo,
   useCallback,
   useContext,
@@ -20,12 +21,14 @@ export const useGlobalContext = () => {
 export const GlobalProvider = ({
   children,
   session,
-  userData,
+  portfolioData,
+  watchlistData,
   universeDataMap,
 }) => {
   const supabase = createClientComponentClient();
   const searchParams = useSearchParams();
-  const [state, dispatch] = useReducer(GlobalReducer, userData);
+  const [state, dispatch] = useReducer(GlobalReducer, portfolioData);
+  const [watchlist, setWatchlist] = useState(watchlistData || []);
 
   // get current portfolio from params
   const currentPortfolio = useMemo(() => {
@@ -50,7 +53,7 @@ export const GlobalProvider = ({
     // should this be handled server side?
     const newHoldings = [];
     // get current portfolio
-    const portfolio = userData.find((obj) => obj.id === id);
+    const portfolio = state.find((obj) => obj.id === id);
 
     if (!portfolio) return false;
 
@@ -121,25 +124,28 @@ export const GlobalProvider = ({
   };
 
   const toggleFavourite = async (id) => {
-    dispatch({
-      type: "TOGGLE_FAVOURITE",
-      payload: {
-        id,
-      },
-    });
-
     // update DB
     if (!session) return;
     const { data, error } = await supabase.rpc("toggle_locked", {
       holding_id: id,
     });
 
-    if (error) console.log(`Error committing changes: ${error}`);
+    if (!error) {
+      // update state
+      dispatch({
+        type: "TOGGLE_FAVOURITE",
+        payload: {
+          id,
+        },
+      });
+    } else {
+      console.log(`Error committing changes: ${error}`);
+    }
   };
 
-  const addNewAdvice = (id, data) => {
+  const setAdvice = (id, data) => {
     dispatch({
-      type: "NEW_ADVICE",
+      type: "SET_ADVICE",
       payload: {
         id,
         data
@@ -200,6 +206,21 @@ export const GlobalProvider = ({
     return true;
   };
 
+  const toggleWatchlist = useCallback(async (symbol) => {
+    // update DB
+    const { data, error } = await supabase.rpc("toggle_symbol_in_watchlist", {
+      user_id: session.user.id,
+      symbol,
+    });
+
+    if (!error) {
+      // update state
+      setWatchlist(data);
+    } else {
+      console.log(error);
+    } 
+  }, [session]);
+
   return (
     <GlobalContext.Provider
       value={{
@@ -209,10 +230,12 @@ export const GlobalProvider = ({
         updatePortfolio,
         toggleFavourite,
         updatePortfolioSettings,
-        addNewAdvice,
+        setAdvice,
         toggleAdviceActioned,
         commitPortfolio,
         onPortfolioDelete,
+        watchlist,
+        toggleWatchlist
       }}
     >
       {children}

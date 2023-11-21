@@ -148,34 +148,44 @@ export default function AdviceTable<TData, TValue>({
                         ))}
                         {!actioned && (
                         <TableRow>
-                            <TableCell colSpan={columns.length} className="p-6 bg-slate-200/50 transition-none">
-                                <div className="flex justify-end items-end">
-                                    <div className="flex items-start gap-6">                
-                                        <a href={statementUrl} target="_blank" download className='flex items-center gap-2 no-underline font-medium text-slate-700 group-hover:text-blue-600 relative'>
-                                            <LuFileText size={30} className="absolute left-[-36px]"/>
-                                            View Document
-                                        </a>
-                                        <div className="flex flex-col items-center">
-                                            <div className="grid gap-3 auto-rows-auto grid-cols-[1fr_0.75fr] items-center justify-items-stretch border-b-slate-300 border-b border-solid pb-3 mb-3">
-                                                <div>
-                                                    Est. Brokerage
-                                                </div>
-                                                <div className="text-right">
-                                                    {USDollar.format(brokerage)}
-                                                </div>
-                                                <div>
-                                                    Gross
-                                                </div>
-                                                <div className="text-right">
-                                                    {USDollar.format(gross)}
-                                                </div>
-                                                <div>
-                                                    Net
-                                                </div>
-                                                <div className="text-right">
-                                                    {USDollar.format(gross - brokerage)}
-                                                </div>
+                            <TableCell colSpan={columns.length} className="p-6 bg-slate-200/50 transition-none hover:bg-slate-200/50">
+                                <div className="flex justify-end items-end">             
+                                    <div className="flex flex-col items-end gap-6">
+                                        <div className="grid gap-4 auto-rows-auto grid-cols-[1fr_0.75fr] items-center justify-items-stretch border-b-slate-300 border-b border-solid pb-4 my-6">
+                                            <div>
+                                                Est. Brokerage
                                             </div>
+                                            <div className="text-right">
+                                                {USDollar.format(brokerage)}
+                                            </div>
+                                            <div>
+                                                Gross
+                                            </div>
+                                            <div className="text-right">
+                                                {USDollar.format(gross)}
+                                            </div>
+                                            <div>
+                                                Net
+                                            </div>
+                                            <div className="text-right">
+                                                {USDollar.format(gross - brokerage)}
+                                            </div>
+                                        </div>
+                                        <div className="flex items-start gap-6">  
+                                            {!statementUrl ? (
+                                            <Button variant="ghost" disabled className="flex items-center gap-2">
+                                                <LuLoader2 className="animate-spin" size={25}/>
+                                                Generating statement...
+                                            </Button>
+                                            ) : (
+                                            <a href={statementUrl} target="_blank" className='h-10 px-4 py-2 flex items-center gap-2 no-underline font-medium text-slate-700 group-hover:text-blue-600 relative'>
+                                                <LuFileText size={30} className="absolute left-[-36px]"/>
+                                                View Document
+                                            </a>
+                                            )}
+                                            <Button variant="secondary" onClick={() => {}}>
+                                                Dismiss
+                                            </Button>
                                             <Button onClick={onClick}>
                                                 Make These Changes
                                             </Button>

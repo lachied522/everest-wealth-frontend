@@ -1,5 +1,7 @@
 import { ColumnDef, Column } from "@tanstack/react-table";
 
+import Link from "next/link";
+
 import { cn } from "@/components/lib/utils";
 
 import { 
@@ -11,8 +13,7 @@ import {
 
 import { GiAustralia } from "react-icons/gi";
 
-import { Button } from "@/components/ui/button"
-
+import { Button } from "@/components/ui/button";
 
 export type Holding = {
     symbol: string;
@@ -93,7 +94,9 @@ export const columns: ColumnDef<Holding & StockInfo>[] = [
         cell: ({ row }) => (
           <div className="flex items-center gap-2">
             {row.original['domestic']? <GiAustralia size={18} />: <LuGlobe2 size={18} />}
-            {row.getValue('symbol')}
+            <Link href={`/symbol/${row.getValue('symbol')}`} className="font-semibold">
+              {row.getValue('symbol')}
+            </Link>
           </div>
         )
     },

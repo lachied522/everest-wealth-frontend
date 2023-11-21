@@ -23,7 +23,6 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGlobalContext } from "@/context/GlobalState";
 
-
 const ChangeIndicator = ({ change }) => {
     return (
         <div className="flex items-end">
@@ -114,7 +113,6 @@ const PortfolioListItem = ({ portfolio }) => {
         </>
     )
 }
-
 
 export default function UserPortfolioList() {
     const { portfolioData } = useGlobalContext();

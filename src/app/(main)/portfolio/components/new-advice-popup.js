@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import {
     Dialog,
@@ -15,10 +16,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 import { LuTrendingUp } from "react-icons/lu";
+
+import useWebSocket, { ReadyState } from 'react-use-websocket';
+
 import { useGlobalContext } from "@/context/GlobalState";
 
-
-const WEB_SERVER_BASE_URL = process.env.NEXT_PUBLIC_WEB_SERVER_BASE_URL;
+const WEB_SOCKET_URL = process.env.NEXT_PUBLIC_WEBSOCKET_URL|| "";
 
 const USDollar = new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -27,11 +30,29 @@ const USDollar = new Intl.NumberFormat("en-US", {
 
 
 export default function NewAdvicePopup() {
-    const { session, currentPortfolio, addNewAdvice } = useGlobalContext();
-    const [adviceType, setAdviceType] = useState('deposit'); // none, deposit, withdraw
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const [socketUrl, setSocketUrl] = useState(null); // set url to null until called
+    const { session, currentPortfolio, setAdvice } = useGlobalContext();
+    const [adviceType, setAdviceType] = useState('deposit'); // deposit, withdraw
     const [amount, setAmount] = useState(0);    
     const [currentValue, setCurrentValue] = useState(0)
     const [proposedValue, setProposedValue] = useState(0);
+    
+    const { sendMessage } = useWebSocket(socketUrl, {
+        onOpen: () => console.log('opened'),
+        onMessage: (event) => {
+            setAdvice(currentPortfolio.id, JSON.parse(event.data));
+            // navigate to Recommendations tab
+            if (searchParams.get("tab")!=="Recommendations") router.push(`/portfolio?p=${currentPortfolio.id}&tab=Recommendations`);
+        },
+        onClose: (event) => {
+            console.log('WebSocket closed:', event);
+        },
+        onError: (event) => {
+            console.error('WebSocket error:', event);
+        },
+    });
 
     useEffect(() => {
         if (currentPortfolio) {
@@ -60,24 +81,14 @@ export default function NewAdvicePopup() {
         setAmount(0);
     }
 
-    const onSubmit = (data) => {
-        fetch(`${WEB_SERVER_BASE_URL}/new_advice/${session.user.id}`, {
-            method: "POST",
-            body: JSON.stringify({
-                amount: adviceType === 'withdraw' ? -amount : amount,
-                reason: adviceType,
-                portfolio_id: currentPortfolio.id,
-            }),
-            headers: {
-                "Content-Type": "application/json",
-                token: session.access_token,
-            }
-        })
-        .then(res => res.json())
-        .then(advice => {
-            addNewAdvice(currentPortfolio.id, advice)
-        })
-        .catch(err => console.log(err));
+    const onSubmit = () => {
+        // establish websocket connection
+        setSocketUrl(`${WEB_SOCKET_URL}/ws/${session.user.id}`);
+        sendMessage(JSON.stringify({
+            amount: adviceType==='withdraw'? -amount: amount,
+            reason: adviceType,
+            portfolio_id: currentPortfolio.id, 
+        }));
     } 
 
     return (

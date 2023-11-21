@@ -1,7 +1,10 @@
+"use client";
 import { useRouter } from "next/navigation";
 
+import useWebSocket, { ReadyState } from 'react-use-websocket';
 
-const WEB_SERVER_BASE_URL = process.env.NEXT_PUBLIC_WEB_SERVER_BASE_URL || "";
+
+const WEB_SOCKET_URL = process.env.NEXT_PUBLIC_WEBSOCKET_URL|| "";
 
 interface NewAdviceRequest {
     session: {
@@ -18,10 +21,9 @@ interface NewAdviceRequest {
 
 }
 
-export function GetNewAdvice({ data, session }: NewAdviceRequest) {
-    const socket = new WebSocket(`${WEB_SERVER_BASE_URL}/${session.user.id}`);
-
-    if (socket.readyState !== WebSocket.CLOSED) {
-        socket.send(JSON.stringify(data));
-    }
+export function StreamNewAdvice({ data, session }: NewAdviceRequest) {
+    console.log(data);
+    const { sendMessage, lastMessage, readyState } = useWebSocket(`${WEB_SOCKET_URL}/${session.user.id}`, {
+        onOpen: () => console.log('opened'),
+    });
 }

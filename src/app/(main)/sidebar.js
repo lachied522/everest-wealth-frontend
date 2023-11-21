@@ -241,7 +241,7 @@ export default function SideBar() {
           </div>
         </div>
       </aside>
-      {!isMobile && <div className="w-[180px]" />}
+      {!isMobile && <div className="min-w-[180px]" />}
     </>
   );
 }

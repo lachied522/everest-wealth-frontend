@@ -35,7 +35,7 @@ export default function GlobalReducer(state, action) {
             });
         }
 
-        case 'NEW_ADVICE': {
+        case 'SET_ADVICE': {
             return state.map(p => {
                 if (p.id === action.payload.id) {
                     return {

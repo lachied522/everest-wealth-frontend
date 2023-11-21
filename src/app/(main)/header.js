@@ -4,9 +4,11 @@ import { LuMenu, LuBell, LuLogOut } from "react-icons/lu";
 
 import { cn } from "@/components/lib/utils";
 
+import SymbolSearch from "./symbol-search";
+
 import { useSidebarContext } from "@/context/SidebarState";
 
-export default function Header({ currentPage, userName }) {
+export default function Header({ userName }) {
   const { 
     sidebarOpen: isOpen, 
     setSidebarOpen: setIsOpen, 
@@ -30,8 +32,8 @@ export default function Header({ currentPage, userName }) {
         />
       )}
       <div className="w-full items-center mr-6 flex gap-6">
-        <div className="text-400 medium color-neutral-800">{currentPage}</div>
         <div>{today}</div>
+        <SymbolSearch />
       </div>
       <div className="items-center flex ml-auto gap-6">
         <Link
@@ -45,11 +47,9 @@ export default function Header({ currentPage, userName }) {
           loading="eager"
           className="avatar-circle _02 mg-right-8px"
         />
-        <div className="hidden-on-mbl">
-          <div className="mg-bottom-4px">
-            <div className="text-200 medium color-neutral-800">
-              {userName}
-            </div>
+        <div className="mb-1">
+          <div className="text-sm font-medium text-slate-800">
+            {userName}
           </div>
         </div>
         <form action="/auth/signout" method="post">

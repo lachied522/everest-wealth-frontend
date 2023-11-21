@@ -17,7 +17,7 @@ export default async function ({ params }) {
     .order('created_at', { ascending: false });
 
     return (
-        <div className="md:max-w-screen-lg px-6 mx-auto">
+      <>
         <div className="mb-6">
           <div className="flex flex-col">
               <h1 className="">Statements</h1>
@@ -27,6 +27,6 @@ export default async function ({ params }) {
           </div>
         </div>
         <AllAdviceTable adviceData={data}/>
-      </div>
+      </>
     );
 }

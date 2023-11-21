@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useMemo } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 
@@ -55,27 +56,41 @@ const AdviceNotification = ({ transactions }) => {
     )
 }
 
-const PortfolioTabs = ({ loadingNewData, loadingNewAdvice }) => {
+const PortfolioTabs = ({ loadingNewAdvice }) => {
+    const router = useRouter();
+    const searchParams = useSearchParams();
     const { universeDataMap } = useUniverseContext();
     const { currentPortfolio, updatePortfolio, toggleAdviceActioned } = useGlobalContext();
-    const [currentData, setCurrentData] = useState([]);
-    const [currentTransactionsData, setCurrentTransactionsData] = useState([]);
     const [currentTab, setCurrentTab] = useState(TABS[1]); // keeps track of current tab, defaults to 'overview'
 
     useEffect(() => {
+        // get current tab
+        const tab = TABS.find((tab) => tab.tabName===searchParams.get("tab"));
+        if (tab) {
+            setCurrentTab(tab);
+        } else {
+            // set 'Overview' tab as default
+            router.push(`/portfolio?p=${currentPortfolio.id}&tab=${TABS[1].tabName}`);
+        }
+    }, [searchParams]);
+
+    const portfolioData = useMemo(() => {
         if (currentPortfolio && universeDataMap) {
             // set holding data for portfolio
-            setCurrentData(addStockInfoToPortfolio(currentPortfolio.holdings, universeDataMap));
+            return addStockInfoToPortfolio(currentPortfolio.holdings, universeDataMap);
+        };
+        return [];
+    }, [currentPortfolio]);
+
+    const adviceData = useMemo(() => {
+        if (currentPortfolio && universeDataMap) {
             // set advice data
             const advice = currentPortfolio.advice[0];
             if (!advice?.actioned && advice?.transactions) {
-                setCurrentTransactionsData(
-                    addInfoToTransactions(advice.transactions, universeDataMap)
-                );
-            } else {
-                setCurrentTransactionsData([])
+                return addInfoToTransactions(advice.transactions, universeDataMap);
             }
         };
+        return [];
     }, [currentPortfolio]);
 
     const visibleColumns = useMemo(() => {
@@ -83,15 +98,9 @@ const PortfolioTabs = ({ loadingNewData, loadingNewAdvice }) => {
         return portfolioColumns.filter((column) => currentTab.visibleColumns.includes(column.accessorKey));
     }, [currentTab]);
 
-    useEffect(() => {
-        // switch to 'overview' tab
-        if (loadingNewData) setCurrentTab(TABS[1]);
-    }, [loadingNewData]);
-
-    useEffect(() => {
-        // switch to 'recommendations' tab
-        if (loadingNewAdvice) setCurrentTab(TABS[0]);
-    }, [loadingNewAdvice]);
+    const onTabClick = (index) => {
+        router.push(`/portfolio?p=${currentPortfolio.id}&tab=${TABS[index].tabName}`);
+    }
 
     const onAdviceConfirm = () => {
         fetch('api/confirm-advice', {
@@ -126,17 +135,17 @@ const PortfolioTabs = ({ loadingNewData, loadingNewAdvice }) => {
     return (
         <>
             <div className="flex gap-3 mb-4 px-3">
-            {TABS.map(tab => (
+            {TABS.map((tab, index) => (
                 <div key={tab.tabName} className="relative">
                     {tab.tabName==='Recommendations' ? (
                     <>
-                        <AdviceNotification transactions={currentTransactionsData}/>
+                        <AdviceNotification transactions={adviceData}/>
                         <Button
                             variant="tab"
                             className={cn(
                                 tab === currentTab && "underline"
                             )}
-                            onClick={() => {setCurrentTab(tab)}}
+                            onClick={() => {onTabClick(index)}}
                         >
                             {tab.tabName}
                         </Button>
@@ -148,7 +157,7 @@ const PortfolioTabs = ({ loadingNewData, loadingNewAdvice }) => {
                         className={cn(
                             tab === currentTab && "underline"
                         )}
-                        onClick={() => {setCurrentTab(tab)}}
+                        onClick={() => {onTabClick(index)}}
                     >
                         {tab.tabName}
                     </Button>)}
@@ -156,9 +165,9 @@ const PortfolioTabs = ({ loadingNewData, loadingNewAdvice }) => {
             ))}
             </div>
             {currentTab === TABS[0] ? (
-                <AdviceTable data={currentTransactionsData} onClick={onAdviceConfirm} loadingNewAdvice={loadingNewAdvice} statementUrl={currentPortfolio.advice[0]?.url} />
+                <AdviceTable data={adviceData} onClick={onAdviceConfirm} loadingNewAdvice={loadingNewAdvice} statementUrl={currentPortfolio.advice[0]?.url} />
             ) : (
-                <PortfolioTable columns={visibleColumns} data={currentData} />
+                <PortfolioTable columns={visibleColumns} data={portfolioData} />
             )}
         </>
     )

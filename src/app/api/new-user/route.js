@@ -1,8 +1,8 @@
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
-import { NextResponse } from 'next/server'
+import { NextResponse } from 'next/server';
 
-const WEB_SERVER_BASE_URL = process.env.NEXT_PUBLIC_WEB_SERVER_BASE_URL
+const WEB_SERVER_BASE_URL = process.env.NEXT_PUBLIC_WEB_SERVER_BASE_URL;
 
 
 async function createProfile({ data, session, supabase }) {
@@ -90,8 +90,6 @@ export async function POST(req) {
         session,
         supabase,
     })
-
-    
 
     const res = await newAdvice({
         amount: body.portfolio.value,

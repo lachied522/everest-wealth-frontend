@@ -17,14 +17,12 @@ import { LuPencil, LuSearch, LuTrash } from "react-icons/lu";
 
 import { addStockInfoToPortfolio } from "../utils";
 
-import { useUniverseContext } from "src/app/(main)/context/UniverseState";
-import { useGlobalContext } from "src/app/(main)/context/GlobalState";
+import { useUniverseContext } from "@/context/UniverseState";
+import { useGlobalContext } from "@/context/GlobalState";
 
 const SearchHit = ({ hit, selectHit }) => {
 
-    const onClick = () => {
-        selectHit(hit)
-    }
+    const onClick = () => selectHit(hit);
 
     return (
         <div className="grid gap-0 cursor-pointer grid-rows-[auto] grid-cols-[0.25fr_1fr] auto-cols-[1fr] content-center justify-center items-center justify-items-center p-2.5" onClick={onClick}>
@@ -131,7 +129,7 @@ export default function EditPortfolioPopup() {
 
   useEffect(() => {
     if (currentPortfolio) {
-      const sortedData = currentPortfolio.holdings.sort((a, b) => a.symbol.localeCompare(b.symbol)); //sort data alphabetically 
+      const sortedData = currentPortfolio.holdings.sort((a, b) => a.symbol.localeCompare(b.symbol)); // sort data alphabetically 
       setAllHoldingData(sortedData);
     }
   }, [currentPortfolio]);
@@ -140,24 +138,21 @@ export default function EditPortfolioPopup() {
     /**
      * defines behaviour of search bar for adding stocks to portfolio
      */
-    const input = e.target.value.toUpperCase();
-    setSearchString(input);
+    setSearchString(e.target.value); // update state
 
-    //get matching symbols
+    // get matching symbols
     let matches = [];
+    const input = e.target.value.toUpperCase();
     if (input.length > 0) {
-      universeDataMap.forEach((value) => {
-        if (
-          value.symbol.indexOf(input) > -1 ||
-          (input.length > 2 && value.name?.indexOf(input) > -1)
-          ) {
-            matches.push(value);
-          }
-      });
+        universeDataMap.forEach((value) => {
+            if (value.symbol.startsWith(input) || (value.name?.startsWith(input))) {
+                matches.push(value);
+            }
+        });
     }
-    //sort by alphabetical order of symbol
-    matches.sort((a, b) => b.symbol.localeCompare(a.symbol));
-    //set search hits
+    // sort by alphabetical order of symbol
+    matches.sort((a, b) => a.symbol.localeCompare(b.symbol));
+    // set search hits
     setSearchHits(matches);
   };
 

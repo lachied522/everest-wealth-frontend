@@ -31,7 +31,7 @@ export default async function () {
   }
   
   return (
-    <div className="md:max-w-screen-lg px-6 mx-auto">
+    <>
       <div className='flex flex-col justify-end min-h-[274px] rounded relative overflow-hidden p-6 mb-6'>
         <img
           src="https://uploads-ssl.webflow.com/64afbac816bb17eb2fdc3f03/64afbac916bb17eb2fdc40b7_profile-bg-banner-medium-dashboardly-webflow-template.jpg"
@@ -55,6 +55,6 @@ export default async function () {
         <p className='text-lg text-slate-800'>Your profile helps us make recommendations that are appropriate for you. It is important to make sure your profile is update to date.</p>
       </div>
       <ProfileForm data={data[0]} userName={session.user.user_metadata['name']} />
-    </div>
+    </>
   );
 };

@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 
@@ -7,30 +8,37 @@ import { SidebarProvider } from "./context/SidebarState"
 
 import Sidebar from "./sidebar";
 import Header from "./header";
+import Container from './container';
 
-const fetchData = async (session, supabase) => {
+const fetchData = cache(async (session, supabase) => {
     //fetch universe data
     const { data: universeData, error: universeError } = await supabase
     .from("universe")
-    .select("id, symbol, name, sector, div_yield, beta, market_cap, last_price, domestic");
+    .select("id, symbol, name, sector, div_yield, beta, market_cap, last_price, domestic, tags");
 
     // portfolios belong to user, plus most recent record from advice table for each portfolio
-    const { data: userData, error: userError } = await supabase
+    const { data: portfolioData, error: portfolioError } = await supabase
     .from("portfolios")
     .select("*, advice(*), holdings(*)")
     .eq("user_id", session.user.id)
     .order("created_at", { foreignTable: "advice", ascending: false })
     .limit(1, { foreignTable: "advice" });
+
+    const { data: userData, error: userError} = await supabase
+    .from("users")
+    .select("watchlist")
+    .eq("id", session.user.id);
     
-    if(userError) console.log(userError);
+    if(portfolioError) console.log(portfolioError);
 
     console.log("data fetched");
 
-    return [
-      userData, 
-      universeData
-    ];    
-}
+    return {
+        universeData,
+        portfolioData, 
+        watchlistData: userData[0].watchlist,
+    };
+});
 
 export default async function RootLayout({ children }) {
     const supabase = createServerComponentClient({ cookies });
@@ -43,7 +51,7 @@ export default async function RootLayout({ children }) {
         // middleware should redirect user if session is null
     }
   
-    const [userData, universeData] = await fetchData(session, supabase);
+    const { universeData, portfolioData, watchlistData } = await fetchData(session, supabase);
   
     const universeDataMap = new Map();
     universeData.forEach(stock => {
@@ -51,7 +59,7 @@ export default async function RootLayout({ children }) {
     });
 
     // calculate total portfolio values
-    const updatedUserData = userData?.map((portfolio) => {
+    const updatedPortfolioData = portfolioData?.map((portfolio) => {
         let totalValue = 0;
         portfolio.holdings?.forEach(holding => {
             if (universeDataMap.has(holding.symbol)) {
@@ -62,16 +70,20 @@ export default async function RootLayout({ children }) {
         return { ...portfolio, totalValue: totalValue };
     });
 
+    console.log(watchlistData);
+
     return (
         <UniverseProvider universeDataMap={universeDataMap} >
-            <GlobalProvider session={session} userData={updatedUserData} universeDataMap={universeDataMap} >
+            <GlobalProvider session={session} portfolioData={updatedPortfolioData} watchlistData={watchlistData} universeDataMap={universeDataMap} >
                 <SidebarProvider>
                     <div className="flex items-start">
                         <Sidebar />
                         <div className="flex-1">
-                            <Header currentPage={"Portfolio"} userName={session.user.user_metadata['name'] || 'Name'} />
+                            <Header userName={session.user.user_metadata['name'] || 'Name'} />
                             <div className="h-full px-8 py-16">
-                                {children}
+                                <Container>
+                                    {children}
+                                </Container>
                             </div>
                         </div>
                     </div>  

@@ -23,9 +23,8 @@ export default function PortfolioPage() {
   const [loadingNewAdvice, setLoadingNewAdvice] = useState(false);
 
 
-
   return (    
-    <div className="md:max-w-screen-xl px-6 mx-auto">
+    <>
       <div className="mb-8">
         <div className="flex items-center justify-between">
           {currentPortfolio? (
@@ -55,6 +54,6 @@ export default function PortfolioPage() {
         loadingNewData={loadingNewData}
         loadingNewAdvice={loadingNewAdvice}
       />
-    </div>
+    </>
   );
 }
