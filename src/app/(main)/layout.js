@@ -8,6 +8,7 @@ import { SidebarProvider } from "./context/SidebarState"
 import Sidebar from "./sidebar";
 import Header from "./header";
 import Container from './container';
+import Footer from './footer';
 
 const fetchData = async (session, supabase) => {
     //fetch universe data
@@ -82,8 +83,9 @@ export default async function RootLayout({ children }) {
                                     {children}
                                 </Container>
                             </div>
+                            <Footer />
                         </div>
-                    </div>  
+                    </div>
                 </SidebarProvider>
             </GlobalProvider>
         </UniverseProvider>

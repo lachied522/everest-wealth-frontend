@@ -62,7 +62,7 @@ const PortfolioMenuItem = ({ p, activePath, dropdownOpen, toggleDropdownOpen }) 
   return (
     <div className="group">
       <div
-        className="w-full grid grid-cols-[1fr,25px] text-[#303350] items-center justify-start p-2 gap-2 text-md cursor-pointer"
+        className="w-full grid grid-cols-[1fr,25px] text-[#303350] items-center justify-start p-2 gap-2 ml-2 text-md cursor-pointer"
         onClick={() => toggleDropdownOpen()}
       >
         <span>{p.name}</span>
@@ -204,7 +204,7 @@ export default function SideBar() {
             <Link
               href="/dashboard"
               className={cn(
-                "w-full grid grid-cols-[25px,1fr] text-[#303350] items-center justify-start p-2 gap-2 text-md no-underline transition-none cursor-pointer hover:text-[#1476ff]",
+                "w-full grid grid-cols-[25px,1fr] text-[#303350] items-center justify-start p-2 gap-2 ml-2 text-md no-underline transition-none cursor-pointer hover:text-[#1476ff]",
                 pathname==="/dashboard" && "text-[#1476ff]"
               )}
             >
@@ -215,7 +215,7 @@ export default function SideBar() {
             <Link
               href="/profile"
               className={cn(
-                "w-full grid grid-cols-[25px,1fr] text-[#303350] items-center justify-start p-2 gap-2 text-md no-underline transition-none cursor-pointer hover:text-[#1476ff]",
+                "w-full grid grid-cols-[25px,1fr] text-[#303350] items-center justify-start p-2 gap-2 ml-2 text-md no-underline transition-none cursor-pointer hover:text-[#1476ff]",
                 pathname==="/profile" && "text-[#1476ff]"
               )}
               >
@@ -239,7 +239,7 @@ export default function SideBar() {
           <Link
             href={"/"}
             className={cn(
-              "w-full grid grid-cols-[25px,1fr] text-[#303350] items-center justify-start p-2 gap-2 text-md no-underline transition-none cursor-pointer hover:text-[#1476ff]",
+              "w-full grid grid-cols-[25px,1fr] text-[#303350] items-center justify-start p-2 gap-2 ml-2 text-md no-underline transition-none cursor-pointer hover:text-[#1476ff]",
               "/settings" === pathname && "text-[#1476ff]"
             )}
           >

@@ -67,7 +67,7 @@ export default function NewPortfolioPopup({ children } : {
         console.log(values)
         return
         setIsLoading(true)
-        const res = await fetch('api/new-portfolio', {
+        const res = await fetch('/api/new-portfolio', {
             method: "POST",
             body: JSON.stringify(values),
             headers: {

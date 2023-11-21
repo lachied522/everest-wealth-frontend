@@ -45,7 +45,7 @@ export const NewPortfolioModule = () => {
 
         return;
 
-        const res = await fetch('api/new-portfolio', {
+        const res = await fetch('/api/new-portfolio', {
             method: "POST",
             body: JSON.stringify(formData),
             headers: {

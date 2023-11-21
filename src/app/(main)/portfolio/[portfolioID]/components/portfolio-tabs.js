@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -60,7 +60,7 @@ const PortfolioTabs = ({ loadingNewAdvice }) => {
     const router = useRouter();
     const searchParams = useSearchParams();
     const { universeDataMap } = useUniverseContext();
-    const { currentPortfolio, updatePortfolio, toggleAdviceActioned } = useGlobalContext();
+    const { currentPortfolio, updatePortfolio, setAdvice } = useGlobalContext();
     const [currentTab, setCurrentTab] = useState(TABS[1]); // keeps track of current tab, defaults to 'overview'
 
     useEffect(() => {
@@ -86,7 +86,9 @@ const PortfolioTabs = ({ loadingNewAdvice }) => {
         if (currentPortfolio && universeDataMap) {
             // set advice data
             const advice = currentPortfolio.advice[0];
-            if (!advice?.actioned && advice?.transactions) {
+            if (!advice) return;
+
+            if (!['actioned', 'dismissed'].includes(advice.status) && advice.transactions) {
                 return addInfoToTransactions(advice.transactions, universeDataMap);
             }
         };
@@ -102,35 +104,48 @@ const PortfolioTabs = ({ loadingNewAdvice }) => {
         router.push(`/portfolio/${currentPortfolio.id}?tab=${TABS[index].tabName}`);
     }
 
-    const onAdviceConfirm = () => {
-        fetch('api/confirm-advice', {
+    const onAdviceAction = useCallback((action) => {
+        if (!['confirm', 'dismiss'].includes(action)) return;
+        fetch('/api/action-advice', {
             method: "POST",
-            body: JSON.stringify(currentPortfolio.advice[0]),
+            body: JSON.stringify({
+                advice: currentPortfolio.advice[0],
+                action,
+            }),
             headers: {
                 "Content-Type": "application/json",
             }
         })
         .then(res => res.json())
-        .then(updatedHoldings => {
-            const updatedSymbols = Array.from(updatedHoldings, (obj) => { return obj.symbol });
+        .then(({ updatedHoldings, success }) => {
+            if (!success) throw new Error('Api error');
 
-            const newHoldings = [
-                    ...currentPortfolio.holdings.filter((holding) => !updatedSymbols.includes(holding.symbol)),
-                    ...updatedHoldings,
-                ];
+            if (updatedHoldings.length > 0) {
+                const updatedSymbols = Array.from(updatedHoldings, (obj) => { return obj.symbol });
+            
+                // api route only returns updated holdings, combine updated and existing holdings for new portfolio
+                const newHoldings = [
+                        ...currentPortfolio.holdings.filter((holding) => !updatedSymbols.includes(holding.symbol)),
+                        ...updatedHoldings,
+                    ];
+    
+                updatePortfolio(currentPortfolio.id, newHoldings)
+            }
 
-            console.log(newHoldings);
-            updatePortfolio(currentPortfolio.id, newHoldings)
-            // show loading animation
-            // setCurrentTab(TABS[1]);
-            // toggleAdviceActioned(currentPortfolio.id);
+            // switch to 'Overview' tab
+            router.push(`/portfolio/${currentPortfolio.id}?tab=Overview`);
+
+            // update advice status
+            setAdvice(
+                currentPortfolio.id,
+                {
+                    ...currentPortfolio.advice[0],
+                    status: action==='confirm'? 'actioned': 'dismissed',
+                }
+            );
         })
-        .catch(err => console.log(err))
-        .finally(() => {
-
-        });
-
-    }
+        .catch(err => console.log(err));
+    }, [currentPortfolio]);
 
     return (
         <>
@@ -165,7 +180,12 @@ const PortfolioTabs = ({ loadingNewAdvice }) => {
             ))}
             </div>
             {currentTab === TABS[0] ? (
-                <AdviceTable data={adviceData} onClick={onAdviceConfirm} loadingNewAdvice={loadingNewAdvice} statementUrl={currentPortfolio.advice[0]?.url} />
+                <AdviceTable 
+                    data={adviceData} 
+                    onAdviceAction={onAdviceAction} 
+                    loadingNewAdvice={loadingNewAdvice} 
+                    statementUrl={currentPortfolio.advice[0]?.url} 
+                />
             ) : (
                 <PortfolioTable columns={visibleColumns} data={portfolioData} />
             )}

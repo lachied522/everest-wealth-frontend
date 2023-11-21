@@ -43,7 +43,7 @@ export const NewUserForm = () => {
     async function onPortfolioSubmit(values: z.infer<typeof PortfolioSchema>) {
         setLoading(true);
 
-        fetch("api/new-user", {
+        fetch("/api/new-user", {
             method: "POST",
             body: JSON.stringify({
                 ...formData,

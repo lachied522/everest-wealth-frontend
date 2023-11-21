@@ -42,7 +42,7 @@ interface AdviceTableProps<TData, TValue> {
     loadingNewAdvice: boolean
     actioned: boolean
     statementUrl: string
-    onClick: () => void
+    onAdviceAction: (action: string) => void
 }
 
 export default function AdviceTable<TData, TValue>({
@@ -50,7 +50,7 @@ export default function AdviceTable<TData, TValue>({
     loadingNewAdvice,
     actioned,
     statementUrl,
-    onClick,
+    onAdviceAction,
 }:  AdviceTableProps<TData, TValue>) {
     const [sorting, setSorting] = useState<SortingState>([])
 
@@ -183,10 +183,10 @@ export default function AdviceTable<TData, TValue>({
                                                 View Document
                                             </a>
                                             )}
-                                            <Button variant="secondary" onClick={() => {}}>
-                                                Dismiss
+                                            <Button variant="secondary" onClick={() => onAdviceAction('dismiss')}>
+                                                Dismiss Changes
                                             </Button>
-                                            <Button onClick={onClick}>
+                                            <Button onClick={() => onAdviceAction('confirm')}>
                                                 Make These Changes
                                             </Button>
                                         </div>
