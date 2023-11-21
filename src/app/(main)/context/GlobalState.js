@@ -8,7 +8,7 @@ import {
   useReducer,
 } from "react";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { useSearchParams } from "next/navigation";
+import { useParams } from "next/navigation";
 
 import GlobalReducer from "./GlobalReducer";
 
@@ -26,7 +26,7 @@ export const GlobalProvider = ({
   universeDataMap,
 }) => {
   const supabase = createClientComponentClient();
-  const searchParams = useSearchParams();
+  const params = useParams();
   const [state, dispatch] = useReducer(GlobalReducer, portfolioData);
   const [watchlist, setWatchlist] = useState(watchlistData || []);
 
@@ -34,7 +34,7 @@ export const GlobalProvider = ({
   const currentPortfolio = useMemo(() => {
     if (!state) return;
 
-    const portfolioID = searchParams.get("p");
+    const portfolioID = params["portfolioID"];
     if (portfolioID && state) {
       let index = state.findIndex((obj) => obj.id === portfolioID);
       if (index > 0) {
@@ -46,7 +46,7 @@ export const GlobalProvider = ({
     }
 
     return;
-  }, [searchParams, state]);
+  }, [params, state]);
 
   const commitPortfolio = async (id, data) => {
     // upsert modified holdings to DB

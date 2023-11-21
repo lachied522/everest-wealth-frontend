@@ -1,8 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useSearchParams, useRouter } from 'next/navigation';
 
-import { useGlobalContext } from "src/app/(main)/context/GlobalState";
+import { useGlobalContext } from "@/context/GlobalState";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -10,7 +9,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { LuLink } from "react-icons/lu";
 
 import PortfolioSettingsPopup from "./portfolio-settings-popup";
-import PortfolioDropdown from "@/components/portfolio-dropdown";
 import PortfolioStatBar from "./portfolio-stat-bar";
 import EditPortfolioPopup from "./edit-portfolio-popup";
 import NewAdvicePopup from "./new-advice-popup";

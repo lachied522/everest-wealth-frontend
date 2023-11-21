@@ -1,4 +1,3 @@
-import { cache } from 'react';
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 
@@ -10,7 +9,7 @@ import Sidebar from "./sidebar";
 import Header from "./header";
 import Container from './container';
 
-const fetchData = cache(async (session, supabase) => {
+const fetchData = async (session, supabase) => {
     //fetch universe data
     const { data: universeData, error: universeError } = await supabase
     .from("universe")
@@ -38,7 +37,7 @@ const fetchData = cache(async (session, supabase) => {
         portfolioData, 
         watchlistData: userData[0].watchlist,
     };
-});
+};
 
 export default async function RootLayout({ children }) {
     const supabase = createServerComponentClient({ cookies });
@@ -69,9 +68,7 @@ export default async function RootLayout({ children }) {
         });
         return { ...portfolio, totalValue: totalValue };
     });
-
-    console.log(watchlistData);
-
+    
     return (
         <UniverseProvider universeDataMap={universeDataMap} >
             <GlobalProvider session={session} portfolioData={updatedPortfolioData} watchlistData={watchlistData} universeDataMap={universeDataMap} >

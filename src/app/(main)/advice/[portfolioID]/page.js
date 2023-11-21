@@ -6,6 +6,12 @@ import AllAdviceTable from './components/all-advice-table';
 export default async function ({ params }) {
     const supabase = createServerComponentClient({ cookies });
 
+    const portfolioID = params["portfolioID"];
+
+    if (!portfolioID) {
+      // TO DO: redirect to 404
+    }
+
     const {
         data: { session },
       } = await supabase.auth.getSession();
@@ -13,7 +19,7 @@ export default async function ({ params }) {
     const { data, error } = await supabase
     .from("advice")
     .select("*")
-    .eq("user_id", session.user.id)
+    .eq("portfolio_id", portfolioID)
     .order('created_at', { ascending: false });
 
     return (

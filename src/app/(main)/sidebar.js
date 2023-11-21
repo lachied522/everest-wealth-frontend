@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -11,13 +11,18 @@ import {
   LuFileLineChart,
   LuFileBarChart,
   LuUser2,
-  LuSettings
+  LuSettings,
+  LuChevronRight,
+  LuPlus,
  } from "react-icons/lu";
 
 import { Separator } from "@/components/ui/separator";
 
 import { useSidebarContext } from "./context/SidebarState";
 import { useGlobalContext } from "./context/GlobalState";
+import { Button } from "@/components/ui/button";
+
+import NewPortfolioPopup from "./modals/new-portfolio-popup";
 
 const PAGES = [
   {
@@ -52,37 +57,88 @@ const PAGES = [
   // }
 ];
 
-const NavLink = ({ page, activePath, subPages }) => {
-  const active = page.href === activePath;
+const PortfolioMenuItem = ({ p, activePath, dropdownOpen, toggleDropdownOpen }) => {
+  const isOpen = dropdownOpen || activePath.includes(p.id);
   return (
-    <div>
-      <Link
-        href={page.href}
-        className={cn(
-          "w-full grid grid-cols-[25px,1fr] text-[#303350] items-center justify-start p-3 gap-2 text-base no-underline transition-none cursor-pointer hover:text-[#1476ff]",
-          active && "text-[#1476ff]"
-        )}
+    <div className="group">
+      <div
+        className="w-full grid grid-cols-[1fr,25px] text-[#303350] items-center justify-start p-2 gap-2 text-md cursor-pointer"
+        onClick={() => toggleDropdownOpen()}
       >
-        <page.Icon size={24} />
-        {page.name}
-      </Link>
-      {subPages?.map((page) => (
-        <div className="w-full text-[#303350] text-base no-underline transition-none cursor-pointer hover:text-[#1476ff]">Testing</div>
-      ))}
+        <span>{p.name}</span>
+        <LuChevronRight size={18} className={cn(
+          "transition-transform duration-300 ease-in-out",
+          isOpen && "rotate-90"
+          )}/>
+      </div>
+      <div className={cn(
+        "hidden flex-col ml-6 my-1 gap-1.5 transition-all duration-300",
+        isOpen && "flex"
+        )}>
+        <Link
+            href={`/portfolio/${p.id}?tab=Overview`}
+            className={cn(
+              "w-full flex gap-2 text-[#24242b] text-sm no-underline transition-none cursor-pointer hover:text-[#1476ff]",
+              activePath===`/portfolio/${p.id}` && "text-[#1476ff]"
+            )}
+          >
+          <BiBriefcaseAlt size={16} />
+          Portfolio
+        </Link>
+        <Link
+          href=""
+          className={cn(
+            "w-full flex gap-2 text-[#303350] text-sm no-underline transition-none cursor-pointer hover:text-[#1476ff]",
+            activePath===`/performance/${p.id}` && "text-[#1476ff]"
+          )}
+        >
+          <LuFileLineChart size={16} />
+          Performance
+        </Link>
+        <Link
+          href={`/advice/${p.id}`}
+          className={cn(
+            "w-full flex gap-2 text-[#303350] text-sm no-underline transition-none cursor-pointer hover:text-[#1476ff]",
+            activePath===`/advice/${p.id}` && "text-[#1476ff]"
+          )}
+        >
+          <LuFileBarChart size={16} />
+          Advice
+        </Link>
+      </div>
     </div>
   );
 };
 
+const NewPortfolioButton = () => {
+  return (
+    <NewPortfolioPopup>
+      <Button variant="ghost" className="items-center justify-start p-3 mt-2">
+        <LuPlus size={18} className="mr-2"/>
+        New Portfolio
+      </Button>
+    </NewPortfolioPopup>
+  )
+}
+
 export default function SideBar() {
   const pathname = usePathname();
-  const { portfolioData, currentPortfolio } = useGlobalContext();
+  const { portfolioData } = useGlobalContext();
   const sidebarRef = useRef(null);
-
   const { 
     sidebarOpen: isOpen, 
     setSidebarOpen: setIsOpen, 
     isMobile 
   } = useSidebarContext();
+  const [open, setOpen] = useState(); // keeps track of which menu option is open
+
+  const toggleDropdownOpen = (index) => {
+    if (open===index) {
+      setOpen()
+    } else {
+      setOpen(index);
+    };
+  }
 
   const closeSidebarOnOutsideClick = (event) => {
     // on mobile, close sidebar when user clicks outside
@@ -111,12 +167,12 @@ export default function SideBar() {
     if(isMobile) setIsOpen(false);
   }, [pathname]);
 
-  return (    
+  return (
     <>
       {isMobile && (
         <div 
           className={cn(
-            "z-[499] bg-slate-700 justify-center items-center fixed inset-0 opacity-50 hidden",
+            "z-[999] bg-slate-700 justify-center items-center fixed inset-0 opacity-50 hidden",
             isOpen && "flex"
           )}
         />
@@ -125,121 +181,72 @@ export default function SideBar() {
         ref={sidebarRef}
         role="banner"
         className={cn(
-          "z-[100] h-screen w-[180px] bg-white border-r border-r-slate-50 px-2 fixed m-0 overflow-auto shadow-sm shadow-slate-400 transition-all ease-in-out duration-300 translate-x-0",
+          "z-[9999] w-[180px] h-screen bg-white border-r border-r-slate-50 px-2 fixed m-0 overflow-auto shadow-sm shadow-slate-400 transition-all ease-in-out duration-300 translate-x-0",
           !isOpen && "translate-x-[-100%]"
         )}
       >
-        <div>
-          <div className="min-h-[74px] content-center justify-center flex py-[22px]">
-            <Link
-              href="/"
-              className="w-full flex justify-center transform transition duration-300 relative hover:scale-105"
-            >
-              <Image
-                src="/palladian.svg"
-                alt="Palladian Logo"
-                width={48}
-                height={48}
-              />
-            </Link>
-          </div>
-          <div>
-            <nav role="navigation">
-              <div className="w-full flex flex-col justify-between">
-                <div className="w-full flex flex-col">
-                    <Separator className="my-4 bg-neutral-300" />
-                    <div>
-                      <Link
-                        href="/dashboard"
-                        className={cn(
-                          "w-full grid grid-cols-[25px,1fr] text-[#303350] items-center justify-start p-3 gap-2 text-base no-underline transition-none cursor-pointer hover:text-[#1476ff]",
-                          pathname==="/dashboard" && "text-[#1476ff]"
-                        )}
-                      >
-                        <BiHomeAlt2 size={24} />
-                        Dashboard
-                      </Link>
-                    </div>
-                    <Separator className="my-4 bg-neutral-300" />
-                    <div>
-                      <div
-                        className="w-full grid grid-cols-[25px,1fr] text-[#303350] items-center justify-start p-3 gap-2 text-base cursor-default"
-                      > 
-                        <BiBriefcaseAlt size={24} />
-                        Portfolios
-                      </div>
-                      <div className="flex flex-col ml-7 my-1 gap-1.5">
-                      {portfolioData?.map((p) => (
-                        <Link 
-                          key={p.id}
-                          href={`/portfolio?p=${p.id}`}
-                          className={cn(
-                            "w-full text-[#303350] text-sm no-underline transition-none cursor-pointer hover:text-[#1476ff]",
-                            currentPortfolio===p && "text-[#1476ff]"
-                          )}
-                        >
-                          {p.name}
-                        </Link>
-                      ))}
-                      </div>
-                    </div>
-                    <Separator className="my-4 bg-neutral-300" />
-                    <div>
-                      <Link
-                        href=""
-                        className={cn(
-                          "w-full grid grid-cols-[25px,1fr] text-[#303350] items-center justify-start p-3 gap-2 text-base no-underline transition-none cursor-pointer hover:text-[#1476ff]",
-                          pathname==="/perfomance" && "text-[#1476ff]"
-                        )}
-                      >
-                        <LuFileLineChart size={24} />
-                        Performance
-                      </Link>
-                    </div>
-                    <Separator className="my-4 bg-neutral-300" />
-                    <div>
-                      <Link
-                        href="/advice"
-                        className={cn(
-                          "w-full grid grid-cols-[25px,1fr] text-[#303350] items-center justify-start p-3 gap-2 text-base no-underline transition-none cursor-pointer hover:text-[#1476ff]",
-                          pathname==="/advice" && "text-[#1476ff]"
-                        )}
-                      >
-                        <LuFileBarChart size={24} />
-                        Advice
-                      </Link>
-                    </div>
-                    <Separator className="my-4 bg-neutral-300" />
-                    <div>
-                      <Link
-                        href="/profile"
-                        className={cn(
-                          "w-full grid grid-cols-[25px,1fr] text-[#303350] items-center justify-start p-3 gap-2 text-base no-underline transition-none cursor-pointer hover:text-[#1476ff]",
-                          pathname==="/profile" && "text-[#1476ff]"
-                        )}
-                      >
-                        <LuUser2 size={24} />
-                        Profile
-                      </Link>
-                    </div>
-                </div>
-                <Separator className="my-4 bg-neutral-300" />
-                <div className="w-full flex gap-2 flex-col">
-                  <Link
-                    href={"/"}
-                    className={cn(
-                      "w-full grid grid-cols-[25px,1fr] text-[#303350] items-center justify-start p-3 gap-2 text-base no-underline transition-none cursor-pointer hover:text-[#1476ff]",
-                      "/settings" === pathname && "text-[#1476ff]"
-                    )}
-                  >
-                    <LuSettings size={24}/>
-                    Settings
-                  </Link>
-                </div>
-              </div>
-            </nav>
-          </div>
+        <div className="min-h-[74px] content-center justify-center flex">
+          <Link
+            href="/"
+            className="w-full flex justify-center transform transition duration-300 relative hover:scale-105"
+          >
+            <Image
+              src="/palladian.svg"
+              alt="Palladian Logo"
+              width={48}
+              height={48}
+            />
+          </Link>
         </div>
+        <nav role="navigation" className="w-full h-[calc(100vh-100px)] flex flex-col justify-between">
+          <div className="flex flex-col">
+            <Separator className="my-3 bg-neutral-300" />
+            <Link
+              href="/dashboard"
+              className={cn(
+                "w-full grid grid-cols-[25px,1fr] text-[#303350] items-center justify-start p-2 gap-2 text-md no-underline transition-none cursor-pointer hover:text-[#1476ff]",
+                pathname==="/dashboard" && "text-[#1476ff]"
+              )}
+            >
+              <BiHomeAlt2 size={24} />
+              Dashboard
+            </Link>
+            <Separator className="my-3 bg-neutral-300" />
+            <Link
+              href="/profile"
+              className={cn(
+                "w-full grid grid-cols-[25px,1fr] text-[#303350] items-center justify-start p-2 gap-2 text-md no-underline transition-none cursor-pointer hover:text-[#1476ff]",
+                pathname==="/profile" && "text-[#1476ff]"
+              )}
+              >
+                <LuUser2 size={24} />
+                Profile
+              </Link>
+              <Separator className="my-3 bg-neutral-300" />
+              {portfolioData?.map((p, index) => (
+                <PortfolioMenuItem 
+                  key={p.id} 
+                  p={p} 
+                  activePath={pathname}
+                  dropdownOpen={open===index}
+                  toggleDropdownOpen={() => toggleDropdownOpen(index)}
+                />
+              ))}
+              {portfolioData.length < 5 && (
+                <NewPortfolioButton />
+              )}
+          </div>
+          <Link
+            href={"/"}
+            className={cn(
+              "w-full grid grid-cols-[25px,1fr] text-[#303350] items-center justify-start p-2 gap-2 text-md no-underline transition-none cursor-pointer hover:text-[#1476ff]",
+              "/settings" === pathname && "text-[#1476ff]"
+            )}
+          >
+            <LuSettings size={24}/>
+            Settings
+          </Link>
+        </nav>
       </aside>
       {!isMobile && <div className="min-w-[180px]" />}
     </>

@@ -70,7 +70,7 @@ const PortfolioTabs = ({ loadingNewAdvice }) => {
             setCurrentTab(tab);
         } else {
             // set 'Overview' tab as default
-            router.push(`/portfolio?p=${currentPortfolio.id}&tab=${TABS[1].tabName}`);
+            router.push(`/portfolio/${currentPortfolio.id}?tab=${TABS[1].tabName}`);
         }
     }, [searchParams]);
 
@@ -99,7 +99,7 @@ const PortfolioTabs = ({ loadingNewAdvice }) => {
     }, [currentTab]);
 
     const onTabClick = (index) => {
-        router.push(`/portfolio?p=${currentPortfolio.id}&tab=${TABS[index].tabName}`);
+        router.push(`/portfolio/${currentPortfolio.id}?tab=${TABS[index].tabName}`);
     }
 
     const onAdviceConfirm = () => {
