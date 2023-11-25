@@ -48,9 +48,11 @@ export default function NewAdvicePopup() {
         },
         onClose: (event) => {
             console.log('WebSocket closed:', event);
+            setSocketUrl(null);
         },
         onError: (event) => {
             console.error('WebSocket error:', event);
+            setSocketUrl(null);
         },
     });
 
