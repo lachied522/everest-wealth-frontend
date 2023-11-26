@@ -16,7 +16,6 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGlobalContext } from "@/context/GlobalState";
 
-
 const ChangeIndicator = ({ change }) => {
     return (
         <div className="flex items-end">
@@ -35,7 +34,6 @@ const ChangeIndicator = ({ change }) => {
     )
 }
 
-
 export default function PortfolioStatBar() {
     const { currentPortfolio } = useGlobalContext();
     
@@ -51,7 +49,7 @@ export default function PortfolioStatBar() {
                         />
                         <div>
                             <div className="text-sm font-medium">Objective</div>
-                            <div className="text-xs font-bold text-slate-800">{currentPortfolio?.objective}</div>
+                            <div className="text-xs font-bold text-slate-800">{currentPortfolio.objective}</div>
                         </div>
                     </>
                     ) : <Skeleton className="w-[240px] h-10"/>}

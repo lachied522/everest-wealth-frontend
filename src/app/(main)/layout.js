@@ -3,7 +3,9 @@ import { cookies } from 'next/headers';
 
 import { GlobalProvider } from "./context/GlobalState";
 import { UniverseProvider } from "./context/UniverseState";
-import { SidebarProvider } from "./context/SidebarState"
+import { SidebarProvider } from "./context/SidebarState";
+
+import { fetchSymbol } from '../lib/redis';
 
 import Sidebar from "./sidebar";
 import Header from "./header";
@@ -58,16 +60,17 @@ export default async function RootLayout({ children }) {
     });
 
     // calculate total portfolio values
-    const updatedPortfolioData = portfolioData?.map((portfolio) => {
+    const updatedPortfolioData = await Promise.all(portfolioData?.map(async (portfolio) => {
         let totalValue = 0;
-        portfolio.holdings?.forEach(holding => {
-            if (universeDataMap.has(holding.symbol)) {
-                const price = universeDataMap.get(holding.symbol).last_price;
-                totalValue += price * holding.units;
-            }
-        });
-        return { ...portfolio, totalValue: totalValue };
-    });
+        await Promise.all(portfolio.holdings?.map(async (holding) => {
+            return fetchSymbol(holding.symbol)
+                .then(data => {
+                    totalValue += data['last_price'] * holding.units || 0;
+                });
+        }));
+        
+        return { ...portfolio, totalValue };
+    }));
     
     return (
         <UniverseProvider universeDataMap={universeDataMap} >

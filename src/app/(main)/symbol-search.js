@@ -29,11 +29,11 @@ export default function SymbolSearch() {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
 
-    const debouncedSearch = debounce(async (params) => {
+    const debouncedSearch = debounce(async (q) => {
         try {
+            const params = new URLSearchParams({ q });
             const matches = await fetch(`/api/search-stocks?${params}`).then(res => res.json());
             matches.sort((a, b) => a.symbol.localeCompare(b.symbol));
-            console.log(matches);
             setSearchHits(matches);
         } catch (e) {
             console.log(e);
@@ -55,8 +55,7 @@ export default function SymbolSearch() {
         setSearchString(input);
         if (input.length > 0) {
             // get matching symbols
-            const params = new URLSearchParams({ q: input });
-            debouncedSearch(params);
+            debouncedSearch(input);
         } else {
             setSearchHits([]);
         }

@@ -130,13 +130,13 @@ export default function SideBar() {
     setSidebarOpen: setIsOpen, 
     isMobile 
   } = useSidebarContext();
-  const [open, setOpen] = useState(); // keeps track of which menu option is open
+  const [openIndex, setOpenIndex] = useState(); // keeps track of which menu option is open
 
   const toggleDropdownOpen = (index) => {
-    if (open===index) {
-      setOpen()
+    if (openIndex===index) {
+      setOpenIndex();
     } else {
-      setOpen(index);
+      setOpenIndex(index);
     };
   }
 
@@ -165,6 +165,8 @@ export default function SideBar() {
   useEffect(() => {
     // close sidebar on nav click
     if(isMobile) setIsOpen(false);
+    // close any open dropdowns
+    setOpenIndex();
   }, [pathname]);
 
   return (
@@ -228,7 +230,7 @@ export default function SideBar() {
                   key={p.id} 
                   p={p} 
                   activePath={pathname}
-                  dropdownOpen={open===index}
+                  dropdownOpen={openIndex===index}
                   toggleDropdownOpen={() => toggleDropdownOpen(index)}
                 />
               ))}

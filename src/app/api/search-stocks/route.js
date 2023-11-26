@@ -6,12 +6,5 @@ export async function GET(req) {
 
     const matches = await searchUniverse(q);
     
-    console.log(matches);
-
-    return new Response(JSON.stringify(matches), {
-        status: 200,
-        headers: {
-            "Content-Type": "application/json"
-        }
-    });
+    return Response.json(matches);
 }

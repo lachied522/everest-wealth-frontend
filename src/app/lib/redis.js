@@ -10,7 +10,12 @@ const client = createClient({
     }
 });
 
-await client.connect();
+async function connect() {
+  if (!client.isOpen) {
+    await client.connect();
+    await universeRepository.createIndex();
+  }
+}
 
 const universeSchema = new Schema('symbol', {
     symbol: { type: 'text' },
@@ -21,17 +26,28 @@ const universeSchema = new Schema('symbol', {
 
 // create repository and index for text search
 const universeRepository = new Repository(universeSchema, client);
-await universeRepository.createIndex();
 
 export const searchUniverse = async (q) => {
-    try {
-        const results = await universeRepository.search()
-            .where('symbol').match(q, { fuzzyMatching: true } )
-            .or('name').match(q, { fuzzyMatching: true })
-            .return.all()
-        return results;
-      } catch (error) {
-        console.error('Error searching records:', error);
-        throw error;
-      }
+  await connect();
+
+  try {
+      const results = await universeRepository.search()
+          .where('symbol').match(q, { fuzzyMatching: true } )
+          .or('name').match(q, { fuzzyMatching: true })
+          .return.all()
+      return results;
+  } catch (e) {
+    console.error('Error searching records:', e);
+  }
+}
+
+export const fetchSymbol = async (symbol) => {
+  await connect();
+  try {
+    const data = await universeRepository.fetch(symbol);
+    console.log(`${symbol} fetched`);
+    return data;
+  } catch (e) {
+    console.log(e);
+  }
 }
