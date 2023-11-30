@@ -60,8 +60,9 @@ const PortfolioTabs = ({ loadingNewAdvice }) => {
     const router = useRouter();
     const searchParams = useSearchParams();
     const { universeDataMap } = useUniverseContext();
-    const { currentPortfolio, updatePortfolio, setAdvice } = useGlobalContext();
+    const { currentPortfolio, updatePortfolio } = useGlobalContext();
     const [currentTab, setCurrentTab] = useState(TABS[1]); // keeps track of current tab, defaults to 'overview'
+    const [portfolioData, setPortfolioData] = useState([]);
 
     useEffect(() => {
         // get current tab
@@ -74,12 +75,17 @@ const PortfolioTabs = ({ loadingNewAdvice }) => {
         }
     }, [searchParams]);
 
-    const portfolioData = useMemo(() => {
-        if (currentPortfolio && universeDataMap) {
-            // set holding data for portfolio
-            return addStockInfoToPortfolio(currentPortfolio.holdings, universeDataMap);
-        };
-        return [];
+    useEffect(() => {
+        let active = true; // keep track of whether component is active
+        if (currentPortfolio) getData();
+        return () => {
+            active = false;
+        }
+
+        async function getData() {
+            const data = await addStockInfoToPortfolio(currentPortfolio.holdings);
+            if (active) setPortfolioData(data);
+        }
     }, [currentPortfolio]);
 
     const adviceData = useMemo(() => {

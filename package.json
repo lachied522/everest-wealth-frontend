@@ -34,6 +34,7 @@
     "eslint": "8.47.0",
     "eslint-config-next": "13.4.19",
     "framer-motion": "^10.16.4",
+    "lodash.debounce": "^4.0.8",
     "lucide-react": "^0.287.0",
     "next": "^13.5.4",
     "react": "18.2.0",
@@ -42,6 +43,10 @@
     "react-hook-form": "^7.47.0",
     "react-icons": "^4.11.0",
     "react-use-websocket": "^3.0.0",
+    "redis": "^4.6.11",
+    "redis-json": "^6.0.3",
+    "redis-om": "^0.4.3",
+    "redis-search": "^0.0.1",
     "tailwind-merge": "^1.14.0",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "5.1.6",
@@ -49,6 +54,8 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.202",
+    "@types/lodash.debounce": "^4.0.9",
     "autoprefixer": "^10.4.16",
     "postcss": "^8.4.31",
     "supabase": "^1.106.1",

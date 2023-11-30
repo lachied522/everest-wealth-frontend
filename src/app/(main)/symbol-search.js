@@ -1,12 +1,12 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+
+import debounce from "lodash.debounce";
 
 import { Input } from "@/components/ui/input";
 
 import { LuSearch } from "react-icons/lu";
-
-import { useUniverseContext } from "@/context/UniverseState";
 
 const SearchHit = ({ hit, selectHit }) => {
     const onClick = () => selectHit(hit.symbol);
@@ -24,40 +24,65 @@ const SearchHit = ({ hit, selectHit }) => {
 
 export default function SymbolSearch() {
     const router = useRouter();
-    const { universeDataMap } = useUniverseContext();
     const [searchString, setSearchString] = useState('');
     const [searchHits, setSearchHits] = useState([]);
-    
+    const [isOpen, setIsOpen] = useState(false);
+    const dropdownRef = useRef(null);
+
+    const debouncedSearch = debounce(async (q) => {
+        try {
+            const params = new URLSearchParams({ q });
+            const matches = await fetch(`/api/search-stocks?${params}`).then(res => res.json());
+            matches.sort((a, b) => a.symbol.localeCompare(b.symbol));
+            setSearchHits(matches);
+        } catch (e) {
+            console.log(e);
+        }
+    }, 300);
+
     const selectHit = (symbol) => {
         // navigate to symbol page
         router.push(`/symbol/${symbol}`);
         // reset search
         setSearchHits([]);
         setSearchString('');
+        setIsOpen(false);
     }
 
-    const onChange = (e) => {
+    const onChange = async (e) => {
+        const input = e.target.value;
         // update state
-        setSearchString(e.target.value);
-
-        // get matching symbols
-        let matches = [];
-        const input = e.target.value.toUpperCase();
+        setSearchString(input);
         if (input.length > 0) {
-            universeDataMap.forEach((value) => {
-                if (value.symbol.startsWith(input) || (value.name?.startsWith(input))) {
-                    matches.push(value);
-                }
-            });
+            // get matching symbols
+            debouncedSearch(input);
+        } else {
+            setSearchHits([]);
         }
-        // sort by alphabetical order of symbol
-        matches.sort((a, b) => a.symbol.localeCompare(b.symbol));
-        // set search hits
-        setSearchHits(matches);
     }
+
+    const closeDropdownOnOutsideClick = (event) => {
+        // on mobile, close sidebar when user clicks outside
+        if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+            setIsOpen(false);
+        }
+    };
+
+    useEffect(() => {
+        if (isOpen) {
+          document.addEventListener('click', closeDropdownOnOutsideClick);
+        } else {
+          document.removeEventListener('click', closeDropdownOnOutsideClick);
+        }
+    
+        return () => {
+          // clean up the event listener when the component unmounts
+          document.removeEventListener('click', closeDropdownOnOutsideClick);
+        };
+      }, [isOpen]);
 
     return (
-        <div className="w-64 relative">
+        <div ref={dropdownRef} className="w-64 relative">
             <div className="flex items-center relative">
                 <LuSearch 
                     className="z-[1] text-[#989aad] text-lg leading-[1em] absolute left-2"
@@ -65,12 +90,13 @@ export default function SymbolSearch() {
                 <Input 
                     type="search"
                     className="pl-8"
-                    value={searchString} 
+                    value={searchString}
+                    onFocus={() => setIsOpen(true)}
                     onChange={onChange}
                     placeholder="Symbol"
                 />
             </div>
-            {searchHits.length > 0 && (
+            {isOpen && searchHits.length > 0 && (
             <div className="w-full z-10 grid grid-cols-1 gap-y-0.5 bg-white justify-start rounded-md shadow-md overflow-auto absolute">
                 {searchHits.slice(0, 10).map((hit, index) => (
                 <SearchHit

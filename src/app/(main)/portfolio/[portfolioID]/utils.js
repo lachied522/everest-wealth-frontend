@@ -1,21 +1,22 @@
-export function addStockInfoToPortfolio(portfolioData, universeDataMap) {
-    if (!portfolioData) return;
+export async function addStockInfoToPortfolio(holdingsData) {
+    if (!holdingsData) return;
   
-    //calculate total value of portfolio for weight calculations
-    //const totalValue = portfolioData.reduce((acc, obj) => acc + parseFloat(obj.price * obj.units), 0);
-  
-    const newArray = portfolioData.map(({ id, symbol, units, cost, locked }) => {
-        if (!universeDataMap.has(symbol)) return { id, symbol, units, cost };
-        const price = universeDataMap.get(symbol).last_price;
-  
-        const value = (price * units).toFixed(2);
+    const newArray = await Promise.all(holdingsData.map(async (holding) => {
+        const params = new URLSearchParams({ s: holding.symbol });
+        const data = await fetch(`/api/get-stock-info?${params}`).then(res => res.json());
+    
+        if (!data) return { ...holding };
+
+        const price = data['last_price'];
+        const value = (price * holding.units).toFixed(2);
         //const weight =  (100*(value / totalValue)).toFixed(2);
-        const totalCost = cost? (cost * units).toFixed(2): 0;
-        const totalProfit = ((cost? (price - cost): price) * units).toFixed(2);
-  
-        return { ...universeDataMap.get(symbol), id, symbol, units, cost, locked, value, price, totalCost, totalProfit };
-    });
-  
+        const totalCost = holding.cost? (holding.cost * holding.units).toFixed(2): 0;
+        const totalProfit = ((holding.cost? (price - holding.cost): price) * holding.units).toFixed(2);
+
+        return { ...data, ...holding, value, price, totalCost, totalProfit };
+    }));
+
+    //calculate total value of portfolio for weight calculations
     return newArray;
 }
 

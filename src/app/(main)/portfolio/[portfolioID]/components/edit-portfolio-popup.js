@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 import {
   Dialog,
@@ -12,12 +12,14 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 
 import { LuPencil, LuSearch, LuTrash } from "react-icons/lu";
 
 import { addStockInfoToPortfolio } from "../utils";
 
-import { useUniverseContext } from "@/context/UniverseState";
+import debounce from "lodash.debounce";
+
 import { useGlobalContext } from "@/context/GlobalState";
 
 const SearchHit = ({ hit, selectHit }) => {
@@ -32,84 +34,100 @@ const SearchHit = ({ hit, selectHit }) => {
     );
 };
 
-const HoldingRow = ({ data, update }) => {
-    //value column pre-populates if user fills units column and vice versa
-    const changeValue = (e) => {
+const HoldingRow = ({ holdingData, update }) => {
+    const [populatedData, setPopulatedData] = useState(null);
+
+    useEffect(() => {
+      let active = true; // keep track of whether component is active
+      if (holdingData) getData();
+      return () => {
+          active = false;
+      }
+
+      async function getData() {
+          const data = await addStockInfoToPortfolio([holdingData]);
+          if (active) setPopulatedData(data[0]);
+      }
+    }, [holdingData]);
+
+    // value column pre-populates if user fills units column and vice versa
+    const changeValue = useCallback((e) => {
+        if (!populatedData) return;
         const input = e.target.value;
-        const units = Math.max(Math.floor(input / data.last_price), 1);
+        const units = Math.max(Math.floor(input / populatedData['last_price']), 1);
         update({
-          ...data,
+          ...holdingData,
           value: parseFloat(input),
           units: units,
         });
-    }
+    }, [populatedData]);
     
-    const changeUnits = (e) => {
+    const changeUnits = useCallback((e) => {
+        if (!populatedData) return;
         const input = e.target.value;
-        const value = input * data.last_price;
+        const value = input * populatedData['last_price'];
         update({
-          ...data,
+          ...holdingData,
           value: value,
           units: parseFloat(input),
         });
-    }
+    }, [populatedData]);
 
-    const changeCost = (e) => {
+    const changeCost = useCallback((e) => {
       const input = e.target.value;
       update({
-        ...data,
+        ...holdingData,
         cost: parseFloat(input),
       });
-    }
+    }, []);
 
-    const removeHolding = () => {
+    const removeHolding = useCallback(() => {
       // holding is removed by setting units to zero
       update({
-        ...data,
+        ...holdingData,
         value: 0,
         units: 0,
       });
-    }
+    }, []);
 
     return (
         <div className="grid grid-rows-[auto] gap-0 grid-cols-[0.5fr_0.75fr_1fr_1fr_20px] auto-cols-[1fr] items-center justify-items-center p-1.5">
-            <div
-                className="stock-data symbol"
-            >
-              {data.symbol.toUpperCase()}
+            <div className="">
+              {holdingData['symbol'].toUpperCase()}
             </div>
             <Input
                 type="number"
-                className="max-w-[80px] m-0"
+                className="max-w-[80px] text-slate-800 m-0"
                 maxLength="256"
                 name="units"
                 data-name="units"
                 min={1}
-                placeholder="e.g. 100"
-                value={data.units || ""}
+                value={holdingData['units'] || ""}
                 onChange={changeUnits}
             />
+            {populatedData ? (
             <Input
                 type="number"
-                className="max-w-[100px] m-0"
+                className="max-w-[100px] text-slate-800 m-0"
                 maxLength="256"
                 name="value"
                 data-name="value"
-                min={data.last_price}
-                placeholder="e.g. $1000"
-                value={data.value || ""}
+                min={populatedData['value'] || 0}
+                value={populatedData['value'] || ""}
                 onChange={changeValue}
             />
+            ) : (
+              <Skeleton className="max-w-[100px] m-0"/>
+            )}
             <Input
                 type="number"
-                className="max-w-[100px] m-0"
+                className="max-w-[100px] text-slate-800 m-0"
                 maxLength="256"
                 name="cost"
                 data-name="cost"
                 min="0"
-                placeholder="e.g. $500"
                 required
-                value={data.cost || ""}
+                value={holdingData['cost'] || ""}
                 onChange={changeCost}
             />
             <LuTrash 
@@ -121,7 +139,6 @@ const HoldingRow = ({ data, update }) => {
 };
 
 export default function EditPortfolioPopup() {
-  const { universeDataMap } = useUniverseContext();
   const { currentPortfolio, updatePortfolio, commitPortfolio } = useGlobalContext();
   const [searchString, setSearchString] = useState('');
   const [searchHits, setSearchHits] = useState([]);
@@ -134,26 +151,28 @@ export default function EditPortfolioPopup() {
     }
   }, [currentPortfolio]);
 
-  const searchStocks = (e) => {
-    /**
-     * defines behaviour of search bar for adding stocks to portfolio
-     */
-    setSearchString(e.target.value); // update state
-
-    // get matching symbols
-    let matches = [];
-    const input = e.target.value.toUpperCase();
-    if (input.length > 0) {
-        universeDataMap.forEach((value) => {
-            if (value.symbol.startsWith(input) || (value.name?.startsWith(input))) {
-                matches.push(value);
-            }
-        });
+  const debouncedSearch = debounce(async (q) => {
+    try {
+        const params = new URLSearchParams({ q });
+        const matches = await fetch(`/api/search-stocks?${params}`).then(res => res.json());
+        matches.sort((a, b) => a.symbol.localeCompare(b.symbol));
+        setSearchHits(matches);
+    } catch (e) {
+        console.log(e);
     }
-    // sort by alphabetical order of symbol
-    matches.sort((a, b) => a.symbol.localeCompare(b.symbol));
-    // set search hits
-    setSearchHits(matches);
+  }, 300);
+
+  const searchStocks = (e) => {
+    const input = e.target.value;
+    // update state
+
+    setSearchString(input); 
+    if (input.length > 0) {
+        // get matching symbols
+        debouncedSearch(input);
+    } else {
+        setSearchHits([]);
+    }
   };
 
   const selectHit = (hit) => {
@@ -246,7 +265,7 @@ export default function EditPortfolioPopup() {
                   ))}
                 </div>
               )}
-              <div className="min-h-[240px] max-h-[500px] overflow-auto">
+              <div>
                 <div className="grid grid-rows-[auto] gap-0 grid-cols-[0.5fr_0.75fr_1fr_1fr_20px] auto-cols-[1fr] items-center justify-items-center p-1.5 bg-[#e9eaf3]">
                   <div>
                     SYMBOL
@@ -268,18 +287,20 @@ export default function EditPortfolioPopup() {
                     </div>
                   </div>
                 )}
-                {addStockInfoToPortfolio(allHoldingData, universeDataMap).map((holding, index) => {
+                <ScrollArea className="h-[400px]">
+                {allHoldingData.map((holding, index) => {
                   // zero unit holdings are filtered out
-                  if (holding.units>0) {
+                  if (holding.units > 0) {
                     return (
                       <HoldingRow 
                         key={index}
-                        data={holding}
+                        holdingData={holding}
                         update={updateHolding}
                     />
                     )
                   }
                 })}
+                </ScrollArea>
               </div>
             </div>
           </div>

@@ -1,8 +1,12 @@
-import SymbolPage from "./components/symbol-page"
+import { fetchSymbol } from "src/app/lib/redis";
 
-export default function Page({ params }) {
+import SymbolPage from "./components/symbol-page";
 
+export default async function Page({ params }) {
+
+    const data = await fetchSymbol(params.symbol);
+    // NOTE: data must be converted to JSON before passing to client
     return (
-        <SymbolPage symbol={params.symbol} />
+        <SymbolPage jsonData={JSON.stringify(data)} />
     )
 }
