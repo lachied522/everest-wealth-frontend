@@ -38,7 +38,11 @@ const USDollar = new Intl.NumberFormat("en-US", {
 
 
 interface AdviceTableProps<TData, TValue> {
-    data: TData[]
+    data: {
+        transactions: TData[]
+        gross: number
+        brokerage: number
+    }
     loadingNewAdvice: boolean
     actioned: boolean
     statementUrl: string
@@ -55,15 +59,15 @@ export default function AdviceTable<TData, TValue>({
     const [sorting, setSorting] = useState<SortingState>([])
 
     const gross = useMemo(() => {
-        return data.reduce((acc, obj) => acc + (Number(obj["units" as keyof typeof obj] || 0) * Number(obj["price" as keyof typeof obj] || 0)), 0)
+        return data.transactions.reduce((acc, obj) => acc + (Number(obj["units" as keyof typeof obj] || 0) * Number(obj["price" as keyof typeof obj] || 0)), 0)
     }, [data]);
     
     const brokerage = useMemo(() => {
-        return data.reduce((acc, obj) => acc + Number(obj["brokerage" as keyof typeof obj] || 0), 0)
+        return data.transactions.reduce((acc, obj) => acc + Number(obj["brokerage" as keyof typeof obj] || 0), 0)
     }, [data]);
 
     const table = useReactTable({
-        data,
+        data: data?.transactions || [],
         columns: columns as ColumnDef<TData | any>[],
         getCoreRowModel: getCoreRowModel(),
         onSortingChange: setSorting,

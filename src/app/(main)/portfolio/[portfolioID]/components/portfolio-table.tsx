@@ -2,7 +2,7 @@
 /* 
  *  docs: https://ui.shadcn.com/docs/components/data-table 
 */
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import {
     ColumnDef,
@@ -21,13 +21,15 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from "@/components/ui/table"
+} from "@/components/ui/table";
+
+import { Skeleton } from "@/components/ui/skeleton";
 
 import { cn } from "@/components/lib/utils";
 
 import { LuStar } from "react-icons/lu";
 
-import { useGlobalContext } from "src/app/(main)/context/GlobalState";
+import { useGlobalContext } from "@/context/GlobalState";
 
 
 const Star = ({ selected, onClick } : { selected: boolean, onClick: () => void }) => {
@@ -41,7 +43,7 @@ const Star = ({ selected, onClick } : { selected: boolean, onClick: () => void }
         )}
       />
     )
-  }
+}
 
 interface PortfolioTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
@@ -66,6 +68,19 @@ export default function PortfolioTable<TData, TValue>({
         },
     })
 
+    const RowLoadingState = () => {
+        return (
+            <TableRow>
+                <TableCell><div/></TableCell> {/* add spacer for 'locked' column */}
+                {columns.map((_, index) => (
+                    <TableCell key={index}>
+                        <Skeleton className="w-full h-[24px]"/>
+                    </TableCell>
+                ))}
+            </TableRow>
+        );
+    }
+
     return (
         <div className="rounded-md bg-white border">
             <Table>
@@ -89,28 +104,37 @@ export default function PortfolioTable<TData, TValue>({
                 ))}
                 </TableHeader>
                 <TableBody>
-                {table.getRowModel().rows?.length ? (
-                    table.getRowModel().rows.map((row) => (
-                    <TableRow
-                        key={row.id}
-                        data-state={row.getIsSelected() && "selected"}
-                    >
-                        <TableCell className="items-center">
-                            <Star selected={Boolean(row.original['locked' as keyof TData])} onClick={() => toggleFavourite(row.original['id' as keyof TData])}/>
-                        </TableCell>
-                        {row.getVisibleCells().map((cell) => (
-                        <TableCell key={cell.id} className="items-center">
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </TableCell>
-                        ))}
-                    </TableRow>
+                {data && (
+                    <>
+                    {data.length > 0 ? (
+                        table.getRowModel().rows.map((row) => (
+                        <TableRow
+                            key={row.id}
+                            data-state={row.getIsSelected() && "selected"}
+                        >
+                            <TableCell className="items-center">
+                                <Star selected={Boolean(row.original['locked' as keyof TData])} onClick={() => toggleFavourite(row.original['id' as keyof TData])}/>
+                            </TableCell>
+                            {row.getVisibleCells().map((cell) => (
+                            <TableCell key={cell.id} className="items-center">
+                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                            </TableCell>
+                            ))}
+                        </TableRow>
+                        ))
+                    ) : (
+                        <TableRow>
+                            <TableCell colSpan={columns.length} className="h-24 text-center">
+                                No holdings.
+                            </TableCell>
+                        </TableRow>
+                    )}
+                    </>
+                )}
+                {!data && (
+                    Array.from({ length: 5 }).map((_, index) => (
+                        <RowLoadingState key={index}/>
                     ))
-                ) : (
-                    <TableRow>
-                        <TableCell colSpan={columns.length} className="h-24 text-center">
-                            No holdings.
-                        </TableCell>
-                    </TableRow>
                 )}
                 </TableBody>
             </Table>

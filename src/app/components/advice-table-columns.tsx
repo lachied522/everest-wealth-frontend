@@ -31,8 +31,8 @@ const Badge = ({ type }: {
       <>
         <div className={cn(
             "flex border rounded-full px-2.5 py-2 text-xs items-center justify-center h-[30px] w-[90px] text-center text-white",
-            type==="BUY" && "text-[#13a570] bg-[#edfbee] border-solid border-[#edfbee] ",
-            type==="SELL" && "text-[#dc2b2b] bg-[#ffeff0] border-[#ffeff0] "
+            type==="Buy" && "text-[#13a570] bg-[#edfbee] border-solid border-[#edfbee] ",
+            type==="Sell" && "text-[#dc2b2b] bg-[#ffeff0] border-[#ffeff0] "
         )}>
             {type}
         </div>

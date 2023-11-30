@@ -99,7 +99,7 @@ export async function POST(req) {
 
     if (res.success) {
         // return url of new portfolio
-        const url = new URL(`/portfolio/?p=${portfolio.id}`, req.url);
+        const url = new URL(`/portfolio/${portfolio.id}`, req.url);
         
         return new Response(JSON.stringify({ url: url }), {
             status: 200,

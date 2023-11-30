@@ -38,8 +38,6 @@ export default function SymbolPage({ jsonData }) {
         return false;
     }, [watchlist]);
 
-    console.log(data);
-
     return (
         <>
             <div className="mb-16">

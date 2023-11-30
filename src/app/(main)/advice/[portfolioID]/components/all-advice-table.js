@@ -1,5 +1,5 @@
 "use client";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import { LuFileText, LuChevronRight, LuChevronDown } from "react-icons/lu";
 
@@ -19,45 +19,21 @@ import { Button } from '@/components/ui/button';
 import AdviceTable from '@/components/advice-table';
 import { columns as adviceColumns } from '@/components/advice-table-columns';
 
-import { useUniverseContext } from 'src/app/(main)/context/UniverseState';
-
 
 const USDollar = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
 });
 
-function addInfoToTransactions(transactions, universeDataMap) {
-    if (!(transactions?.length > 0)) return [];
-
-    const newArray = transactions.map(({ symbol, units }) => {
-        if (!universeDataMap.has(symbol)) return { symbol, units };
-        const name = universeDataMap.get(symbol).name;
-        const price = universeDataMap.get(symbol).last_price;
-
-        const value = (price * units).toFixed(2);
-        const transaction = units > 0? "BUY" : "SELL";
-
-        return { symbol, units, name, transaction, value};
-    });
-
-    return newArray;
-}
-
-
-
 const TableSubRow = ({ data }) => {
-    const { universeDataMap } = useUniverseContext();
     const [isOpen, setIsOpen] = useState(false);
 
     const toggleOpen = () => {
         setIsOpen(!isOpen);
     }
 
-    const transactionsData = addInfoToTransactions(data.transactions, universeDataMap);
     const date = new Date(data.created_at).toUTCString().slice(5, 16);
     const type = data.type.toUpperCase();
-    const value = transactionsData.reduce((acc, obj) => acc + parseFloat(obj.value), 0);
 
     return (
         <>
@@ -69,7 +45,7 @@ const TableSubRow = ({ data }) => {
                 </TableCell>
                 <TableCell className='text-center'>{date}</TableCell>
                 <TableCell className='text-center'>{type}</TableCell>
-                <TableCell className='text-center'>{USDollar.format(value)}</TableCell>
+                <TableCell className='text-center'>{USDollar.format(data.value)}</TableCell>
                 <TableCell className='text-center'>
                     <Button variant="outline" size="icon" onClick={toggleOpen}>
                         <LuChevronRight className={cn(
@@ -82,7 +58,7 @@ const TableSubRow = ({ data }) => {
             {isOpen && (
             <TableRow className='bg-white transition-none hover:bg-white p-0'>
                 <TableCell colSpan={5} className='p-0'>
-                    <AdviceTable columns={adviceColumns} data={transactionsData} actioned={true}/>
+                    <AdviceTable columns={adviceColumns} data={data} actioned={true}/>
                 </TableCell>
             </TableRow>
             )}
@@ -90,9 +66,9 @@ const TableSubRow = ({ data }) => {
     )
 }
 
-
-const AllAdviceTable = ({ adviceData }) => {
-
+const AllAdviceTable = ({ jsonData }) => {
+    const data = JSON.parse(jsonData);
+    
     return (
         <div className="rounded-md bg-white border">
             <Table>
@@ -106,7 +82,7 @@ const AllAdviceTable = ({ adviceData }) => {
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {adviceData?.map((advice) => (
+                    {data?.map((advice) => (
                         <TableSubRow 
                             key={advice.id}
                             data={advice}

@@ -1,38 +1,43 @@
 export async function addStockInfoToPortfolio(holdingsData) {
-    if (!holdingsData) return;
+    if (!holdingsData) return [];
   
-    const newArray = await Promise.all(holdingsData.map(async (holding) => {
-        const params = new URLSearchParams({ s: holding.symbol });
+    const newArray = await Promise.all(holdingsData.map(async ({ symbol, units, cost }) => {
+        const params = new URLSearchParams({ s: symbol });
         const data = await fetch(`/api/get-stock-info?${params}`).then(res => res.json());
     
-        if (!data) return { ...holding };
+        if (!data) return { symbol, units, cost };
 
         const price = data['last_price'];
-        const value = (price * holding.units).toFixed(2);
+        const value = (price * units).toFixed(2);
         //const weight =  (100*(value / totalValue)).toFixed(2);
-        const totalCost = holding.cost? (holding.cost * holding.units).toFixed(2): 0;
-        const totalProfit = ((holding.cost? (price - holding.cost): price) * holding.units).toFixed(2);
+        const totalCost = cost? (cost * units).toFixed(2): 0;
+        const totalProfit = ((cost? (price - cost): price) * units).toFixed(2);
 
-        return { ...data, ...holding, value, price, totalCost, totalProfit };
+        return { ...data, symbol, units, cost, value, price, totalCost, totalProfit };
     }));
 
     //calculate total value of portfolio for weight calculations
     return newArray;
 }
 
-export function addInfoToTransactions(transactions, universeDataMap) {
-    if (!(transactions?.length > 0)) return [];
+export async function addInfoToTransactions(transactions) {
+    if (!(transactions.length > 0)) return [];
 
-    const newArray = transactions.map(({ symbol, units, brokerage, price }) => {
+    const newArray = await Promise.all(transactions.map(async ({ symbol, units, brokerage, price }) => {
+        const params = new URLSearchParams({ s: symbol });
+        const data = await fetch(`/api/get-stock-info?${params}`).then(res => res.json());
+
+        if (!data) return { symbol, units, brokerage, price };
+
         const value = (price * units).toFixed(2);
         const net = brokerage? (price * units - brokerage).toFixed(2): value;
 
-        const transaction = units > 0? "BUY" : "SELL";
+        const transaction = units > 0? "Buy" : "Sell";
 
-        const name = universeDataMap.has(symbol)? universeDataMap.get(symbol).name: "";
+        const name = data['name'];
 
         return { symbol, units, brokerage, price, name, transaction, value, net};
-    });
+    }));
 
     return newArray;
 }
