@@ -25,7 +25,7 @@ export default function FeaturedList() {
             <div className="text-xl font-medium text-slate-800 my-6">Featured Stocks</div>
             <div className="flex items-stretch gap-6">
                 {featured.slice(index, index+3).map((stock) => (
-                    <StockCard key={stock.id} data={stock} />
+                    <StockCard key={stock.id} symbol={stock.symbol} />
                 ))}
             </div>
         </div>

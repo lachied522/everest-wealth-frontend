@@ -79,7 +79,7 @@ const HoldingRow = ({ holdingData, update }) => {
         ...holdingData,
         cost: parseFloat(input),
       });
-    }, []);
+    }, [holdingData]);
 
     const removeHolding = useCallback(() => {
       // holding is removed by setting units to zero
@@ -88,7 +88,7 @@ const HoldingRow = ({ holdingData, update }) => {
         value: 0,
         units: 0,
       });
-    }, []);
+    }, [holdingData]);
 
     return (
         <div className="grid grid-rows-[auto] gap-0 grid-cols-[0.5fr_0.75fr_1fr_1fr_20px] auto-cols-[1fr] items-center justify-items-center p-1.5">
@@ -176,31 +176,23 @@ export default function EditPortfolioPopup() {
   };
 
   const selectHit = (hit) => {
-    /**
-     * when user selects a hit from stock search add to all holdings with units of 1
-     */
-
-    const newValue = [...allHoldingData, {
+    const newArray = [...allHoldingData, {
       ...hit,
       units: 1
     }];
-    setAllHoldingData(newValue);
-
-    //reset search bar
+    setAllHoldingData(newArray);
+    // reset search bar
     setSearchString('');
-    //clear search hits
+    // clear search hits
     setSearchHits([]);
   }
 
-  const updateHolding = (holding) => {
-    /**
-     * when user updates the value of a new holding
-     */
-    const newArray = [...allHoldingData]; //create copy of all holdings
-    const index = allHoldingData.findIndex((obj) => obj.symbol === holding.symbol); //get index of holding
+  const updateHolding = useCallback((holding) => {
+    const newArray = [...allHoldingData]; // create copy of all holdings
+    const index = allHoldingData.findIndex((obj) => obj.symbol === holding.symbol); // get index of holding
     newArray[index] = holding;
     setAllHoldingData(newArray);
-  }
+  }, [allHoldingData]);
 
   const confirmHoldings = async () => {
     if (allHoldingData !== currentPortfolio.holdings) {
@@ -209,7 +201,7 @@ export default function EditPortfolioPopup() {
 
       // update portfolio state
       if (success) {
-        updatePortfolio(
+        await updatePortfolio(
           currentPortfolio.id,
           allHoldingData
         );

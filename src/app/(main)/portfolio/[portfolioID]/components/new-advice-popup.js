@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import {
@@ -38,13 +38,21 @@ export default function NewAdvicePopup() {
     const [amount, setAmount] = useState(0);    
     const [currentValue, setCurrentValue] = useState(0)
     const [proposedValue, setProposedValue] = useState(0);
+    const [isLoading, setIsLoading] = useState(false);
+    const closeRef = useRef(null);
     
     const { sendMessage } = useWebSocket(socketUrl, {
         onOpen: () => console.log('opened'),
         onMessage: (event) => {
+            console.log(event.data);
+            // remove loading state
+            setIsLoading(false);
+            // update advice in global state
             setAdvice(currentPortfolio.id, JSON.parse(event.data));
+            // close modal
+            if (closeRef.current) closeRef.current.click();
             // navigate to Recommendations tab
-            if (searchParams.get("tab")!=="Recommendations") router.push(`/portfolio?p=${currentPortfolio.id}&tab=Recommendations`);
+            if (searchParams.get("tab")!=="Recommendations") router.push(`/portfolio/${currentPortfolio.id}?tab=Recommendations`);
         },
         onClose: (event) => {
             console.log('WebSocket closed:', event);
@@ -84,6 +92,7 @@ export default function NewAdvicePopup() {
     }
 
     const onSubmit = () => {
+        setIsLoading(true);
         // establish websocket connection
         setSocketUrl(`${WEB_SOCKET_URL}/ws/${session.user.id}`);
         sendMessage(JSON.stringify({
@@ -162,6 +171,7 @@ export default function NewAdvicePopup() {
                 <div className="grid grid-cols-2 gap-4">
                     <DialogClose asChild>
                         <Button
+                            ref={closeRef}
                             type="button"
                             variant="secondary"
                             onClick={onCancel}
@@ -169,14 +179,18 @@ export default function NewAdvicePopup() {
                             Cancel
                         </Button>
                     </DialogClose>
-                    <DialogClose asChild>
-                        <Button
-                            type="button"
-                            onClick={onSubmit}
-                        >
-                            Submit
-                        </Button>
-                    </DialogClose>
+                    {isLoading ? (
+                    <Button type="button" disabled>
+                        Please wait...
+                    </Button>
+                    ) : (
+                    <Button
+                        type="button"
+                        onClick={onSubmit}
+                    >
+                        Submit
+                    </Button>
+                    )}
                 </div>
             </form>
             </DialogContent>

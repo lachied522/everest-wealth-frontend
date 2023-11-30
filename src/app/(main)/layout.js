@@ -15,7 +15,7 @@ const fetchData = async (session, supabase) => {
     //fetch universe data
     const { data: universeData, error: universeError } = await supabase
     .from("universe")
-    .select("id, symbol, name, sector, div_yield, beta, market_cap, last_price, domestic, tags");
+    .select("symbol, tags");
 
     // portfolios belong to user, plus most recent record from advice table for each portfolio
     const { data: portfolioData, error: portfolioError } = await supabase
@@ -74,7 +74,7 @@ export default async function RootLayout({ children }) {
     
     return (
         <UniverseProvider universeDataMap={universeDataMap} >
-            <GlobalProvider session={session} portfolioData={updatedPortfolioData} watchlistData={watchlistData} universeDataMap={universeDataMap} >
+            <GlobalProvider session={session} portfolioData={updatedPortfolioData} watchlistData={watchlistData} >
                 <SidebarProvider>
                     <div className="flex items-start">
                         <Sidebar />

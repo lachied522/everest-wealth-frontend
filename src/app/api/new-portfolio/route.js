@@ -50,7 +50,7 @@ export async function POST(req) {
     });
 
     if (res.success) {
-        const url = new URL(`/portfolio/?p=${res.data.id}`, req.url);
+        const url = new URL(`/portfolio/${res.data.id}`, req.url);
         
         return new Response(JSON.stringify({ url: url }), {
             status: 200,

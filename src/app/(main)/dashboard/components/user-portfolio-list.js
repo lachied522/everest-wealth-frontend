@@ -99,7 +99,7 @@ const PortfolioListItem = ({ portfolio }) => {
                         </div>) : <Skeleton className="w-[240px] h-10"/>}
                     </CardContent>
                 </Card>
-                <Link href={`/portfolio?p=${portfolio.id}`}>
+                <Link href={`/portfolio/${portfolio.id}`}>
                     <Button variant="secondary">
                         <BiBriefcaseAlt 
                             size={24}

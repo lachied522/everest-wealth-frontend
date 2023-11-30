@@ -13,7 +13,7 @@ const client = createClient({
 async function connect() {
   if (!client.isOpen) {
     await client.connect();
-    await universeRepository.createIndex();
+    // await universeRepository.createIndex();
   }
 }
 
@@ -43,6 +43,7 @@ export const searchUniverse = async (q) => {
 
 export const fetchSymbol = async (symbol) => {
   await connect();
+
   try {
     const data = await universeRepository.fetch(symbol);
     console.log(`${symbol} fetched`);

@@ -23,7 +23,6 @@ export const GlobalProvider = ({
   session,
   portfolioData,
   watchlistData,
-  universeDataMap,
 }) => {
   const supabase = createClientComponentClient();
   const params = useParams();
@@ -97,20 +96,22 @@ export const GlobalProvider = ({
     return true;
   };
 
-  const updatePortfolio = (id, data) => {
+  const updatePortfolio = async (id, data) => {
     if (!data) return;
     // remove zero unit holdings
-    const filteredData = data?.filter((obj) => obj.units !== 0) || [];
+    const filteredData = data.filter((obj) => obj.units !== 0) || [];
 
     // calculate total portfolio values
     let totalValue = 0;
 
-    filteredData.forEach((holding) => {
-      if (universeDataMap.has(holding.symbol)) {
-        const price = universeDataMap.get(holding.symbol).last_price;
-        totalValue += price * holding.units;
-      }
-    });
+    await Promise.all(filteredData.map(async (holding) => {
+      // remove zero unit holdings
+      if (holding.units === 0) return;
+      const params = new URLSearchParams({ s: holding.symbol });
+      const data = await fetch(`/api/get-stock-info?${params}`).then(res => res.json());
+      
+      totalValue += data['last_price'] * holding.units || 0;
+    }));
 
     // update state
     dispatch({
@@ -126,11 +127,13 @@ export const GlobalProvider = ({
   const toggleFavourite = async (id) => {
     // update DB
     if (!session) return;
+
     const { data, error } = await supabase.rpc("toggle_locked", {
       holding_id: id,
     });
 
     if (!error) {
+      console.log(data);
       // update state
       dispatch({
         type: "TOGGLE_FAVOURITE",
@@ -144,6 +147,7 @@ export const GlobalProvider = ({
   };
 
   const setAdvice = (id, data) => {
+    console.log(data);
     dispatch({
       type: "SET_ADVICE",
       payload: {
