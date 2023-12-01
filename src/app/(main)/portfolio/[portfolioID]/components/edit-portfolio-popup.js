@@ -56,11 +56,11 @@ const HoldingRow = ({ holdingData, update }) => {
         const input = e.target.value;
         const units = Math.max(Math.floor(input / populatedData['last_price']), 1);
         update({
-          ...holdingData,
+          ...populatedData,
           value: parseFloat(input),
           units: units,
         });
-    }, [populatedData]);
+    }, [populatedData, update]);
     
     const changeUnits = useCallback((e) => {
         if (!populatedData) return;
@@ -71,24 +71,24 @@ const HoldingRow = ({ holdingData, update }) => {
           value: value,
           units: parseFloat(input),
         });
-    }, [populatedData]);
+    }, [populatedData, update]);
 
     const changeCost = useCallback((e) => {
       const input = e.target.value;
       update({
-        ...holdingData,
+        ...populatedData,
         cost: parseFloat(input),
       });
-    }, [holdingData]);
+    }, [populatedData, update]);
 
     const removeHolding = useCallback(() => {
       // holding is removed by setting units to zero
       update({
-        ...holdingData,
+        ...populatedData,
         value: 0,
         units: 0,
       });
-    }, [holdingData]);
+    }, [populatedData, update]);
 
     return (
         <div className="grid grid-rows-[auto] gap-0 grid-cols-[0.5fr_0.75fr_1fr_1fr_20px] auto-cols-[1fr] items-center justify-items-center p-1.5">

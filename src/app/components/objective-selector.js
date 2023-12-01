@@ -1,11 +1,12 @@
 "use client";
+import Image from "next/image";
+
 import { Card } from "@/components/ui/card";
 
 import { cn } from "@/components/lib/utils";
 
 
-
-export const objectiveArray = [
+const OBJECTIVE_ARRAY = [
   {
     name: "Long-term/Retirement Savings",
     text: "Accumulate capital over the long term",
@@ -66,7 +67,7 @@ function Objective({ name, iconSrc, text, timeHorizon, selected, handleChange })
       >
         <div className='flex flex-col items-center justify-center p-6'>
           <div className="flex items-center mb-3">
-            <img
+            <Image
               loading="lazy"
               src={iconSrc}
               alt=""
@@ -85,11 +86,11 @@ function Objective({ name, iconSrc, text, timeHorizon, selected, handleChange })
     );
 }
   
-export default function objectiveArrayelector({ handleChange, value }) {
+export default function ObjectiveSelector({ handleChange, value }) {
   
     return (
       <div className='flex flex-wrap gap-4 items-stretch justify-center'>
-        {objectiveArray.map((obj, i) => (
+        {OBJECTIVE_ARRAY.map((obj, i) => (
           <Objective 
             key={i}
             selected={(value===obj.name)} 

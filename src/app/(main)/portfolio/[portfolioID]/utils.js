@@ -1,7 +1,7 @@
 export async function addStockInfoToPortfolio(holdingsData) {
     if (!holdingsData) return [];
   
-    const newArray = await Promise.all(holdingsData.map(async ({ symbol, units, cost }) => {
+    const newArray = await Promise.all(holdingsData.map(async ({ id, symbol, units, cost, locked }) => {
         const params = new URLSearchParams({ s: symbol });
         const data = await fetch(`/api/get-stock-info?${params}`).then(res => res.json());
     
@@ -12,12 +12,21 @@ export async function addStockInfoToPortfolio(holdingsData) {
         //const weight =  (100*(value / totalValue)).toFixed(2);
         const totalCost = cost? (cost * units).toFixed(2): 0;
         const totalProfit = ((cost? (price - cost): price) * units).toFixed(2);
+        // convert string to bool
+        const domestic = data['domestic']==="True";
 
-        return { ...data, symbol, units, cost, value, price, totalCost, totalProfit };
+        return { ...data, id, symbol, units, cost, locked, value, price, totalCost, totalProfit, domestic };
     }));
 
-    //calculate total value of portfolio for weight calculations
-    return newArray;
+    // calculate total value of portfolio for weight calculations
+    const totalValue = newArray.reduce((acc, obj) => acc + parseFloat(obj.value), 0);
+    
+    const newArrayWithWeight = newArray.map((holding) => ({
+        ...holding,
+        weight: holding.value / totalValue
+    }));
+
+    return newArrayWithWeight;
 }
 
 export async function addInfoToTransactions(transactions) {

@@ -68,7 +68,7 @@ export default function PortfolioSettingsPopup() {
                 flatBrokerage: currentPortfolio?.flat_brokerage,
             });
         }
-    }, [currentPortfolio]);
+    }, [currentPortfolio, form]);
 
     async function onSubmit(values: z.infer<typeof FormSchema>) {
         setIsLoading(true);

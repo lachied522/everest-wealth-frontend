@@ -47,7 +47,7 @@ export const GlobalProvider = ({
     return;
   }, [params, state]);
 
-  const commitPortfolio = async (id, data) => {
+  const commitPortfolio = useCallback(async (id, data) => {
     // upsert modified holdings to DB
     // should this be handled server side?
     const newHoldings = [];
@@ -94,10 +94,10 @@ export const GlobalProvider = ({
     }
 
     return true;
-  };
+  }, [supabase, state]);
 
-  const updatePortfolio = async (id, data) => {
-    if (!data) return;
+  const updatePortfolio = useCallback(async (id, data) => {
+    if (!session || !data) return;
     // remove zero unit holdings
     const filteredData = data.filter((obj) => obj.units !== 0) || [];
 
@@ -122,18 +122,17 @@ export const GlobalProvider = ({
         totalValue,
       },
     });
-  };
+  }, [session, dispatch]);
 
-  const toggleFavourite = async (id) => {
+  const toggleFavourite = useCallback(async (id) => {
     // update DB
     if (!session) return;
 
-    const { data, error } = await supabase.rpc("toggle_locked", {
+    const { error } = await supabase.rpc("toggle_locked", {
       holding_id: id,
     });
 
     if (!error) {
-      console.log(data);
       // update state
       dispatch({
         type: "TOGGLE_FAVOURITE",
@@ -142,12 +141,11 @@ export const GlobalProvider = ({
         },
       });
     } else {
-      console.log(`Error committing changes: ${error}`);
+      console.log(error);
     }
-  };
+  }, [supabase, session, dispatch]);
 
-  const setAdvice = (id, data) => {
-    console.log(data);
+  const setAdvice = useCallback((id, data) => {
     dispatch({
       type: "SET_ADVICE",
       payload: {
@@ -155,9 +153,9 @@ export const GlobalProvider = ({
         data
       }
     })
-  };
+  }, []);
 
-  const toggleAdviceActioned = (id) => {
+  const toggleAdviceActioned = useCallback((id) => {
     // toggle 'actioned' state of advice for portfolio
     dispatch({
       type: "TOGGLE_ACTIONED",
@@ -165,9 +163,9 @@ export const GlobalProvider = ({
         id,
       },
     });
-  };
+  }, [dispatch]);
 
-  const updatePortfolioSettings = async (id, data) => {
+  const updatePortfolioSettings = useCallback(async (id, data) => {
     const { error } = await supabase
       .from("portfolios")
       .update(data)
@@ -188,9 +186,9 @@ export const GlobalProvider = ({
     };
 
     return true;
-  };
+  }, [supabase, dispatch]);
 
-  const onPortfolioDelete = async (id) => {
+  const onPortfolioDelete = useCallback(async (id) => {
     // delete record from DB
     const { error } = await supabase.from("portfolios").delete().eq("id", id);
 
@@ -208,7 +206,7 @@ export const GlobalProvider = ({
     }
 
     return true;
-  };
+  }, [supabase, dispatch]);
 
   const toggleWatchlist = useCallback(async (symbol) => {
     // update DB
@@ -223,7 +221,7 @@ export const GlobalProvider = ({
     } else {
       console.log(error);
     } 
-  }, [session]);
+  }, [supabase, session, setWatchlist]);
 
   return (
     <GlobalContext.Provider

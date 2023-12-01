@@ -78,7 +78,7 @@ export default function NewAdvicePopup() {
         } else {
             setProposedValue(currentValue + parseFloat(amount));
         }
-    }, [adviceType, amount]);
+    }, [adviceType, amount, currentValue]);
 
     const onChange = (e) => {
         const input = e.target.value;

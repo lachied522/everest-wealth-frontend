@@ -26,7 +26,7 @@ async function addInfoToTransactions(transactions) {
   return newArray;
 }
 
-export default async function ({ params }) {
+export default async function Page({ params }) {
     const supabase = createServerComponentClient({ cookies });
 
     const portfolioID = params["portfolioID"];

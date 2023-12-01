@@ -9,8 +9,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-
-export default function () {
+export default function Page() {
   const router = useRouter();
   const supabase = createClientComponentClient();
 
@@ -143,7 +142,7 @@ export default function () {
                 className="btn-secondary sign-in-button w-inline-block"
               >
                 <div className="flex-horizontal">
-                  <img
+                  <Image
                     src="https://uploads-ssl.webflow.com/64afbac816bb17eb2fdc3f03/64afbac916bb17eb2fdc40c8_google-button-icon-dashboardly-webflow-template.svg"
                     loading="eager"
                     alt="Google - Dashly X Webflow Template"
@@ -158,7 +157,7 @@ export default function () {
                 className="btn-secondary sign-in-button w-inline-block"
               >
                 <div className="flex-horizontal">
-                  <img
+                  <Image
                     src="https://uploads-ssl.webflow.com/64afbac816bb17eb2fdc3f03/64afbac916bb17eb2fdc40c9_facebook-button-icon-dashboardly-webflow-template.svg"
                     loading="eager"
                     alt="Facebook - Dashly X Webflow Template"

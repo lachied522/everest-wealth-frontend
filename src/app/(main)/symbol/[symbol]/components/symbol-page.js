@@ -36,7 +36,7 @@ export default function SymbolPage({ jsonData }) {
             return watchlist.includes(data['symbol']);
         }
         return false;
-    }, [watchlist]);
+    }, [watchlist, data]);
 
     return (
         <>

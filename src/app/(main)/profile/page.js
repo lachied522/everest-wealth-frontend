@@ -1,5 +1,6 @@
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
+import Image from 'next/image';
 
 import { Separator } from "@/components/ui/separator";
 
@@ -7,7 +8,7 @@ import { LuMapPin, LuCalendar } from "react-icons/lu";
 
 import ProfileForm from "./components/profile-form";
 
-export default async function () {
+export default async function Page() {
   const supabase = createServerComponentClient({ cookies });
 
   const {
@@ -33,7 +34,7 @@ export default async function () {
   return (
     <>
       <div className='flex flex-col justify-end min-h-[274px] rounded relative overflow-hidden p-6 mb-6'>
-        <img
+        <Image
           src="https://uploads-ssl.webflow.com/64afbac816bb17eb2fdc3f03/64afbac916bb17eb2fdc40b7_profile-bg-banner-medium-dashboardly-webflow-template.jpg"
           loading="eager"
           sizes="(max-width: 767px) 100vw, (max-width: 991px) 96vw, (max-width: 1439px) 79vw, 1044px"

@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { usePathname, useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -160,14 +160,14 @@ export default function SideBar() {
       // clean up the event listener when the component unmounts
       document.removeEventListener('click', closeSidebarOnOutsideClick);
     };
-  }, [isOpen]);
+  }, [isOpen, isMobile, closeSidebarOnOutsideClick]);
 
   useEffect(() => {
     // close sidebar on nav click
     if(isMobile) setIsOpen(false);
     // close any open dropdowns
     setOpenIndex();
-  }, [pathname]);
+  }, [pathname, setIsOpen]);
 
   return (
     <>

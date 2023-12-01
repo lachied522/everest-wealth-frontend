@@ -122,7 +122,7 @@ const PortfolioTabs = ({ loadingNewAdvice }) => {
             // set 'Overview' tab as default
             router.push(`/portfolio/${currentPortfolio.id}?tab=${TABS[1].tabName}`);
         }
-    }, [searchParams]);
+    }, [searchParams, router, currentPortfolio.id]);
 
     useEffect(() => {
         let active = true; // keep track of whether component is active
@@ -135,7 +135,7 @@ const PortfolioTabs = ({ loadingNewAdvice }) => {
             const data = await addStockInfoToPortfolio(currentPortfolio.holdings);
             if (active) setPortfolioData(data);
         }
-    }, [currentPortfolio]);
+    }, [currentPortfolio.holdings]);
 
     useEffect(() => {
         let active = true; // keep track of whether component is active
