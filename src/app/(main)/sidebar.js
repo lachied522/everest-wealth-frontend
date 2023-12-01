@@ -140,14 +140,14 @@ export default function SideBar() {
     };
   }
 
-  const closeSidebarOnOutsideClick = (event) => {
-    // on mobile, close sidebar when user clicks outside
-    if (isMobile && isOpen && sidebarRef.current && !sidebarRef.current.contains(event.target)) {
-      setIsOpen(false);
-    }
-  };
-
   useEffect(() => {
+    const closeSidebarOnOutsideClick = (event) => {
+      // on mobile, close sidebar when user clicks outside
+      if (isMobile && isOpen && sidebarRef.current && !sidebarRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
     if (isOpen && isMobile) {
       // add a click event listener to the document to close the sidebar on outside click
       document.addEventListener('click', closeSidebarOnOutsideClick);
@@ -160,7 +160,7 @@ export default function SideBar() {
       // clean up the event listener when the component unmounts
       document.removeEventListener('click', closeSidebarOnOutsideClick);
     };
-  }, [isOpen, isMobile, closeSidebarOnOutsideClick]);
+  }, [isOpen, isMobile]);
 
   useEffect(() => {
     // close sidebar on nav click
