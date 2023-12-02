@@ -64,17 +64,18 @@ async function newAdvice({ amount, portfolioID, session }) {
 }
 
 export async function POST(req) {
-    const supabase = createRouteHandlerClient({ cookies });
-
-    const body = await req.json();
+    const cookieStore = cookies();
+    const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
 
     const {
         data: { session },
-      } = await supabase.auth.getSession();
+    } = await supabase.auth.getSession();
 
     if (!session) return new Response(JSON.stringify({ error: "unauthorised "}), {
         status: 401
     });
+
+    const body = await req.json();
 
     // create user profile
     // const profile = await createProfile({

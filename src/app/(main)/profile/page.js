@@ -9,7 +9,8 @@ import { LuMapPin, LuCalendar } from "react-icons/lu";
 import ProfileForm from "./components/profile-form";
 
 export default async function Page() {
-  const supabase = createServerComponentClient({ cookies });
+  const cookieStore = cookies();
+  const supabase = createServerComponentClient({ cookies: () => cookieStore });
 
   const {
       data: { session },

@@ -43,7 +43,8 @@ const fetchData = async (session, supabase) => {
 };
 
 export default async function RootLayout({ children }) {
-    const supabase = createServerComponentClient({ cookies });
+    const cookieStore = cookies();
+    const supabase = createServerComponentClient({ cookies: () => cookieStore });
   
     const {
       data: { session },

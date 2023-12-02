@@ -33,9 +33,8 @@ function getNewHoldings(currentHoldings, transactions) {
 }
 
 export async function POST(req) {
-    const body = await req.json();
-
-    const supabase = createRouteHandlerClient({ cookies });
+    const cookieStore = cookies();
+    const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
 
     const {
         data: { session },
@@ -45,6 +44,8 @@ export async function POST(req) {
       // redirect to login
       return NextResponse.redirect(new URL('/login', req.url));
     }
+
+    const body = await req.json();
 
     let updatedHoldings = [];
 

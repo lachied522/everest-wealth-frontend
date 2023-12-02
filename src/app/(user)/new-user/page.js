@@ -7,7 +7,8 @@ import Image from "next/image";
 import { NewUserForm } from './components/new-user-form';
 
 export default async function NewUserPage() {
-    const supabase = createServerComponentClient({ cookies });
+    const cookieStore = cookies();
+    const supabase = createServerComponentClient({ cookies: () => cookieStore });
 
     const {
         data: { session },
