@@ -45,8 +45,13 @@ const HoldingRow = ({ holdingData, update }) => {
       }
 
       async function getData() {
+        if (!holdingData.hasOwnProperty('price')) {
           const data = await addStockInfoToPortfolio([holdingData]);
           if (active) setPopulatedData(data[0]);
+        } else {
+          // data already populated
+          setPopulatedData(holdingData);
+        }
       }
     }, [holdingData]);
 
@@ -67,7 +72,7 @@ const HoldingRow = ({ holdingData, update }) => {
         const input = e.target.value;
         const value = input * populatedData['last_price'];
         update({
-          ...holdingData,
+          ...populatedData,
           value: value,
           units: parseFloat(input),
         });
@@ -77,7 +82,8 @@ const HoldingRow = ({ holdingData, update }) => {
       const input = e.target.value;
       update({
         ...populatedData,
-        cost: parseFloat(input),
+        cost: parseFloat(input) / populatedData['units'],
+        totalCost: parseFloat(input),
       });
     }, [populatedData, update]);
 
@@ -98,7 +104,7 @@ const HoldingRow = ({ holdingData, update }) => {
             <Input
                 type="number"
                 className="max-w-[80px] text-slate-800 m-0"
-                maxLength="256"
+                maxLength="24"
                 name="units"
                 data-name="units"
                 min={1}
@@ -109,7 +115,7 @@ const HoldingRow = ({ holdingData, update }) => {
             <Input
                 type="number"
                 className="max-w-[100px] text-slate-800 m-0"
-                maxLength="256"
+                maxLength="24"
                 name="value"
                 data-name="value"
                 min={populatedData['value'] || 0}
@@ -122,12 +128,11 @@ const HoldingRow = ({ holdingData, update }) => {
             <Input
                 type="number"
                 className="max-w-[100px] text-slate-800 m-0"
-                maxLength="256"
+                maxLength="24"
                 name="cost"
                 data-name="cost"
                 min="0"
-                required
-                value={holdingData['cost'] || ""}
+                value={(holdingData['cost'] || 0) * holdingData['units']}
                 onChange={changeCost}
             />
             <LuTrash 
@@ -165,7 +170,6 @@ export default function EditPortfolioPopup() {
   const searchStocks = (e) => {
     const input = e.target.value;
     // update state
-
     setSearchString(input); 
     if (input.length > 0) {
         // get matching symbols

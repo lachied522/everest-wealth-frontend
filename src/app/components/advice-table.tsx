@@ -59,10 +59,12 @@ export default function AdviceTable<TData, TValue>({
     const [sorting, setSorting] = useState<SortingState>([])
 
     const gross = useMemo(() => {
+        if (!data) return 0;
         return data.transactions.reduce((acc, obj) => acc + (Number(obj["units" as keyof typeof obj] || 0) * Number(obj["price" as keyof typeof obj] || 0)), 0)
     }, [data]);
     
     const brokerage = useMemo(() => {
+        if (!data) return 0;
         return data.transactions.reduce((acc, obj) => acc + Number(obj["brokerage" as keyof typeof obj] || 0), 0)
     }, [data]);
 

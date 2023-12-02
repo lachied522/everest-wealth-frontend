@@ -108,8 +108,9 @@ const AdviceNotification = ({ transactions }) => {
 const PortfolioTabs = ({ loadingNewAdvice }) => {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const { currentPortfolio, updatePortfolio } = useGlobalContext();
+    const { currentPortfolio, updatePortfolio, setAdvice } = useGlobalContext();
     const [currentTab, setCurrentTab] = useState(TABS[1]); // keeps track of current tab, defaults to 'overview'
+    const [visibleColumns, setVisibleColumns] = useState(portfolioColumns.filter((column) => currentTab.visibleColumns.includes(column.accessorKey)));
     const [portfolioData, setPortfolioData] = useState(null); // set to null while data is fetching
     const [adviceData, setAdviceData] = useState(null); 
 
@@ -125,6 +126,18 @@ const PortfolioTabs = ({ loadingNewAdvice }) => {
     }, [searchParams, router, currentPortfolio.id]);
 
     useEffect(() => {
+        // update visible columns on tab change
+        if (currentTab!==TABS[0]) {
+            const newColumns = portfolioColumns.filter((column) => currentTab.visibleColumns.includes(column.accessorKey));
+            setVisibleColumns(newColumns);
+        }
+    }, [currentTab]);
+
+    const onTabClick = useCallback((index) => {
+        router.push(`/portfolio/${currentPortfolio.id}?tab=${TABS[index].tabName}`);
+    }, [router, currentPortfolio.id]);
+
+    useEffect(() => {
         let active = true; // keep track of whether component is active
         if (currentPortfolio) getData();
         return () => {
@@ -135,7 +148,7 @@ const PortfolioTabs = ({ loadingNewAdvice }) => {
             const data = await addStockInfoToPortfolio(currentPortfolio.holdings);
             if (active) setPortfolioData(data);
         }
-    }, [currentPortfolio.holdings]);
+    }, [currentPortfolio]);
 
     useEffect(() => {
         let active = true; // keep track of whether component is active
@@ -152,21 +165,15 @@ const PortfolioTabs = ({ loadingNewAdvice }) => {
                     ...advice,
                     transactions,
                 });
+            } else {
+                if (active) setAdviceData(null);
             }
         }
     }, [currentPortfolio]);
 
-    const visibleColumns = useMemo(() => {
-        // update visible columns on tab change
-        return portfolioColumns.filter((column) => currentTab.visibleColumns.includes(column.accessorKey));
-    }, [currentTab]);
-
-    const onTabClick = (index) => {
-        router.push(`/portfolio/${currentPortfolio.id}?tab=${TABS[index].tabName}`);
-    }
-
-    const onAdviceConfirm = async () => {
-        const newHoldings = await fetch('/api/confirm-advice', {
+    const onAdviceAction = useCallback((action) => {
+        if (!['confirm', 'dismiss'].includes(action)) return;
+        fetch('/api/action-advice', {
             method: "POST",
             body: JSON.stringify({
                 advice: currentPortfolio.advice[0],
@@ -177,35 +184,48 @@ const PortfolioTabs = ({ loadingNewAdvice }) => {
             }
         })
         .then(res => res.json())
-        .then(updatedHoldings => {
-            const updatedSymbols = Array.from(updatedHoldings, (obj) => { return obj.symbol });
-            return [
-                    ...currentPortfolio.holdings.filter((holding) => !updatedSymbols.includes(holding.symbol)),
-                    ...updatedHoldings,
-                ];
+        .then(({ updatedHoldings, success }) => {
+            if (!success) throw new Error('Api error');
+
+            if (updatedHoldings.length > 0) {
+                const updatedSymbols = Array.from(updatedHoldings, (obj) => { return obj.symbol });
+
+                // api route only returns updated holdings, combine updated and existing holdings for new portfolio
+                const newHoldings = [
+                        ...currentPortfolio.holdings.filter((holding) => !updatedSymbols.includes(holding.symbol)),
+                        ...updatedHoldings,
+                    ];
+
+                updatePortfolio(currentPortfolio.id, newHoldings)
+            }
+
+            // switch to 'Overview' tab
+            router.push(`/portfolio/${currentPortfolio.id}?tab=Overview`);
+
+            // update advice status
+            setAdvice(
+                currentPortfolio.id,
+                {
+                    ...currentPortfolio.advice[0],
+                    status: action==='confirm'? 'actioned': 'dismissed',
+                }
+            );
         })
         .catch(err => console.log(err));
-
-        await updatePortfolio(currentPortfolio.id, newHoldings);
-
-        setCurrentTab(TABS[1]);
-
-        // toggleAdviceActioned(currentPortfolio.id);
-
-    }
+    }, [currentPortfolio, updatePortfolio, setAdvice, router]);
 
     return (
         <>
             <div className="flex gap-3 mb-4 px-3">
             {TABS.map((tab, index) => (
                 <div key={tab.tabName} className="relative">
-                    {tab.tabName==='Recommendations' ? (
+                    {index===0 ? (
                     <>
-                        <AdviceNotification transactions={adviceData.transactions}/>
+                        <AdviceNotification transactions={adviceData?.transactions}/>
                         <Button
                             variant="tab"
                             className={cn(
-                                tab === currentTab && "underline"
+                                tab===currentTab && "underline"
                             )}
                             onClick={() => {onTabClick(index)}}
                         >
@@ -217,7 +237,7 @@ const PortfolioTabs = ({ loadingNewAdvice }) => {
                         key={tab.tabName}
                         variant="tab"
                         className={cn(
-                            tab === currentTab && "underline"
+                            tab===currentTab && "underline"
                         )}
                         onClick={() => {onTabClick(index)}}
                     >

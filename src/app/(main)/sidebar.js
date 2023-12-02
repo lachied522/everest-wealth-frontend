@@ -160,14 +160,14 @@ export default function SideBar() {
       // clean up the event listener when the component unmounts
       document.removeEventListener('click', closeSidebarOnOutsideClick);
     };
-  }, [isOpen, isMobile]);
+  }, [isOpen, isMobile, setIsOpen]);
 
   useEffect(() => {
     // close sidebar on nav click
     if(isMobile) setIsOpen(false);
     // close any open dropdowns
     setOpenIndex();
-  }, [pathname, setIsOpen]);
+  }, [isMobile, setIsOpen]);
 
   return (
     <>

@@ -104,7 +104,7 @@ export default function PortfolioTable<TData, TValue>({
                 ))}
                 </TableHeader>
                 <TableBody>
-                {data && (
+                {data ? (
                     <>
                     {data.length > 0 ? (
                         table.getRowModel().rows.map((row) => (
@@ -130,8 +130,7 @@ export default function PortfolioTable<TData, TValue>({
                         </TableRow>
                     )}
                     </>
-                )}
-                {!data && (
+                ) : (
                     Array.from({ length: 5 }).map((_, index) => (
                         <RowLoadingState key={index}/>
                     ))
