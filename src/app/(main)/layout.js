@@ -1,5 +1,6 @@
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 
 import { GlobalProvider } from "./context/GlobalState";
 import { UniverseProvider } from "./context/UniverseState";
@@ -52,6 +53,7 @@ export default async function RootLayout({ children }) {
 
     if (!session) {
         // middleware should redirect user if session is null
+        redirect('/login');
     }
   
     const { universeData, portfolioData, watchlistData } = await fetchData(session, supabase);

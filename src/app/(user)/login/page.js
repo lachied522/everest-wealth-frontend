@@ -8,6 +8,7 @@ import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export default function Page() {
   const router = useRouter();
@@ -90,96 +91,72 @@ export default function Page() {
                   Sign In
                 </Button>
               </form>
-              <div className="success-message utility-page-success-message w-form-done">
-                <div>Welcome!</div>
-              </div>
-              <div className="error-message w-form-fail">
-                <div>
-                  Oops! Something went wrong while submitting the form.
-                </div>
-              </div>
             </div>
             <div className="mb-6">
               <div className="grid grid-cols-2 sm:grid-cols-1">
-                <div className="flex align-center text-left">
-                  <div className="mg-bottom-0 mg-right-8px w-form">
-                    <form
-                      name="email-form"
-                      data-name="Email Form"
-                      data-wf-page-id="64afbac916bb17eb2fdc3fb6"
-                      data-wf-element-id="77b95bf4-3539-d1f4-01d4-a66d2f1842d1"
-                    >
-                      <label className="w-checkbox checkbox-field-wrapper small">
-                        <div className="w-checkbox-input w-checkbox-input--inputType-custom checkbox w--redirected-checked"></div>
-                        <input
-                          type="checkbox"
-                          name="remember"
-                          data-name="remember"
-                        />
-                      </label>
-                    </form>
+                <div className="flex items-center text-left">
+                  <div className="mb-0 mr-2">
+                    <Checkbox id="remember" />
                   </div>
-                  <div className="text-sm font-medium text-slate-700">
+                  <label htmlFor='remember' className="text-sm font-medium text-slate-700">
                     Remember account
-                  </div>
+                  </label>
                 </div>
-                <a
-                  href="/utility-pages/reset-password"
-                  className="text-decoration-none color-transition-none text-right w-inline-block"
+                <Link
+                  href=""
+                  className="no-underline"
                 >
                   <div
                     className="text-sm font-medium text-slate-800"
                   >
                     Forgot your password?
                   </div>
-                </a>
+                </Link>
               </div>
             </div>
             <div className="grid grid-cols-1 gap-3 mb-6">
-              <a
+              <Button
                 href="https://www.google.com/"
                 target="_blank"
-                className="btn-secondary sign-in-button w-inline-block"
+                variant='secondary'
               >
-                <div className="flex-horizontal">
-                  <Image
-                    src="https://uploads-ssl.webflow.com/64afbac816bb17eb2fdc3f03/64afbac916bb17eb2fdc40c8_google-button-icon-dashboardly-webflow-template.svg"
-                    loading="eager"
-                    alt="Google - Dashly X Webflow Template"
-                    className="mg-right-8px"
-                  />
-                  <div className="text-200 medium">Sign in with Google</div>
-                </div>
-              </a>
-              <a
+                <Image
+                  src="https://uploads-ssl.webflow.com/64afbac816bb17eb2fdc3f03/64afbac916bb17eb2fdc40c8_google-button-icon-dashboardly-webflow-template.svg"
+                  loading="eager"
+                  alt="Google"
+                  className="h-4 mr-2"
+                  width={16}
+                  height={16}
+                />
+                <div className="text-sm font-medium">Sign in with Google</div>
+              </Button>
+              <Button
                 href="https://www.google.com/"
                 target="_blank"
-                className="btn-secondary sign-in-button w-inline-block"
+                variant='secondary'
               >
-                <div className="flex-horizontal">
                   <Image
                     src="https://uploads-ssl.webflow.com/64afbac816bb17eb2fdc3f03/64afbac916bb17eb2fdc40c9_facebook-button-icon-dashboardly-webflow-template.svg"
                     loading="eager"
                     alt="Facebook - Dashly X Webflow Template"
-                    className="mg-right-8px"
+                    className="h-4 mr-2"
+                    width={16}
+                    height={16}
                   />
-                  <div className="text-200 medium">Sign in with Facebook</div>
-                </div>
-              </a>
+                  <div className="text-sm font-medium">Sign in with Facebook</div>
+              </Button>
             </div>
-            <div className="flex-horizontal flex-wrap">
-              <div className="text-200 medium color-neutral-800">
+            <div className="flex flex-wrap">
+              <div className="text-sm font-medium text-slate-800">
                 Don’t have an account? 
               </div>
-              <a href="/utility-pages/sign-up" className="text-200">
+              <a href="/signup" className="text-sm">
                 Create an account
               </a>
             </div>
         </Card>
       </div>
-      <div
-        className="dashboard-footer-wrapper"
-      >
+      <div className="dashboard-footer-wrapper">
         <div className="container-default w-container">
           <div className="dashboard-footer-inner-wrapper">
             <div>
