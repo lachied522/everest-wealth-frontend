@@ -86,7 +86,8 @@ export default function NewAdvicePopup() {
     }
 
     const onCancel = () => {
-        //reset state
+        // reset state
+        setIsLoading(false);
         setAdviceType('deposit');
         setAmount(0);
     }

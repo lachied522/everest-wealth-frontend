@@ -1,10 +1,4 @@
-import { cache } from "react";
-
-import cachedFetch from "src/app/lib/cached-fetch";
-
-// const cachedFetch = cache(fetchSymbol);
-
-// NOTE: next is supposed to cachce calls to this endpoint automatically but it doesn't appear to be the case
+import { fetchSymbol } from "src/app/lib/redis";
 
 export async function GET(req) {
     const { searchParams } = new URL(req.url);
@@ -12,7 +6,7 @@ export async function GET(req) {
 
     if (!symbol) return Response.json({});
 
-    const data = await cachedFetch(symbol);
+    const data = await fetchSymbol(symbol);
     
     return Response.json(data);
 }

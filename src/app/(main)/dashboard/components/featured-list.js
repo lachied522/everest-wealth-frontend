@@ -13,7 +13,7 @@ import StockCard from "./stock-card";
 
 export default function FeaturedList() {
     const { universeDataMap } = useUniverseContext();
-    const [index, setIndex] = useState(0); //
+    const [startIndex, setStartIndex] = useState(0); //
 
     const featured = useMemo(() => {
         // extract stocks with 'Featured' tag
@@ -24,8 +24,8 @@ export default function FeaturedList() {
         <div className="max-w-[100%] overflow-auto">
             <div className="text-xl font-medium text-slate-800 my-6">Featured Stocks</div>
             <div className="flex items-stretch gap-6">
-                {featured.slice(index, index+3).map((stock) => (
-                    <StockCard key={stock.id} symbol={stock.symbol} />
+                {featured.slice(startIndex, startIndex+3).map((stock, index) => (
+                    <StockCard key={index} symbol={stock.symbol} />
                 ))}
             </div>
         </div>

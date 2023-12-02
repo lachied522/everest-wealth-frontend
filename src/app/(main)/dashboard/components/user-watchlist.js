@@ -9,13 +9,13 @@ import StockCard from "./stock-card";
 
 export default function UserWatchlist() {
     const { watchlist } = useGlobalContext();
-    const [index, setIndex] = useState(0); //
+    const [startIndex, setStartIndex] = useState(0); //
 
     return (
         <div className="max-w-[100%] overflow-auto">
             <div className="text-xl font-medium text-slate-800 my-6">My Watchlist</div>
             <div className="flex gap-6">
-                {watchlist.slice(index, index+3).map((symbol) => (
+                {watchlist.slice(startIndex, startIndex+3).map((symbol, index) => (
                     <StockCard key={index} symbol={symbol} />
                 ))}
             </div>
