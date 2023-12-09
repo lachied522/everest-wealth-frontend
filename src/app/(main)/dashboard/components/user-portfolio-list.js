@@ -51,7 +51,7 @@ const PortfolioListItem = ({ portfolio }) => {
                 ): <Skeleton className="w-[240px] h-10"/>}
             </div>
             <div className="grid grid-cols-5 items-center justify-between gap-4">
-                <Card>
+                <Card className="h-full flex items-center justify-center">
                     <CardContent className="flex items-center justify-center content-center p-2 gap-2">
                         {portfolio ? (
                         <>
@@ -67,7 +67,7 @@ const PortfolioListItem = ({ portfolio }) => {
                         ) : <Skeleton className="w-[240px] h-10"/>}
                     </CardContent>
                 </Card>
-                <Card>
+                <Card className="h-full flex items-center justify-center">
                     <CardContent className="flex items-center justify-center content-center p-2 gap-2">
                         {portfolio ? (  
                         <>
@@ -82,7 +82,7 @@ const PortfolioListItem = ({ portfolio }) => {
                         </>) : <Skeleton className="w-[240px] h-10"/>}
                     </CardContent>
                 </Card>
-                <Card>
+                <Card className="h-full flex items-center justify-center">
                     <CardContent className="flex items-center justify-center p-2 gap-2">
                         {portfolio ? (
                         <div>
@@ -91,7 +91,7 @@ const PortfolioListItem = ({ portfolio }) => {
                         </div>) : <Skeleton className="w-[240px] h-10"/>}
                     </CardContent>
                 </Card>
-                <Card>
+                <Card className="h-full flex items-center justify-center">
                     <CardContent className="flex items-center justify-center p-2 gap-2">
                         {portfolio ? (<div>
                             <div className="text-sm font-medium">Total return</div>

@@ -33,7 +33,7 @@ import { Button } from "@/components/ui/button"
 
 import { LuPencil, LuSave, LuMapPin } from "react-icons/lu"
 
-import DOBPicker from "@/components/dob-picker";
+import DOBPicker from "./dob-picker";
 import IndustryPreferences from "@/components/industry-preferences"
 
 const formSchema = z.object({

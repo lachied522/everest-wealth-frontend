@@ -17,11 +17,8 @@ import PortfolioTabs from "./portfolio-tabs";
 
 export default function PortfolioPage() {
   const { currentPortfolio } = useGlobalContext();
-  const [loadingNewData, setLoadingNewData] = useState(false);
-  const [loadingNewAdvice, setLoadingNewAdvice] = useState(false);
 
-
-  return (    
+  return (
     <>
       <div className="mb-8">
         <div className="flex items-center justify-between">
@@ -48,10 +45,7 @@ export default function PortfolioPage() {
         </div>
       </div>
       <PortfolioStatBar />
-      <PortfolioTabs
-        loadingNewData={loadingNewData}
-        loadingNewAdvice={loadingNewAdvice}
-      />
+      <PortfolioTabs />
     </>
   );
 }

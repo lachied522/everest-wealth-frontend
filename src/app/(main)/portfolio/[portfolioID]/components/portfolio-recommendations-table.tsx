@@ -24,39 +24,33 @@ import {
 
 import { Button } from "@/components/ui/button";
 
-import { cn } from "@/components/lib/utils";
-
 import { LuFileText, LuLoader2 } from "react-icons/lu";
 
-import { columns } from "@/components/advice-table-columns";
-
+import { usePortfolioContext } from "../context/PortfolioState";
+import { columns } from "./portfolio-recommendations-table-columns";
 
 const USDollar = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
 });
 
-
-interface AdviceTableProps<TData, TValue> {
+interface PortfolioRecommendationsTableProps<TData, TValue> {
     data: {
         transactions: TData[]
         gross: number
         brokerage: number
     }
-    loadingNewAdvice: boolean
-    actioned: boolean
     statementUrl: string
     onAdviceAction: (action: string) => void
 }
 
-export default function AdviceTable<TData, TValue>({
+export default function PortfolioRecommendationsTable<TData, TValue>({
     data,
-    loadingNewAdvice,
-    actioned,
     statementUrl,
     onAdviceAction,
-}:  AdviceTableProps<TData, TValue>) {
-    const [sorting, setSorting] = useState<SortingState>([])
+}:  PortfolioRecommendationsTableProps<TData, TValue>) {
+    const { loadingNewAdvice } = usePortfolioContext();
+    const [sorting, setSorting] = useState<SortingState>([]);
 
     const gross = useMemo(() => {
         if (!data) return 0;
@@ -152,7 +146,6 @@ export default function AdviceTable<TData, TValue>({
                             ))}
                         </TableRow>
                         ))}
-                        {!actioned && (
                         <TableRow>
                             <TableCell colSpan={columns.length} className="p-6 bg-slate-200/50 transition-none hover:bg-slate-200/50">
                                 <div className="flex justify-end items-end">             
@@ -200,7 +193,6 @@ export default function AdviceTable<TData, TValue>({
                                 </div>
                             </TableCell>
                         </TableRow>
-                        )}
                     </>
                 ) : (
                     <TableRow>

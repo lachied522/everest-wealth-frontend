@@ -19,8 +19,8 @@ function TradingViewNewsWidget({ symbol }) {
         "colorTheme": "light",
         "isTransparent": false,
         "displayMode": "regular",
-        "width": "480",
-        "height": 830,
+        "width": 800,
+        "height": 400,
         "locale": "en"
       }
       `;

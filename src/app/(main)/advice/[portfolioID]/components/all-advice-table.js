@@ -8,7 +8,6 @@ import { cn } from '@/components/lib/utils';
 import {
     Table,
     TableBody,
-    TableCaption,
     TableCell,
     TableHead,
     TableHeader,
@@ -16,9 +15,8 @@ import {
 } from "@/components/ui/table"
 import { Button } from '@/components/ui/button';
 
-import AdviceTable from '@/components/advice-table';
-import { columns as adviceColumns } from '@/components/advice-table-columns';
-
+import AdviceTable from "./advice-table"
+import { columns as adviceColumns } from "./advice-table-columns";
 
 const USDollar = new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -58,7 +56,7 @@ const TableSubRow = ({ data }) => {
             {isOpen && (
             <TableRow className='bg-white transition-none hover:bg-white p-0'>
                 <TableCell colSpan={5} className='p-0'>
-                    <AdviceTable columns={adviceColumns} data={data} actioned={true}/>
+                    <AdviceTable data={data} />
                 </TableCell>
             </TableRow>
             )}

@@ -32,6 +32,21 @@ function formatSector(sectorString) {
     }).join(" ");
 }
 
+
+function ChangeIndicator({ last, change }) {
+    if (!change || !last) return <div className="text-green-500">+0%</div>;
+
+    const percentChange = (100*(change / last)).toFixed(2);
+
+    if (percentChange < 0) return (
+        <div className="text-red-500">{percentChange}%</div>
+    )
+
+    return (
+        <div className="text-green-500">+{percentChange}%</div>
+    )
+}
+
 export default async function Page({ params }) {
     const data = await fetchSymbol(params.symbol);
 
@@ -64,7 +79,7 @@ export default async function Page({ params }) {
                 </div>
                 <div className="flex gap-2 items-end mb-4">
                     <h3 className="mb-0">${data['last_price']}</h3>
-                    <div className="text-green-500">+0.22%</div>
+                    <ChangeIndicator change={data['change'] || 0} last={data['last_price']} />
                 </div>
                 <div className="flex gap-4">
                     <div className="flex gap-2">
@@ -90,12 +105,15 @@ export default async function Page({ params }) {
                 </div>
             </div>
             <div className="flex flex-col items-stretch gap-4">
-                <div className="w-full flex items-center">
-                    <TradingViewWidget symbol={domestic? `ASX:${data['symbol']}`: `NASDAQ:${data['symbol']}`} />
-                </div>
-                <div className="w-[60vh]">
-                    <h3>About the company</h3>
-                    <p className="text-xs">{data['description']}</p>
+                <div className="grid grid-cols-[1fr_0.25fr] gap-16">
+                    <div className="">
+                        <h3>About the company</h3>
+                        <p className="text-xs">{data['description']}</p>
+                    </div>
+                    <div className="">
+                        <h3>Price chart</h3>
+                        <TradingViewWidget symbol={domestic? `ASX:${data['symbol']}`: `NASDAQ:${data['symbol']}`} />
+                    </div>
                 </div>
                 <div>
                     <h3>Latest News</h3>

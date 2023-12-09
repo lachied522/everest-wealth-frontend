@@ -19,9 +19,9 @@ function TradingViewWidget({ symbol }) {
               "${symbol}|1D"
             ]
           ],
-          "chartOnly": false,
-          "width": 1000,
-          "height": 500,
+          "chartOnly": true,
+          "width": 500,
+          "height": 300,
           "locale": "en",
           "colorTheme": "light",
           "autosize": false,

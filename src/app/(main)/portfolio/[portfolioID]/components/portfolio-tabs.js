@@ -1,13 +1,12 @@
 "use client";
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { revalidatePath } from 'next/cache';
 
 import { Button } from "@/components/ui/button";
 
 import { cn } from "@/components/lib/utils";
 
-import AdviceTable from "@/components/advice-table";
+import PortfolioRecommendationsTable from "./portfolio-recommendations-table";
 import PortfolioTable from "./portfolio-table";
 import { columns as portfolioColumns } from "./portfolio-columns";
 import { useGlobalContext } from "@/context/GlobalState";
@@ -105,7 +104,7 @@ const AdviceNotification = ({ transactions }) => {
     )
 }
 
-const PortfolioTabs = ({ loadingNewAdvice }) => {
+const PortfolioTabs = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
     const { currentPortfolio, updatePortfolio, setAdvice } = useGlobalContext();
@@ -247,10 +246,9 @@ const PortfolioTabs = ({ loadingNewAdvice }) => {
             ))}
             </div>
             {currentTab === TABS[0] ? (
-                <AdviceTable 
+                <PortfolioRecommendationsTable 
                     data={adviceData} 
                     onAdviceAction={onAdviceAction} 
-                    loadingNewAdvice={loadingNewAdvice} 
                     statementUrl={currentPortfolio.advice[0]?.url} 
                 />
             ) : (

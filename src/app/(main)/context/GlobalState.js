@@ -85,7 +85,7 @@ export const GlobalProvider = ({
     if (newHoldings.length > 0) {
       const { error } = await supabase
         .from("holdings")
-        .upsert(newHoldings)
+        .upsert(newHoldings, { onConflict: 'id', ignoreDuplicates: false, defaultToNull: false })
         .select();
 
       if (error) {

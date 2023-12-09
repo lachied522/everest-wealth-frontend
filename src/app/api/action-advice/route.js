@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server';
 
 function getNewHoldings(currentHoldings, transactions) {
     const newHoldings = [...currentHoldings]; // create copy of current portfolio
-    const symbols = Array.from(newHoldings, (obj) => { return obj.symbol });
+    const symbols = Array.from(newHoldings, (obj) => obj.symbol);
     
     for (const { symbol, units, price } of transactions) {
       const index = symbols.indexOf(symbol);
@@ -12,12 +12,12 @@ function getNewHoldings(currentHoldings, transactions) {
         // existing holding
         const holding = newHoldings[index];
         const newUnits = Math.max(holding.units + units, 0);
+        const newCost = holding.cost? holding.cost + price: price;
 
         newHoldings[index] = {
           ...holding,
-          symbol: symbol,
           units: newUnits, // zero unit holdings are removed automatically by DB
-          cost: price,
+          cost: newCost,
         }
       } else {
         newHoldings.push({
@@ -25,7 +25,7 @@ function getNewHoldings(currentHoldings, transactions) {
           units: units,
           cost: price,
           locked: false,
-        })
+        });
       }
     };
 
@@ -71,14 +71,16 @@ export async function POST(req) {
             ...holding,
             portfolio_id: body.advice.portfolio_id,
         }));
+
+        console.log(newHoldingRecords);
   
         const { data, error: commitError } = await supabase
           .from('holdings')
-          .upsert(newHoldingRecords)
+          .upsert(newHoldingRecords, { onConflict: 'id', ignoreDuplicates: false, defaultToNull: false })
           .select();
         
-        if (commitError) throw new Error(`Error committing changes: ${commitError}`);
-  
+        if (commitError) throw new Error(`Error committing changes: ${commitError}`);  
+
         updatedHoldings = data;    
       }
 

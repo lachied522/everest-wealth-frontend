@@ -20,6 +20,7 @@ import { LuTrendingUp } from "react-icons/lu";
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 
 import { useGlobalContext } from "@/context/GlobalState";
+import { usePortfolioContext } from "../context/PortfolioState";
 
 const WEB_SOCKET_URL = process.env.NEXT_PUBLIC_WEBSOCKET_URL|| "";
 
@@ -28,17 +29,16 @@ const USDollar = new Intl.NumberFormat("en-US", {
     currency: "USD",
 });
 
-
 export default function NewAdvicePopup() {
+    const { session, currentPortfolio, setAdvice } = useGlobalContext();
+    const { setLoadingNewAdvice } = usePortfolioContext();
     const router = useRouter();
     const searchParams = useSearchParams();
     const [socketUrl, setSocketUrl] = useState(null); // set url to null until called
-    const { session, currentPortfolio, setAdvice } = useGlobalContext();
-    const [adviceType, setAdviceType] = useState('deposit'); // deposit, withdraw
+    const [adviceType, setAdviceType] = useState('review'); // deposit, withdraw, or review
     const [amount, setAmount] = useState(0);    
-    const [currentValue, setCurrentValue] = useState(0)
+    const [currentValue, setCurrentValue] = useState(0) // current value of portfolio
     const [proposedValue, setProposedValue] = useState(0);
-    const [isLoading, setIsLoading] = useState(false);
     const closeRef = useRef(null);
     
     const { sendMessage } = useWebSocket(socketUrl, {
@@ -46,7 +46,7 @@ export default function NewAdvicePopup() {
         onMessage: (event) => {
             console.log(event.data);
             // remove loading state
-            setIsLoading(false);
+            setLoadingNewAdvice(false);
             // update advice in global state
             setAdvice(currentPortfolio.id, JSON.parse(event.data));
             // close modal
@@ -73,10 +73,12 @@ export default function NewAdvicePopup() {
     }, [currentPortfolio]);
 
     useEffect(() => {
-        if (adviceType === 'withdraw') {
+        if (adviceType === 'deposit') {
+            setProposedValue(currentValue + parseFloat(amount));
+        } else if (adviceType === 'withdraw') {
             setProposedValue(Math.max(currentValue - parseFloat(amount), 0));
         } else {
-            setProposedValue(currentValue + parseFloat(amount));
+            setProposedValue(currentValue);
         }
     }, [adviceType, amount, currentValue]);
 
@@ -87,19 +89,18 @@ export default function NewAdvicePopup() {
 
     const onCancel = () => {
         // reset state
-        setIsLoading(false);
-        setAdviceType('deposit');
+        setAdviceType('review');
         setAmount(0);
     }
 
     const onSubmit = () => {
-        setIsLoading(true);
+        setLoadingNewAdvice(true);
         // establish websocket connection
         setSocketUrl(`${WEB_SOCKET_URL}/ws/${session.user.id}`);
         sendMessage(JSON.stringify({
-            amount: adviceType==='withdraw'? -amount: amount,
-            reason: adviceType,
             portfolio_id: currentPortfolio.id, 
+            reason: adviceType,
+            amount: adviceType==='withdraw'? -amount: amount,
         }));
     } 
 
@@ -121,25 +122,39 @@ export default function NewAdvicePopup() {
                 </DialogDescription>
             </DialogHeader>
             <form>
-                <div className="flex flex-col gap-6 items-stretch justify-center">
-                    <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col gap-6 items-stretch justify-center py-6">
+                    <div className="grid grid-cols-3 gap-4">
                         <Button
                             type="button"
-                            variant={adviceType==='deposit' ? 'secondary': ''}
+                            variant={adviceType==='review' ? 'default': 'secondary'}
+                            onClick={() => {setAdviceType('review')}}
+                        >
+                            Review portfolio
+                        </Button>
+                        <Button
+                            type="button"
+                            variant={adviceType==='withdraw' ? 'default': 'secondary'}
                             onClick={() => {setAdviceType('withdraw')}}
                         >
                             Make a withdrawal
                         </Button>
                         <Button
                             type="button"
-                            variant={adviceType==='withdraw' ? 'secondary': ''}
+                            variant={adviceType==='deposit' ? 'default': 'secondary'}
                             onClick={() => {setAdviceType('deposit')}}
                         >
                             Invest some money
                         </Button>
                     </div>
-                    <div className="overflow-hidden min-h-[240px] mb-6">
-                        {adviceType!=='' && (
+                    <div className="h-[200px] flex flex-col justify-between mb-16">
+                        {adviceType==='review' && (
+                        <div className="gap-6 flex-col flex p-8">
+                            <div className="grid w-full max-w-sm items-center gap-1">
+                                <div className="font-semibold text-slate-800">Review and rebalance portfolio</div>
+                            </div>
+                        </div>
+                        )}
+                        {adviceType!=='review' && (
                         <div className="gap-6 flex-col flex p-8">
                             <div className="grid w-full max-w-sm items-center gap-1">
                                 <Label htmlFor="amount">Amount to {adviceType}</Label>
@@ -157,16 +172,16 @@ export default function NewAdvicePopup() {
                                     />
                                 </div>
                             </div>
-                            <div className="grid grid-cols-2 place-items-center text-sm">
-                                <div className="text-slate-700">
-                                    Impied portfolio value
-                                </div>
-                                <div className="text-slate-800">
-                                    {USDollar.format(proposedValue)}
-                                </div>
-                            </div>
                         </div>
                         )}
+                        <div className="grid grid-cols-2 place-items-center text-sm">
+                            <div className="text-slate-700">
+                                Impied portfolio value
+                            </div>
+                            <div className="text-slate-800">
+                                {USDollar.format(proposedValue)}
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
@@ -180,18 +195,12 @@ export default function NewAdvicePopup() {
                             Cancel
                         </Button>
                     </DialogClose>
-                    {isLoading ? (
-                    <Button type="button" disabled>
-                        Please wait...
-                    </Button>
-                    ) : (
                     <Button
                         type="button"
                         onClick={onSubmit}
                     >
                         Submit
                     </Button>
-                    )}
                 </div>
             </form>
             </DialogContent>
