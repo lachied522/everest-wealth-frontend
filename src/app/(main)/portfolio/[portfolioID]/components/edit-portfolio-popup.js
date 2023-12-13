@@ -16,11 +16,17 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 import { LuPencil, LuSearch, LuTrash } from "react-icons/lu";
 
-import { addStockInfoToPortfolio } from "../utils";
-
 import debounce from "lodash.debounce";
 
 import { useGlobalContext } from "@/context/GlobalState";
+import { usePortfolioContext } from "../context/PortfolioState";
+
+async function getStockPrice({ symbol }) {
+    const params = new URLSearchParams({ s: symbol });
+    const data = await fetch(`/api/get-stock-info?${params}`).then(res => res.json());
+
+    return data.last_price;
+}
 
 const SearchHit = ({ hit, selectHit }) => {
 
@@ -34,72 +40,71 @@ const SearchHit = ({ hit, selectHit }) => {
     );
 };
 
-const HoldingRow = ({ holdingData, update }) => {
-    const [populatedData, setPopulatedData] = useState(null);
+const HoldingRow = ({ holding, update }) => {
+    const [stockPrice, setStockPrice] = useState(null); // current stock price - must be fetched from api
 
     useEffect(() => {
       let active = true; // keep track of whether component is active
-      if (holdingData) getData();
+
+      if (holding) getData();
       return () => {
           active = false;
       }
 
       async function getData() {
-        if (!holdingData.hasOwnProperty('price')) {
-          const data = await addStockInfoToPortfolio([holdingData]);
-          if (active) setPopulatedData(data[0]);
+        if (!holding.hasOwnProperty('last_price')) {
+          const price = await getStockPrice({ ...holding });
+          if (active) setStockPrice(price);
         } else {
           // data already populated
-          setPopulatedData(holdingData);
+          setStockPrice(holding.last_price);
         }
       }
-    }, [holdingData]);
+    }, [holding, setStockPrice]);
 
     // value column pre-populates if user fills units column and vice versa
     const changeValue = useCallback((e) => {
-        if (!populatedData) return;
+        if (!stockPrice) return;
         const input = e.target.value;
-        const units = Math.max(Math.floor(input / populatedData['last_price']), 1);
         update({
-          ...populatedData,
+          ...holding,
           value: parseFloat(input),
-          units: units,
+          units: Math.max(Math.floor(input / stockPrice), 1),
         });
-    }, [populatedData, update]);
+    }, [holding, update, stockPrice]);
     
     const changeUnits = useCallback((e) => {
-        if (!populatedData) return;
+        if (!stockPrice) return;
         const input = e.target.value;
-        const value = input * populatedData['last_price'];
         update({
-          ...populatedData,
-          value: value,
+          ...holding,
+          value: parseFloat(input) * stockPrice,
           units: parseFloat(input),
         });
-    }, [populatedData, update]);
+    }, [holding, update, stockPrice]);
 
     const changeCost = useCallback((e) => {
       const input = e.target.value;
       update({
-        ...populatedData,
-        cost: parseFloat(input) / populatedData['units'],
+        ...holding,
+        cost: parseFloat(input) / holding.units,
         totalCost: parseFloat(input),
       });
-    }, [populatedData, update]);
+    }, [holding, update]);
 
     const removeHolding = useCallback(() => {
       // holding is removed by setting units to zero
       update({
-        ...populatedData,
+        ...holding,
         value: 0,
         units: 0,
       });
-    }, [populatedData, update]);
+    }, [holding, update]);
 
     return (
         <div className="grid grid-rows-[auto] gap-0 grid-cols-[0.5fr_0.75fr_1fr_1fr_20px] auto-cols-[1fr] items-center justify-items-center p-1.5">
             <div className="">
-              {holdingData['symbol'].toUpperCase()}
+              {holding.symbol.toUpperCase()}
             </div>
             <Input
                 type="number"
@@ -108,18 +113,18 @@ const HoldingRow = ({ holdingData, update }) => {
                 name="units"
                 data-name="units"
                 min={1}
-                value={holdingData['units'] || ""}
+                value={holding.units || 0}
                 onChange={changeUnits}
             />
-            {populatedData ? (
+            {stockPrice ? (
             <Input
                 type="number"
                 className="max-w-[100px] text-slate-800 m-0"
                 maxLength="24"
                 name="value"
                 data-name="value"
-                min={populatedData['value'] || 0}
-                value={populatedData['value'] || ""}
+                min={stockPrice || 0}
+                value={stockPrice * holding.units || 0}
                 onChange={changeValue}
             />
             ) : (
@@ -132,19 +137,20 @@ const HoldingRow = ({ holdingData, update }) => {
                 name="cost"
                 data-name="cost"
                 min="0"
-                value={(holdingData['cost'] || 0) * holdingData['units']}
+                value={holding.totalCost || 0}
                 onChange={changeCost}
             />
             <LuTrash 
-              className="cursor-pointer transition-colors duration-300 hover:text-[#dc2b2b]"
-              onClick={removeHolding}
+                className="cursor-pointer transition-colors duration-300 hover:text-[#dc2b2b]"
+                onClick={removeHolding}
             />
         </div>
     );
 };
 
 export default function EditPortfolioPopup() {
-  const { currentPortfolio, updatePortfolio, commitPortfolio } = useGlobalContext();
+  const { updatePortfolio } = useGlobalContext();
+  const { currentPortfolio } = usePortfolioContext();
   const [searchString, setSearchString] = useState('');
   const [searchHits, setSearchHits] = useState([]);
   const [allHoldingData, setAllHoldingData] = useState([]); //contains all existing holdings and new holdings
@@ -180,11 +186,17 @@ export default function EditPortfolioPopup() {
   };
 
   const selectHit = (hit) => {
-    const newArray = [...allHoldingData, {
-      ...hit,
-      units: 1
-    }];
-    setAllHoldingData(newArray);
+    // prevent duplicates
+    if (!currentPortfolio.holdings.map((holding) => holding.symbol).includes(hit.symbol)) {
+      setAllHoldingData([
+        ...allHoldingData, 
+        {
+          ...hit,
+          units: 1
+        }
+      ]);
+    };
+
     // reset search bar
     setSearchString('');
     // clear search hits
@@ -198,18 +210,41 @@ export default function EditPortfolioPopup() {
     setAllHoldingData(newArray);
   }, [allHoldingData]);
 
-  const confirmHoldings = async () => {
+  const confirmHoldings = () => {
+    // check for equality of allHoldingData
     if (allHoldingData !== currentPortfolio.holdings) {
-      // commit portfolio to DB
-      const success = await commitPortfolio(currentPortfolio.id, allHoldingData);
+      // commit updated holdings to DB
+      const updatedHoldings = allHoldingData.filter(
+        (newHolding) => !currentPortfolio.holdings.some(
+          (currentHolding) => currentHolding === newHolding
+        )
+      );
 
-      // update portfolio state
-      if (success) {
-        await updatePortfolio(
-          currentPortfolio.id,
-          allHoldingData
-        );
-      }
+      fetch('/api/commit-portfolio', {
+        method: "POST",
+          body: JSON.stringify({
+              portfolio_id: currentPortfolio.id, 
+              data: updatedHoldings,
+          }),
+          headers: {
+              "Content-Type": "application/json",
+          }
+      })
+      .then(res => res.json())
+      .then(({ success, data }) => {
+        // api route only returns updated holdings, combine updated and existing holdings for new portfolio
+        const newPortfolioState = [
+          ...allHoldingData.filter((holding) => !updatedHoldings.includes(holding)),
+          ...data,
+        ];
+
+        if (success) {
+          updatePortfolio(
+            currentPortfolio.id,
+            newPortfolioState,
+          );
+        }
+      });
     }
   }
 
@@ -290,7 +325,7 @@ export default function EditPortfolioPopup() {
                     return (
                       <HoldingRow 
                         key={index}
-                        holdingData={holding}
+                        holding={holding}
                         update={updateHolding}
                     />
                     )

@@ -31,11 +31,13 @@ export type StockInfo = {
     symbol: string;
     name: string | null;
     sector: string | null;
+    div: number | null;
     div_yield: number | null;
     beta: number | null;
     market_cap: number | null;
     last_price: number | null;
-    domestic: boolean;
+    domestic: string;
+    active: string;
 }
 
 const USDollar = new Intl.NumberFormat("en-US", {

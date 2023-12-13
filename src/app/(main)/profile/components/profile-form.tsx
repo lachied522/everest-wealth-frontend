@@ -28,7 +28,6 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Slider } from "@/components/ui/slider"
 import { Card } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
 
 import { LuPencil, LuSave, LuMapPin } from "react-icons/lu"
@@ -163,7 +162,6 @@ export default function ProfileForm({ data, userName } : ProfileFormProps) {
                     </Button>
                     )}
                 </div>
-                <Separator className="my-4"/>
                 <div>
                 <h4 className="mb-6">Finances</h4>
                 <Card className="grid grid-cols-2 items-center justify-items-center gap-12 p-16">
@@ -275,7 +273,6 @@ export default function ProfileForm({ data, userName } : ProfileFormProps) {
                     />
                 </Card>
                 </div>
-                <Separator className="my-4"/>
                 <div>
                     <h4 className="mb-6">Experience</h4>
                     <Card className="grid grid-cols-2 items-center justify-items-center gap-12 p-16">
@@ -307,7 +304,6 @@ export default function ProfileForm({ data, userName } : ProfileFormProps) {
                         />
                     </Card>
                 </div>
-                <Separator className="my-4"/>
                 <div>
                     <h4 className="mb-6">Risk Tolerance</h4>
                     <Card className="grid grid-cols-1 items-center justify-items-stretch gap-12 p-16">
@@ -512,7 +508,6 @@ export default function ProfileForm({ data, userName } : ProfileFormProps) {
                         />
                     </Card>
                 </div>
-                <Separator className="my-4"/>
                 <div>
                     <h4 className="mb-6">Preferences</h4>
                     <Card className="flex flex-col gap-12 items-center p-16">

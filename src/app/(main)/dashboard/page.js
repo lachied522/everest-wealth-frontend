@@ -1,8 +1,23 @@
-import DashboardPage from "./components/dashboard-page";
+import NewPortfolioPopup from "./components/new-portfolio-popup";
+import UserPortfolioList from "./components/user-portfolio-list";
+import UserWatchlist from "./components/user-watchlist";
+import FeaturedList from "./components/featured-list";
 
-export default async function Page() {
+export default function DashboardPage() {
 
   return (
-    <DashboardPage />
+    <>
+        <div className="mb-8">
+        <div className="flex items-center justify-between">
+            <div className="text-xl font-medium text-slate-800 mb-0">
+                My Portfolios
+            </div>
+            <NewPortfolioPopup />
+        </div>
+        </div>
+        <UserPortfolioList />
+        <UserWatchlist />
+        <FeaturedList />
+    </>
   );
 };

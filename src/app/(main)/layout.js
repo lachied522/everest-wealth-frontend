@@ -6,7 +6,7 @@ import { GlobalProvider } from "./context/GlobalState";
 import { UniverseProvider } from "./context/UniverseState";
 import { SidebarProvider } from "./context/SidebarState";
 
-import { fetchSymbol } from '../lib/redis';
+import { fetchStockDataFromServer } from '@/lib/redis-utils';
 
 import Sidebar from "./sidebar";
 import Header from "./header";
@@ -63,28 +63,26 @@ export default async function RootLayout({ children }) {
         universeDataMap.set(stock.symbol, stock);
     });
 
-    // calculate total portfolio values
-    const updatedPortfolioData = await Promise.all(portfolioData?.map(async (portfolio) => {
-        let totalValue = 0;
-        await Promise.all(portfolio.holdings?.map(async (holding) => {
-            return fetchSymbol(holding.symbol)
-                .then(data => {
-                    totalValue += data['last_price'] * holding.units || 0;
-                });
-        }));
+    // populate portfolios with stock data
+    const populatedPortfolioData = await Promise.all(portfolioData?.map(async (portfolio) => {
+        const populatedHoldings = await fetchStockDataFromServer(portfolio.holdings);
+
+        // calculate total portfolio value
+        const totalValue = populatedHoldings.reduce((acc, obj) => acc + parseFloat(obj.value), 0);
         
-        return { ...portfolio, totalValue };
+        return { ...portfolio, holdings: populatedHoldings, totalValue };
     }));
-    
+
+    // NOTE: data must be converted to JSON before passing to client
     return (
         <UniverseProvider universeDataMap={universeDataMap} >
-            <GlobalProvider session={session} portfolioData={updatedPortfolioData} watchlistData={watchlistData} >
+            <GlobalProvider session={session} portfolioJSON={JSON.stringify(populatedPortfolioData)} watchlistData={watchlistData} >
                 <SidebarProvider>
                     <div className="flex items-start">
                         <Sidebar />
                         <div className="flex-1">
                             <Header userName={session.user.user_metadata['name'] || 'Name'} />
-                            <div className="h-full px-8 py-16">
+                            <div className="h-full min-h-[calc(100vh-152px)] bg-white px-8 py-16">
                                 <Container>
                                     {children}
                                 </Container>

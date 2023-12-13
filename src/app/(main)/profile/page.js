@@ -1,5 +1,6 @@
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 import Image from 'next/image';
 
 import { Separator } from "@/components/ui/separator";
@@ -17,7 +18,8 @@ export default async function Page() {
     } = await supabase.auth.getSession();
 
   if (!session) {
-    return
+    // layout in (main) should prevent this
+    redirect('/login');
   }
 
   const { data, error } = await supabase

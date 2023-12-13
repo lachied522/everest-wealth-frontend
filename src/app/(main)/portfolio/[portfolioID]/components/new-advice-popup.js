@@ -30,8 +30,8 @@ const USDollar = new Intl.NumberFormat("en-US", {
 });
 
 export default function NewAdvicePopup() {
-    const { session, currentPortfolio, setAdvice } = useGlobalContext();
-    const { setLoadingNewAdvice } = usePortfolioContext();
+    const { session, setAdvice } = useGlobalContext();
+    const { currentPortfolio, setLoadingNewAdvice } = usePortfolioContext();
     const router = useRouter();
     const searchParams = useSearchParams();
     const [socketUrl, setSocketUrl] = useState(null); // set url to null until called

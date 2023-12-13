@@ -14,7 +14,7 @@ export default function WatchlistButton({ symbol }) {
             return watchlist.includes(symbol);
         }
         return false;
-    }, [watchlist]);
+    }, [watchlist, symbol]);
 
     return (
         <>

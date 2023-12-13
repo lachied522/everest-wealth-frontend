@@ -29,6 +29,12 @@
       "@/context/*": [
         "src/app/(main)/context/*"
       ],
+      "@/types/*": [
+        "src/app/types/*"
+      ],
+      "@/lib/*": [
+        "src/app/lib/*"
+      ],
       "@/layouts/*": [
         "src/app/layouts/*"
       ]

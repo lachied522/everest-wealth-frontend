@@ -47,7 +47,7 @@ export async function connect() {
   }
 
   await client.connect();
-  if (process.env.NEXT_PUBLIC_NODE_ENV==="DEVELOPMENT") console.log("Redis Client Connected");
+  if (process.env.NODE_ENV==="development") console.log("Redis Client Connected");
 
   // Set the idle timer when the client is connected
   setIdleTimer();
@@ -57,7 +57,7 @@ export async function disconnect() {
   if (!client.isOpen) return;
 
   await client.quit();
-  if (process.env.NEXT_PUBLIC_NODE_ENV==="DEVELOPMENT") console.log("Redis Client Disconnected");
+  if (process.env.NODE_ENV==="development") console.log("Redis Client Disconnected");
 }
 
 export const searchUniverse = async (q) => {

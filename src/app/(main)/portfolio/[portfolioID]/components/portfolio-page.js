@@ -1,22 +1,17 @@
 "use client";
-import { useState, useEffect } from "react";
+import { usePortfolioContext } from "../context/PortfolioState";
 
-import { useGlobalContext } from "@/context/GlobalState";
-
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-
-import { LuLink } from "react-icons/lu";
 
 import PortfolioSettingsPopup from "./portfolio-settings-popup";
 import PortfolioStatBar from "./portfolio-stat-bar";
 import EditPortfolioPopup from "./edit-portfolio-popup";
 import NewAdvicePopup from "./new-advice-popup";
 import PortfolioTabs from "./portfolio-tabs";
-
+import PlainLinkButton from "./PlaidLinkButton";
 
 export default function PortfolioPage() {
-  const { currentPortfolio } = useGlobalContext();
+  const { currentPortfolio } = usePortfolioContext();
 
   return (
     <>
@@ -29,16 +24,11 @@ export default function PortfolioPage() {
               {currentPortfolio.name}
             </div>
           </div>
-          ): (
+          ) : (
           <Skeleton className="w-[240px] h-10"/>
           )}
           <div className="flex gap-4">
-            <Button
-              variant="secondary"
-            >
-              <LuLink className="mr-2" />
-              Link Broker
-            </Button>
+            <PlainLinkButton />
             <EditPortfolioPopup />
             <NewAdvicePopup />
           </div>

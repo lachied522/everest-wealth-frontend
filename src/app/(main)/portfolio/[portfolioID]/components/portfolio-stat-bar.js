@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/card";
 
 import { Skeleton } from "@/components/ui/skeleton";
-import { useGlobalContext } from "@/context/GlobalState";
+import { usePortfolioContext } from "../context/PortfolioState";
 
 const USDollar = new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -36,9 +36,9 @@ const DayReturn = ({ portfolio }) => {
                 <div className="flex">
                     <div className={change > 0? "text-green-600": "text-red-400"}>{change.toFixed(2)}%</div>
                     {change > 0 ? (
-                    <LuArrowUpRight className="text-green-600"/>
+                        <LuArrowUpRight className="text-green-600"/>
                     ) : (
-                    <LuArrowDownRight className="text-red-400"/>
+                        <LuArrowDownRight className="text-red-400"/>
                     )}
                 </div>
             </div>
@@ -61,9 +61,9 @@ const TotalReturn = ({ portfolio }) => {
                 <div className="flex">
                     <div className={change > 0? "text-green-600": "text-red-400"}>{change.toFixed(2)}%</div>
                     {change > 0 ? (
-                    <LuArrowUpRight className="text-green-600"/>
+                        <LuArrowUpRight className="text-green-600"/>
                     ) : (
-                    <LuArrowDownRight className="text-red-400"/>
+                        <LuArrowDownRight className="text-red-400"/>
                     )}
                 </div>
             </div>
@@ -72,7 +72,7 @@ const TotalReturn = ({ portfolio }) => {
 }
 
 export default function PortfolioStatBar() {
-    const { currentPortfolio } = useGlobalContext();
+    const { currentPortfolio } = usePortfolioContext();
     
     return (
         <div className="gap-4 flex-wrap grid-rows-[auto] grid-cols-[repeat(auto-fit,minmax(248px,1fr))] auto-cols-[1fr] justify-between grid mb-6">

@@ -2,34 +2,22 @@ import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
-function getNewHoldings(currentHoldings, transactions) {
-    const newHoldings = [...currentHoldings]; // create copy of current portfolio
-    const symbols = Array.from(newHoldings, (obj) => obj.symbol);
-    
-    for (const { symbol, units, price } of transactions) {
-      const index = symbols.indexOf(symbol);
-      if (index > -1) {
-        // existing holding
-        const holding = newHoldings[index];
-        const newUnits = Math.max(holding.units + units, 0);
-        const newCost = holding.cost? holding.cost + price: price;
+import { fetchStockDataFromServer } from '@/lib/redis-utils';
 
-        newHoldings[index] = {
-          ...holding,
-          units: newUnits, // zero unit holdings are removed automatically by DB
-          cost: newCost,
+function getNewHoldings({ currentHoldings, transactions }) {
+    return transactions.map(
+      (transaction) => {
+        const holding = currentHoldings.find((obj) => obj.symbol === transaction.symbol);
+
+        return {
+          id: holding? holding.id: undefined,
+          symbol: transaction.symbol,
+          units: holding? Math.max(holding.units + transaction.units, 0): transaction.units,
+          cost: holding? holding.cost + transaction.price: transaction.price,
+          locked: holding? holding.locked: false,
         }
-      } else {
-        newHoldings.push({
-          symbol: symbol,
-          units: units,
-          cost: price,
-          locked: false,
-        });
       }
-    };
-
-    return newHoldings;
+    );
 }
 
 export async function POST(req) {
@@ -54,9 +42,9 @@ export async function POST(req) {
 
       if (body.action==='confirm') {
         // get all holdings matching symbols
-        const symbols = Array.from(body.advice.transactions, (obj) => { return obj.symbol });
+        const symbols = Array.from(body.advice.transactions, (obj) => obj.symbol);
   
-        const { data: holdings, error: holdingsError } = await supabase
+        const { data: currentHoldings, error: holdingsError } = await supabase
         .from("holdings")
         .select("*")
         .eq("portfolio_id", body.advice.portfolio_id)
@@ -64,24 +52,22 @@ export async function POST(req) {
   
         if (holdingsError) console.log(holdingsError); //should change status of api response
   
-        const newHoldingRecords = getNewHoldings(
-            holdings,
-            body.advice.transactions
-        ).map(holding => ({
+        const newHoldingRecords = getNewHoldings({
+            currentHoldings,
+            transactions: body.advice.transactions,
+        }).map(holding => ({
             ...holding,
             portfolio_id: body.advice.portfolio_id,
         }));
-
-        console.log(newHoldingRecords);
   
         const { data, error: commitError } = await supabase
           .from('holdings')
           .upsert(newHoldingRecords, { onConflict: 'id', ignoreDuplicates: false, defaultToNull: false })
           .select();
         
-        if (commitError) throw new Error(`Error committing changes: ${commitError}`);  
+        if (commitError) throw new Error(`Error committing changes: ${commitError}`);
 
-        updatedHoldings = data;    
+        updatedHoldings = data;
       }
 
       // update status of advice record
@@ -91,19 +77,22 @@ export async function POST(req) {
         .update({ status })
         .eq('id', body.advice.id)
         .select();
-      
+
+      // populate new holdings with stock data prior to returning to client
+      const populatedHoldings = await fetchStockDataFromServer(updatedHoldings);
+    
+      return Response.json({
+        data: populatedHoldings,
+        success: true,
+      });
+
     } catch (e) {
 
       console.log(e);
 
       return Response.json({
-        updatedHoldings,
+        data: [],
         success: false,
       });
     }
-
-    return Response.json({
-      updatedHoldings,
-      success: true,
-    });
 }

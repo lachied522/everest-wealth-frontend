@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,7 @@ import { cn } from "@/components/lib/utils";
 import PortfolioRecommendationsTable from "./portfolio-recommendations-table";
 import PortfolioTable from "./portfolio-table";
 import { columns as portfolioColumns } from "./portfolio-columns";
-import { useGlobalContext } from "@/context/GlobalState";
+import { usePortfolioContext } from "../context/PortfolioState";
 
 // define tabs and columns to display
 const TABS = [
@@ -41,65 +41,12 @@ const TABS = [
     }
 ]
 
-async function addStockInfoToPortfolio(holdingsData) {
-    if (!holdingsData) return [];
-  
-    const newArray = await Promise.all(holdingsData.map(async ({ id, symbol, units, cost, locked }) => {
-        const params = new URLSearchParams({ s: symbol });
-        const data = await fetch(`/api/get-stock-info?${params}`).then(res => res.json());
-    
-        if (!data) return { symbol, units, cost };
-
-        const price = data['last_price'];
-        const value = (price * units).toFixed(2);
-        //const weight =  (100*(value / totalValue)).toFixed(2);
-        const totalCost = cost? (cost * units).toFixed(2): 0;
-        const totalProfit = ((cost? (price - cost): price) * units).toFixed(2);
-        // convert string to bool
-        const domestic = data['domestic']==="True";
-
-        return { ...data, id, symbol, units, cost, locked, value, price, totalCost, totalProfit, domestic };
-    }));
-
-    // calculate total value of portfolio for weight calculations
-    const totalValue = newArray.reduce((acc, obj) => acc + parseFloat(obj.value), 0);
-    
-    const newArrayWithWeight = newArray.map((holding) => ({
-        ...holding,
-        weight: holding.value / totalValue
-    }));
-
-    return newArrayWithWeight;
-}
-
-async function addInfoToTransactions(transactions) {
-    if (!(transactions.length > 0)) return [];
-
-    const newArray = await Promise.all(transactions.map(async ({ symbol, units, brokerage, price }) => {
-        const params = new URLSearchParams({ s: symbol });
-        const data = await fetch(`/api/get-stock-info?${params}`).then(res => res.json());
-
-        if (!data) return { symbol, units, brokerage, price };
-
-        const value = (price * units).toFixed(2);
-        const net = brokerage? (price * units - brokerage).toFixed(2): value;
-
-        const transaction = units > 0? "Buy" : "Sell";
-
-        const name = data['name'];
-
-        return { symbol, units, brokerage, price, name, transaction, value, net};
-    }));
-
-    return newArray;
-}
-
-const AdviceNotification = ({ transactions }) => {
-    if (!(transactions?.length > 0)) return null;
+const AdviceNotification = ({ value }) => {
+    if (!(value > 0)) return null;
 
     return (
         <div className="absolute flex top-0 right-0 items-center justify-center rounded-full h-4 w-4 text-xs bg-red-300 text-white">
-            {transactions.length}
+            {value}
         </div>
     )
 }
@@ -107,11 +54,10 @@ const AdviceNotification = ({ transactions }) => {
 const PortfolioTabs = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const { currentPortfolio, updatePortfolio, setAdvice } = useGlobalContext();
+    const { currentPortfolio } = usePortfolioContext();
     const [currentTab, setCurrentTab] = useState(TABS[1]); // keeps track of current tab, defaults to 'overview'
     const [visibleColumns, setVisibleColumns] = useState(portfolioColumns.filter((column) => currentTab.visibleColumns.includes(column.accessorKey)));
-    const [portfolioData, setPortfolioData] = useState(null); // set to null while data is fetching
-    const [adviceData, setAdviceData] = useState(null); 
+    const [adviceNotification, setAdviceNotification] = useState(0); // shows user whether the advice tab is non-empty
 
     useEffect(() => {
         // get current tab
@@ -136,83 +82,6 @@ const PortfolioTabs = () => {
         router.push(`/portfolio/${currentPortfolio.id}?tab=${TABS[index].tabName}`);
     }, [router, currentPortfolio.id]);
 
-    useEffect(() => {
-        let active = true; // keep track of whether component is active
-        if (currentPortfolio) getData();
-        return () => {
-            active = false;
-        }
-
-        async function getData() {
-            const data = await addStockInfoToPortfolio(currentPortfolio.holdings);
-            if (active) setPortfolioData(data);
-        }
-    }, [currentPortfolio]);
-
-    useEffect(() => {
-        let active = true; // keep track of whether component is active
-        if (currentPortfolio) getData();
-        return () => {
-            active = false;
-        }
-
-        async function getData() {
-            const advice = currentPortfolio.advice[0];
-            if (advice && advice.transactions && !(advice.status==="actioned")) {
-                const transactions = await addInfoToTransactions(advice.transactions);
-                if (active) setAdviceData({
-                    ...advice,
-                    transactions,
-                });
-            } else {
-                if (active) setAdviceData(null);
-            }
-        }
-    }, [currentPortfolio]);
-
-    const onAdviceAction = useCallback((action) => {
-        if (!['confirm', 'dismiss'].includes(action)) return;
-        fetch('/api/action-advice', {
-            method: "POST",
-            body: JSON.stringify({
-                advice: currentPortfolio.advice[0],
-                action,
-            }),
-            headers: {
-                "Content-Type": "application/json",
-            }
-        })
-        .then(res => res.json())
-        .then(({ updatedHoldings, success }) => {
-            if (!success) throw new Error('Api error');
-
-            if (updatedHoldings.length > 0) {
-                const updatedSymbols = Array.from(updatedHoldings, (obj) => { return obj.symbol });
-
-                // api route only returns updated holdings, combine updated and existing holdings for new portfolio
-                const newHoldings = [
-                        ...currentPortfolio.holdings.filter((holding) => !updatedSymbols.includes(holding.symbol)),
-                        ...updatedHoldings,
-                    ];
-
-                updatePortfolio(currentPortfolio.id, newHoldings)
-            }
-
-            // switch to 'Overview' tab
-            router.push(`/portfolio/${currentPortfolio.id}?tab=Overview`);
-
-            // update advice status
-            setAdvice(
-                currentPortfolio.id,
-                {
-                    ...currentPortfolio.advice[0],
-                    status: action==='confirm'? 'actioned': 'dismissed',
-                }
-            );
-        })
-        .catch(err => console.log(err));
-    }, [currentPortfolio, updatePortfolio, setAdvice, router]);
-
     return (
         <>
             <div className="flex gap-3 mb-4 px-3">
@@ -220,7 +89,7 @@ const PortfolioTabs = () => {
                 <div key={tab.tabName} className="relative">
                     {index===0 ? (
                     <>
-                        <AdviceNotification transactions={adviceData?.transactions}/>
+                        <AdviceNotification value={adviceNotification}/>
                         <Button
                             variant="tab"
                             className={cn(
@@ -246,13 +115,9 @@ const PortfolioTabs = () => {
             ))}
             </div>
             {currentTab === TABS[0] ? (
-                <PortfolioRecommendationsTable 
-                    data={adviceData} 
-                    onAdviceAction={onAdviceAction} 
-                    statementUrl={currentPortfolio.advice[0]?.url} 
-                />
+                <PortfolioRecommendationsTable setAdviceNotification={setAdviceNotification} />
             ) : (
-                <PortfolioTable columns={visibleColumns} data={portfolioData} />
+                <PortfolioTable columns={visibleColumns} />
             )}
         </>
     )

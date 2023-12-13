@@ -2,7 +2,7 @@
 /* 
  *  docs: https://ui.shadcn.com/docs/components/data-table 
 */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import {
     ColumnDef,
@@ -29,8 +29,10 @@ import { cn } from "@/components/lib/utils";
 
 import { LuStar } from "react-icons/lu";
 
-import { useGlobalContext } from "@/context/GlobalState";
+import type { Holding, StockInfo } from "./portfolio-columns";
 
+import { useGlobalContext } from "@/context/GlobalState";
+import { usePortfolioContext } from "../context/PortfolioState";
 
 const Star = ({ selected, onClick } : { selected: boolean, onClick: () => void }) => {
     return (
@@ -47,18 +49,26 @@ const Star = ({ selected, onClick } : { selected: boolean, onClick: () => void }
 
 interface PortfolioTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
-    data: TData[]
 }
 
 export default function PortfolioTable<TData, TValue>({
     columns,
-    data,
 }: PortfolioTableProps<TData, TValue>) {
     const { toggleFavourite } = useGlobalContext()
+    const { currentPortfolio } = usePortfolioContext()
+    const [data, setData] = useState<TData[] | null>(null);
     const [sorting, setSorting] = useState<SortingState>([])
 
+    useEffect(() => {
+        if (currentPortfolio)  {
+            setData(currentPortfolio.holdings);
+        } else {
+            setData(null);
+        }
+    }, [currentPortfolio]);
+
     const table = useReactTable({
-        data,
+        data: data || [],
         columns,
         getCoreRowModel: getCoreRowModel(),
         onSortingChange: setSorting,
@@ -67,19 +77,6 @@ export default function PortfolioTable<TData, TValue>({
           sorting,
         },
     })
-
-    const RowLoadingState = () => {
-        return (
-            <TableRow>
-                <TableCell><div/></TableCell> {/* add spacer for 'locked' column */}
-                {columns.map((_, index) => (
-                    <TableCell key={index}>
-                        <Skeleton className="w-full h-[24px]"/>
-                    </TableCell>
-                ))}
-            </TableRow>
-        );
-    }
 
     return (
         <div className="rounded-md bg-white border">
@@ -132,7 +129,14 @@ export default function PortfolioTable<TData, TValue>({
                     </>
                 ) : (
                     Array.from({ length: 5 }).map((_, index) => (
-                        <RowLoadingState key={index}/>
+                        <TableRow key={index}>
+                            <TableCell><div/></TableCell> {/* add spacer for 'locked' column */}
+                            {columns.map((_, index) => (
+                                <TableCell key={index}>
+                                    <Skeleton className="w-full h-[24px]"/>
+                                </TableCell>
+                            ))}
+                        </TableRow>
                     ))
                 )}
                 </TableBody>

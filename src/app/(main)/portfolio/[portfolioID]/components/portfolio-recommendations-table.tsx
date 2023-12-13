@@ -2,7 +2,8 @@
 /* 
  *  docs: https://ui.shadcn.com/docs/components/data-table 
 */
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 
 import {
     ColumnDef,
@@ -26,40 +27,91 @@ import { Button } from "@/components/ui/button";
 
 import { LuFileText, LuLoader2 } from "react-icons/lu";
 
+import { useGlobalContext } from "@/context/GlobalState";
 import { usePortfolioContext } from "../context/PortfolioState";
 import { columns } from "./portfolio-recommendations-table-columns";
+import { Tables } from "@/types/supabase";
+
+type Transaction = {
+    symbol: string
+    name: string
+    units: number
+    price: number
+    brokerage: number
+}
+
+type AdviceData = Omit<Tables<'advice'>, 'transactions'> & {
+    transactions: Transaction[]
+    gross: number
+    brokerage: number
+}
 
 const USDollar = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
 });
 
-interface PortfolioRecommendationsTableProps<TData, TValue> {
-    data: {
-        transactions: TData[]
-        gross: number
-        brokerage: number
-    }
-    statementUrl: string
+function populateTransactionsColumns({ transactions } : {
+    transactions: Partial<Transaction>[]
+}) {
+    // populate columns
+    if (!(transactions?.length > 0)) return [];
+
+    const populatedTransactions = transactions.map((obj) => {
+        const price = obj.price || 0;
+        const units = obj.units || 0;
+        const value = (price * units).toFixed(2);
+        const net = obj.brokerage? (price * units - obj.brokerage).toFixed(2): value;
+
+        const transaction = units > 0? "Buy" : "Sell";
+
+        return { ...obj, transaction, value, net};
+    });
+
+    return populatedTransactions;
+}
+
+interface PortfolioRecommendationsTableProps {
+    setAdviceNotification: (value: number) => void
     onAdviceAction: (action: string) => void
 }
 
-export default function PortfolioRecommendationsTable<TData, TValue>({
-    data,
-    statementUrl,
-    onAdviceAction,
-}:  PortfolioRecommendationsTableProps<TData, TValue>) {
-    const { loadingNewAdvice } = usePortfolioContext();
+export default function PortfolioRecommendationsTable<TData>({
+    setAdviceNotification,
+}:  PortfolioRecommendationsTableProps) {
+    const { updatePortfolio, setAdvice } = useGlobalContext();
+    const { currentPortfolio, loadingNewAdvice } = usePortfolioContext();
+    const [data, setData] = useState<AdviceData | null>(null);
     const [sorting, setSorting] = useState<SortingState>([]);
+    const router = useRouter();
+
+    useEffect(() => {
+        if (currentPortfolio)  {
+            const advice = currentPortfolio.advice[0];
+
+            if (advice && advice.transactions && !(advice.status==="actioned")) {
+                const transactions = populateTransactionsColumns(advice.transactions);
+                setData({
+                    ...advice,
+                    transactions,
+                });
+                setAdviceNotification(transactions.length);
+            } else {
+                setData(null);
+                // remove advice notification
+                setAdviceNotification(0);
+            }
+        }
+    }, [currentPortfolio.advice]);
 
     const gross = useMemo(() => {
         if (!data) return 0;
-        return data.transactions.reduce((acc, obj) => acc + (Number(obj["units" as keyof typeof obj] || 0) * Number(obj["price" as keyof typeof obj] || 0)), 0)
+        return data.transactions?.reduce((acc, obj) => acc + (Number(obj["units" as keyof typeof obj] || 0) * Number(obj["price" as keyof typeof obj] || 0)), 0)
     }, [data]);
     
     const brokerage = useMemo(() => {
         if (!data) return 0;
-        return data.transactions.reduce((acc, obj) => acc + Number(obj["brokerage" as keyof typeof obj] || 0), 0)
+        return data.transactions?.reduce((acc, obj) => acc + Number(obj["brokerage" as keyof typeof obj] || 0), 0)
     }, [data]);
 
     const table = useReactTable({
@@ -73,8 +125,53 @@ export default function PortfolioRecommendationsTable<TData, TValue>({
         },
     })
 
+    const onAdviceAction = useCallback((action: string) => {
+        if (!['confirm', 'dismiss'].includes(action)) return;
+
+        fetch('/api/action-advice', {
+            method: "POST",
+            body: JSON.stringify({
+                advice: currentPortfolio.advice[0],
+                action,
+            }),
+            headers: {
+                "Content-Type": "application/json",
+            }
+        })
+        .then(res => res.json())
+        .then(({ success, data }: { success: boolean, data: Tables<'holdings'>[] }) => {
+            if (!success) throw new Error('Api error');
+
+            if (data.length > 0) {
+                const updatedSymbols = Array.from(data, (obj) => obj.symbol);
+
+                // api route only returns updated holdings, combine updated and existing holdings for new portfolio
+                const newHoldings = [
+                        ...currentPortfolio.holdings.filter((holding: Tables<'holdings'>) => !updatedSymbols.includes(holding.symbol)),
+                        ...data,
+                    ];
+
+                updatePortfolio(currentPortfolio.id, newHoldings);
+            }
+
+            // switch to 'Overview' tab
+            router.push(`/portfolio/${currentPortfolio.id}?tab=Overview`);
+
+            // update advice status
+            setAdvice(
+                currentPortfolio.id,
+                {
+                    ...currentPortfolio.advice[0],
+                    status: action==='confirm'? 'actioned': 'dismissed',
+                }
+            );
+        })
+        .catch(err => console.log(err));
+    }, [currentPortfolio, updatePortfolio, setAdvice, router]);
+
+
     // define loading state
-    if (loadingNewAdvice) {
+    if (!data || loadingNewAdvice) {
         return (
             <div className="rounded-md bg-white border">
                 <Table>
@@ -171,13 +268,13 @@ export default function PortfolioRecommendationsTable<TData, TValue>({
                                             </div>
                                         </div>
                                         <div className="flex items-start gap-6">  
-                                            {!statementUrl ? (
+                                            {data.status==='generating' ? (
                                             <Button variant="ghost" disabled className="flex items-center gap-2">
                                                 <LuLoader2 className="animate-spin" size={25}/>
                                                 Generating statement...
                                             </Button>
                                             ) : (
-                                            <a href={statementUrl} target="_blank" className='h-10 px-4 py-2 flex items-center gap-2 no-underline font-medium text-slate-700 group-hover:text-blue-600 relative'>
+                                            <a href={data.url || ""} target="_blank" className='h-10 px-4 py-2 flex items-center gap-2 no-underline font-medium text-slate-700 group-hover:text-blue-600 relative'>
                                                 <LuFileText size={30} className="absolute left-[-36px]"/>
                                                 View Document
                                             </a>

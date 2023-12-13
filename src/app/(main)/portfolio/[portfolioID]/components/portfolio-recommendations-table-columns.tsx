@@ -15,10 +15,11 @@ import { Button } from "@/components/ui/button"
 export type Transaction = {
     symbol: string;
     name: string;
-    units: Number;
-    price: Number;
+    units: number;
+    price: number;
+    brokerage: number;
     transaction: string;
-    value: Number;
+    value: number;
 }
 
 const USDollar = new Intl.NumberFormat("en-US", {

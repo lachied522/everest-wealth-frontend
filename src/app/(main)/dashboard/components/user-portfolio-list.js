@@ -19,7 +19,7 @@ import {
     Card,
     CardContent
 } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGlobalContext } from "@/context/GlobalState";
 
@@ -82,34 +82,12 @@ const PortfolioListItem = ({ portfolio }) => {
                         </>) : <Skeleton className="w-[240px] h-10"/>}
                     </CardContent>
                 </Card>
-                <Card className="h-full flex items-center justify-center">
-                    <CardContent className="flex items-center justify-center p-2 gap-2">
-                        {portfolio ? (
-                        <div>
-                            <div className="text-sm font-medium">Week return</div>
-                            <ChangeIndicator change={3.1}/>
-                        </div>) : <Skeleton className="w-[240px] h-10"/>}
-                    </CardContent>
-                </Card>
-                <Card className="h-full flex items-center justify-center">
-                    <CardContent className="flex items-center justify-center p-2 gap-2">
-                        {portfolio ? (<div>
-                            <div className="text-sm font-medium">Total return</div>
-                            <ChangeIndicator change={-2.8}/>
-                        </div>) : <Skeleton className="w-[240px] h-10"/>}
-                    </CardContent>
-                </Card>
                 <Link href={`/portfolio/${portfolio.id}`}>
                     <Button variant="secondary">
-                        <BiBriefcaseAlt 
-                            size={24}
-                            className="mr-2"
-                        />
                         View Portfolio
                     </Button>
                 </Link>
             </div>
-            <Separator className="my-2" />
         </>
     )
 }

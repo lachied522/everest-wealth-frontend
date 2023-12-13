@@ -35,6 +35,7 @@ import {
 } from "@/components/ui/dialog";
 
 import { useGlobalContext } from "@/context/GlobalState";
+import { usePortfolioContext } from "../context/PortfolioState";
 
 export const FormSchema = z.object({
   name: z.string().optional(),
@@ -46,7 +47,8 @@ export const FormSchema = z.object({
 });
 
 export default function PortfolioSettingsPopup() {
-    const { currentPortfolio, updatePortfolioSettings, onPortfolioDelete } = useGlobalContext();
+    const { updatePortfolioSettings, onPortfolioDelete } = useGlobalContext();
+    const { currentPortfolio } = usePortfolioContext();
     const [isLoading, setIsLoading] = useState(false);
     const [loadingDelete, setLoadingDelete] = useState(false);
     const [brokerageType, setBrokerageType] = useState("$");
@@ -129,12 +131,12 @@ export default function PortfolioSettingsPopup() {
         <Dialog>
             <DialogTrigger asChild>
                 <Button variant="ghost" className="text-slate-800">
-                <LuSettings size={24} className="text-slate-700" />
+                    <LuSettings size={24} className="text-slate-700" />
                 </Button>
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
-                <DialogTitle>Portfolio Settings</DialogTitle>
+                    <DialogTitle>Portfolio Settings</DialogTitle>
                 </DialogHeader>
                 <div className="flex flex-col gap-16 py-8">
                 <Form {...form}>
