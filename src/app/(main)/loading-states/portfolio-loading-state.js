@@ -35,13 +35,13 @@ export default function PortfolioLoadingState() {
             </div>
         </div>
         <div className="gap-4 flex-wrap grid-rows-[auto] grid-cols-[repeat(auto-fit,minmax(248px,1fr))] auto-cols-[1fr] justify-between grid mb-6">
-            {Array.from({ length: 4 }).map((_, index) => (
-            <Card className="h-full flex items-center justify-center">
+        {Array.from({ length: 4 }).map((_, index) => (
+            <Card key={index} className="h-full flex items-center justify-center">
                 <CardContent className="flex items-center justify-center content-center p-2 gap-2">
                     <Skeleton className="w-[240px] h-10"/>
                 </CardContent>
             </Card>
-            ))}
+        ))}
         </div>
         <div className="flex gap-3 mb-4 px-3">
             <Button variant="tab">

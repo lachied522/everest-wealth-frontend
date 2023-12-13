@@ -102,7 +102,7 @@ export default function PortfolioRecommendationsTable<TData>({
                 setAdviceNotification(0);
             }
         }
-    }, [currentPortfolio.advice]);
+    }, [currentPortfolio, setAdviceNotification]);
 
     const gross = useMemo(() => {
         if (!data) return 0;
