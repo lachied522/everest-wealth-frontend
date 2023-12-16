@@ -55,7 +55,7 @@ function TradingViewWidget({ symbol }: { symbol: string }) {
       if (!mountedRef.current && containerRef.current) containerRef.current.appendChild(script);
       mountedRef.current = true;
     },
-    []
+    [symbol]
   );
 
   return (
