@@ -9,25 +9,26 @@ import { Separator } from "@/components/ui/separator"
 
 import { LuCheck } from "react-icons/lu"
 
-import { NewProfileForm, ProfileData, FormSchema as ProfileSchema } from "./new-profile-form"
-import { NewPortfolioForm, PortfolioData, FormSchema as PortfolioSchema } from "./new-portfolio-form"
+import { NewProfileForm, FormSchema as ProfileSchema } from "./new-profile-form"
+import { NewPortfolioForm, FormSchema as PortfolioSchema } from "./new-portfolio-form"
+import { Tables } from "@/types/supabase";
 
 const TABS = ["Sign up", "Profile", "Create your first portfolio"]
 
-interface Data {
-    profile: ProfileData
-    portfolio: PortfolioData
+interface FormData {
+    profile: Partial<Tables<'profiles'>>
+    portfolio: Partial<Tables<'portfolios'>>
 }
 
 export const NewUserForm = () => {
     const router = useRouter()
     const [activeTab, setActiveTab] = useState(1)
     const [loading, setLoading] = useState(false)
-    const [formData, setFormData] = useState<Data>({
+    const [formData, setFormData] = useState<FormData>({
         profile: {},
         portfolio: {
             objective: ""
-        } 
+        }
     })
 
     async function onProfileSubmit(values: z.infer<typeof ProfileSchema>) {

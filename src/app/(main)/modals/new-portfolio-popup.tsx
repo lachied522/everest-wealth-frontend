@@ -50,7 +50,6 @@ const FormSchema = z.object({
 export default function NewPortfolioPopup({ children } : {
     children: ReactNode
 }) {
-    const router = useRouter()
     const [currentStep, setCurrentStep] = useState(0)
     const [brokerageType, setBrokerageType] = useState<"$" | "%">("$")
     const [isExistingPortfolio, setIsExistingPortfolio] = useState(false)
@@ -74,9 +73,6 @@ export default function NewPortfolioPopup({ children } : {
                 "Content-Type": "application/json"
             }
         });
-        if (res.ok) {
-            router.push(res.url);
-        }
     }
 
     const toggleBrokerageType = () => {

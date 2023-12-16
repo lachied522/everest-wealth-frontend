@@ -28,40 +28,28 @@ import { Card } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
 
+import { Tables } from "@/types/supabase";
+
 import IndustryPreferences from "@/components/industry-preferences"
 
 export const FormSchema = z.object({
-    employment: z.string().optional(),
-    salary: z.coerce.number().optional(),
-    assets: z.coerce.number().optional(),
-    borrowing: z.coerce.boolean().optional(),
-    experience: z.coerce.number().optional(),
-    risk_tolerance_q1: z.coerce.number().optional(),
-    risk_tolerance_q2: z.coerce.number().optional(),
-    risk_tolerance_q3: z.coerce.number().optional(),
-    risk_tolerance_q4: z.coerce.number().optional(),
-    international: z.number().array().transform((val) => val[0]).optional(),
-    passive: z.number().array().transform((val) => val[0]).optional(),
-    preferences: z.object({}).optional(),
+    country: z.string().nullable(),
+    employment: z.string().nullable(),
+    salary: z.coerce.number().nullable(),
+    assets: z.coerce.number().nullable(),
+    borrowing: z.coerce.boolean().nullable(),
+    experience: z.coerce.number().nullable(),
+    risk_tolerance_q1: z.coerce.number().nullable(),
+    risk_tolerance_q2: z.coerce.number().nullable(),
+    risk_tolerance_q3: z.coerce.number().nullable(),
+    risk_tolerance_q4: z.coerce.number().nullable(),
+    international: z.number().array().transform((val) => val[0]).nullable(),
+    passive: z.number().array().transform((val) => val[0]).nullable(),
+    preferences: z.object({}).nullable(),
 })
 
-export interface ProfileData {
-    employment?: string
-    salary?: number
-    assets?: number
-    borrowing?: boolean
-    experience?: number
-    risk_tolerance_q1?: number
-    risk_tolerance_q2?: number
-    risk_tolerance_q3?: number
-    risk_tolerance_q4?: number
-    international?: number
-    passive?: number
-    preferences?: object
-}
-
 interface NewProfileFormProps {
-    onSuccess: (v: ProfileData) => void
+    onSuccess: (values: Omit<Tables<'profiles'>, 'id'|'DOB'|'created_at'|'user_id'>) => void
 }
 
 export const NewProfileForm = ({ onSuccess } : NewProfileFormProps) => {
@@ -81,9 +69,9 @@ export const NewProfileForm = ({ onSuccess } : NewProfileFormProps) => {
                 <div className="flex flex-col justify-center mb-4">
                     <h2>Your Profile</h2>
                     <p className="text-lg text-slate-800 w-[660px]">
-                    Your profile helps us make recommendations that are
-                    appropriate for you. It is important to make sure your profile
-                    is update to date.
+                        Your profile helps us make recommendations that are
+                        appropriate for you. It is important to make sure your profile
+                        is update to date.
                     </p>
                 </div>
                 {/* profile form copied from (main)/profile/components/profile-form */}
@@ -99,8 +87,8 @@ export const NewProfileForm = ({ onSuccess } : NewProfileFormProps) => {
                         render={({ field }) => (
                         <FormItem>
                             <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
+                                onValueChange={field.onChange}
+                                defaultValue={String(field.value)}
                             >
                             <FormControl>
                                 <SelectTrigger className="w-[180px]">

@@ -18,25 +18,25 @@ import { Card } from "@/components/ui/card"
 import { LuCircle } from "react-icons/lu"
 import { cn } from "@/components/lib/utils"
 
+import { Tables } from "@/types/supabase";
 import ObjectiveSelector from "@/components/objective-selector"
 
-
 export const FormSchema = z.object({
-    name: z.string().optional(),
+    name: z.string().default(''),
     value: z.coerce.number().min(0).optional(),
     objective: z.string({
         required_error: "Please select an objective for this portfolio"
     }),
 })
 
-export interface PortfolioData {
-    name?: string
-    value?: number
+type Data = {
+    name: string
     objective: string
+    value?: number
 }
 
 interface NewPortfolioFormProps {
-    onSuccess: (v: PortfolioData) => void
+    onSuccess: (values: Data) => void
     navigateBack: () => void
 }
 

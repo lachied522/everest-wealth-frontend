@@ -16,7 +16,7 @@ import { LuCalendar } from "react-icons/lu"
 import { cn } from "@/components/lib/utils"
 
 interface DOBPickerProps {
-    value: any
+    value: Date
     onChange: (v: any) => void
 }
 

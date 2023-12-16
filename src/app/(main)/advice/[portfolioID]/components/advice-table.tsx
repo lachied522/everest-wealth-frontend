@@ -22,33 +22,16 @@ import {
     TableRow,
 } from "@/components/ui/table";
 
-import { Button } from "@/components/ui/button";
-
-import { cn } from "@/components/lib/utils";
-
-import { LuFileText, LuLoader2 } from "react-icons/lu";
-
 import { columns } from "./advice-table-columns";
+import { AdviceData } from "@/types/types";
 
-const USDollar = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-});
-
-
-interface AdviceTableProps<TData, TValue> {
-    data: {
-        transactions: TData[]
-        gross: number
-        brokerage: number
-    }
-    statementUrl: string
+interface AdviceTableProps {
+    data: AdviceData
 }
 
-export default function AdviceTable<TData, TValue>({
+export default function AdviceTable<TData>({
     data,
-    statementUrl,
-}:  AdviceTableProps<TData, TValue>) {
+}:  AdviceTableProps) {
     const [sorting, setSorting] = useState<SortingState>([])
 
     const table = useReactTable({

@@ -12,12 +12,12 @@ export interface Database {
       advice: {
         Row: {
           actioned: boolean
-          created_at: string | null
+          created_at: string
           id: string
           portfolio_id: string | null
           status: string
           transactions: Json[] | null
-          type: string | null
+          type: string
           url: string | null
           user_id: string | null
         }
@@ -146,7 +146,6 @@ export interface Database {
           employment: string | null
           experience: number | null
           id: string
-          income: number | null
           international: number | null
           passive: number | null
           preferences: Json | null
@@ -166,7 +165,6 @@ export interface Database {
           employment?: string | null
           experience?: number | null
           id?: string
-          income?: number | null
           international?: number | null
           passive?: number | null
           preferences?: Json | null
@@ -186,7 +184,6 @@ export interface Database {
           employment?: string | null
           experience?: number | null
           id?: string
-          income?: number | null
           international?: number | null
           passive?: number | null
           preferences?: Json | null

@@ -32,52 +32,39 @@ import { Button } from "@/components/ui/button"
 
 import { LuPencil, LuSave, LuMapPin } from "react-icons/lu"
 
+import { Tables } from "@/types/supabase";
+
 import DOBPicker from "./dob-picker";
 import IndustryPreferences from "@/components/industry-preferences"
 
-const formSchema = z.object({
-    DOB: z.date().max(new Date(), { message: "Please select a valid DOB" }).optional(),
-    country: z.string().optional(),
-    employment: z.string().optional(),
-    salary: z.coerce.number().optional(),
-    assets: z.coerce.number().optional(),
-    borrowing: z.coerce.boolean().optional(),
-    experience: z.coerce.number().optional(),
-    risk_tolerance_q1: z.coerce.number().optional(),
-    risk_tolerance_q2: z.coerce.number().optional(),
-    risk_tolerance_q3: z.coerce.number().optional(),
-    risk_tolerance_q4: z.coerce.number().optional(),
-    international: z.number().array().optional(),
-    passive: z.number().array().optional(),
-    preferences: z.object({}).optional(),
+const FormSchema = z.object({
+    DOB: z.date().max(new Date(), { message: "Please select a valid DOB" }),
+    country: z.string().nullable(),
+    employment: z.string().nullable(),
+    salary: z.coerce.number().nullable(),
+    assets: z.coerce.number().nullable(),
+    borrowing: z.coerce.boolean().nullable(),
+    experience: z.coerce.number().nullable(),
+    risk_tolerance_q1: z.coerce.number().nullable(),
+    risk_tolerance_q2: z.coerce.number().nullable(),
+    risk_tolerance_q3: z.coerce.number().nullable(),
+    risk_tolerance_q4: z.coerce.number().nullable(),
+    international: z.number().array().transform((val) => val[0]).nullable(),
+    passive: z.number().array().transform((val) => val[0]).nullable(),
+    preferences: z.object({}).nullable(),
 })
 
-
-interface profileData {
-    employment?: string
-    salary?: number
-    assets?: number
-    borrowing?: boolean
-    experience?: number
-    risk_tolerance_q1?: number
-    risk_tolerance_q2?: number
-    risk_tolerance_q3?: number
-    risk_tolerance_q4?: number
-    international?: number
-    passive?: number
-    preferences?: object
-}
-
 interface ProfileFormProps {
-    data: profileData
+    data: Tables<'profiles'>
     userName: string
 }
 
 export default function ProfileForm({ data, userName } : ProfileFormProps) {
     const supabase = createClientComponentClient()
     const [isEdit, setIsEdit] = useState<boolean>(false)
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
+
+    const form = useForm<z.infer<typeof FormSchema>>({
+        resolver: zodResolver(FormSchema),
         defaultValues: {
             employment: data.employment,
             salary: data.salary,
@@ -88,13 +75,13 @@ export default function ProfileForm({ data, userName } : ProfileFormProps) {
             risk_tolerance_q2: data.risk_tolerance_q2 || 3,
             risk_tolerance_q3: data.risk_tolerance_q3 || 3,
             risk_tolerance_q4: data.risk_tolerance_q4 || 3,
-            international: [data.international || 50], // slider values must take array
-            passive: [data.passive || 50], // slider values must take array
+            international: data.international || 50, // slider values must take array
+            passive: data.passive || 50, // slider values must take array
             preferences: data.preferences || {},
         },
     })
 
-    const commitProfile = async (formData: profileData) => {
+    const commitProfile = async (formData: Partial<Tables<'profiles'>>) => {
         const {
             data: { session },
         } = await supabase.auth.getSession()
@@ -114,11 +101,10 @@ export default function ProfileForm({ data, userName } : ProfileFormProps) {
         console.log(data);
     }
 
-    async function onSubmit(values: z.infer<typeof formSchema>) {
+    async function onSubmit(values: z.infer<typeof FormSchema>) {
         commitProfile({
             ...values,
-            international: values?.international?.[0], // extract slider value from array
-            passive: values?.passive?.[0], // extract slider value from array
+            DOB: values.DOB.toISOString(),
         })
     }
 
@@ -171,7 +157,7 @@ export default function ProfileForm({ data, userName } : ProfileFormProps) {
                         name="employment"
                         render={({ field }) => (
                             <FormItem>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <Select onValueChange={field.onChange} defaultValue={String(field.value)}>
                                     <FormControl>
                                         <SelectTrigger className="w-[180px]">
                                             <SelectValue placeholder="Select one..." />
@@ -190,7 +176,7 @@ export default function ProfileForm({ data, userName } : ProfileFormProps) {
                         )}
                     />
                     <div className="w-full text-left text-lg text-slate-800">
-                    What proportion of your monthly income do you usually invest?
+                        What proportion of your monthly income do you usually invest?
                     </div>
                     <FormField
                         control={form.control}
@@ -527,7 +513,7 @@ export default function ProfileForm({ data, userName } : ProfileFormProps) {
                                                 min={0} 
                                                 max={100} 
                                                 step={1} 
-                                                defaultValue={field.value}
+                                                defaultValue={[field.value || 50]}
                                                 onValueChange={field.onChange}
                                                 className="w-[240px] cursor-pointer"/>
                                         </FormControl>
@@ -549,7 +535,7 @@ export default function ProfileForm({ data, userName } : ProfileFormProps) {
                                                 min={0} 
                                                 max={100} 
                                                 step={1} 
-                                                defaultValue={field.value}
+                                                defaultValue={[field.value || 50]}
                                                 onValueChange={field.onChange}
                                                 className="w-[240px] cursor-pointer"/>
                                         </FormControl>
