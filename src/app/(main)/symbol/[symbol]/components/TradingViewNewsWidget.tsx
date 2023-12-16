@@ -1,10 +1,10 @@
 // TradingViewWidget.jsx
 "use client";
-import React, { useEffect, useRef, memo } from 'react';
+import { useEffect, useRef, memo } from 'react';
 
 function TradingViewNewsWidget({ symbol }: { symbol: string }) {
-  let mounted = false; // useEffect was triggering twice in dev mode
-  const container = useRef<HTMLDivElement | null>(null);
+  let mountedRef = useRef<boolean>(false); // useEffect triggers twice in dev mode
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(
     () => {
@@ -24,14 +24,14 @@ function TradingViewNewsWidget({ symbol }: { symbol: string }) {
         "locale": "en"
       }
       `;
-      if (!mounted && container.current) container.current.appendChild(script);
-      mounted = true;
+      if (!mountedRef.current && containerRef.current) containerRef.current.appendChild(script);
+      mountedRef.current = true;
     },
     []
   );
 
   return (
-    <div className="tradingview-widget-container" ref={container}>
+    <div className="tradingview-widget-container" ref={containerRef}>
       <div className="tradingview-widget-container__widget"></div>
       <div className="tradingview-widget-copyright"><a href="https://www.tradingview.com/" rel="noopener nofollow" target="_blank"><span className="blue-text">Track all markets on TradingView</span></a></div>
     </div>

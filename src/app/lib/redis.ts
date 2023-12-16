@@ -98,6 +98,7 @@ type Data = {
 
 
 function parseData(data: Data) {
+  if (Object.keys(data).length === 0) return
   const parsedData: { [key: string]: any } = new Object();
 
   // convert to boolean
@@ -120,7 +121,7 @@ export const fetchSymbol = async (symbol: string) => {
   try {
     const data = await universeRepository.fetch(symbol) as Data;
 
-    if (data) return parseData(data) as StockInfo;
+    if (data) return parseData(data);
     
   } catch (e) {
     console.log(e);

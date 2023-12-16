@@ -68,7 +68,7 @@ export const GlobalProvider = ({
   const [notifications, setNotifications] = useState<string[]>(userData.notifications);
 
   const updatePortfolio = useCallback(async (id: string, data: PopulatedHolding[]) => {
-    if (!data) return;
+    if (!data || !session) return;
     // remove zero unit holdings
     const filteredData = data.filter((obj) => obj.units !== 0) || [];
 
@@ -85,7 +85,6 @@ export const GlobalProvider = ({
   }, [session, dispatch]);
 
   const toggleFavourite = useCallback(async (id: string) => {
-    // update DB
     if (!session) return;
 
     const { error } = await supabase.rpc("toggle_locked", {

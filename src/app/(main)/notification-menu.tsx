@@ -22,7 +22,7 @@ export default function NotificiationMenu() {
         <DropdownMenu>
             <DropdownMenuTrigger>
                 <div className="h-4 w-4 flex items-center justify-center relative">
-                    <div className="absolute flex top-0 right-0 rounded-full h-2 w-2 bg-red-300" />
+                    {notifications.length > 0 && <div className="absolute flex top-0 right-0 rounded-full h-2 w-2 bg-red-300" />}
                     <LuBell size={18} />
                 </div>
             </DropdownMenuTrigger>
