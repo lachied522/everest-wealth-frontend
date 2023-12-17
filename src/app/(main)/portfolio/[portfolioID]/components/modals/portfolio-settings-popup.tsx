@@ -36,6 +36,7 @@ import {
 
 import { useGlobalContext } from "@/context/GlobalState";
 import { usePortfolioContext } from "../../context/PortfolioState";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const FormSchema = z.object({
   name: z.string().optional(),
@@ -128,214 +129,219 @@ export default function PortfolioSettingsPopup() {
     };
 
     return (
-        <Dialog>
-            <DialogTrigger asChild>
-                <Button variant="ghost" className="text-slate-800">
-                    <LuSettings size={24} className="text-slate-700" />
-                </Button>
-            </DialogTrigger>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Portfolio Settings</DialogTitle>
-                </DialogHeader>
-                <div className="flex flex-col gap-16 py-8">
-                <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col items-center justify-items-center gap-16 px-2">
-                    <div className="grid grid-cols-[0.75fr,1fr] items-center justify-start">
-                        <div className="text-lg text-slate-800">Portfolio Name</div>
-                        <FormField
-                        control={form.control}
-                        name="name"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormControl>
-                                <Input
-                                maxLength={20}
-                                placeholder="My Portfolio"
-                                value={field.value}
-                                onChange={field.onChange}
-                                className="text-lg w-[240px] bg-transparent text-slate-800"
-                                />
-                            </FormControl>
-                            </FormItem>
-                        )}
-                        />
-                    </div>
-                    <div className="grid grid-cols-[0.75fr,1fr] items-center justify-start">
-                        <div className="text-lg text-slate-800">Objective</div>
-                        <FormField
-                        control={form.control}
-                        name="objective"
-                        render={({ field }) => (
-                            <FormItem>
-                            <Select
-                                onValueChange={field.onChange}
-                                defaultValue={String(field.value)}
-                            >
-                                <FormControl>
-                                <SelectTrigger className="w-[240px] text-slate-700">
-                                    <SelectValue placeholder="Select one..." />
-                                </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                <SelectItem value="Long-term/Retirement Savings">
-                                    Long-term/Retirement Savings
-                                </SelectItem>
-                                <SelectItem value="Passive Income">
-                                    Passive Income
-                                </SelectItem>
-                                <SelectItem value="Capital Preservation">
-                                    Capital Preservation
-                                </SelectItem>
-                                <SelectItem value="First Home">First Home</SelectItem>
-                                <SelectItem value="Children">Children</SelectItem>
-                                <SelectItem value="Trading">Trading</SelectItem>
-                                </SelectContent>
-                            </Select>
-                            </FormItem>
-                        )}
-                        />
-                    </div>
-                    <div className="flex flex-col place-items-center gap-8">
-                        <div className="text-lg text-center text-slate-800">
-                            Brokerage
-                        </div>
-                        <div className="flex gap-8">
-                        <Button
-                            type="button"
-                            variant="ghost"
-                            onClick={toggleBrokerageType}
-                            disabled
-                        >
-                            <div className="h-4 w-4 rounded-full border flex items-center justify-center mr-2">
-                            <LuCircle
-                                className={cn(
-                                "h-2.5 w-2.5 hidden",
-                                brokerageType === "$" && "block fill-slate-700"
-                                )}
-                            />
-                            </div>
-                            Dollar ($)
-                        </Button>
-                        <Button
-                            type="button"
-                            variant="ghost"
-                            onClick={toggleBrokerageType}
-                            disabled
-                        >
-                            <div className="h-4 w-4 rounded-full border flex items-center justify-center mr-2">
-                            <LuCircle
-                                className={cn(
-                                "h-2.5 w-2.5 hidden",
-                                brokerageType !== "$" && "block fill-slate-700"
-                                )}
-                            />
-                            </div>
-                            Percentage (%)
-                        </Button>
-                        </div>
-                        {brokerageType === "$" ? (
-                        <div className="flex items-center gap-2 text-slate-800">
-                            $
+        <div className="flex gap-4 sm:gap-2 items-center">
+            <Dialog>
+                <DialogTrigger asChild>
+                    <Button variant="ghost" className="text-slate-800">
+                        <LuSettings size={24} className="text-slate-700" />
+                    </Button>
+                </DialogTrigger>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Portfolio Settings</DialogTitle>
+                    </DialogHeader>
+                    <div className="flex flex-col gap-16 py-8">
+                    <Form {...form}>
+                        <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col items-center justify-items-center gap-16 px-2">
+                        <div className="grid grid-cols-[0.75fr,1fr] items-center justify-start">
+                            <div className="text-lg text-slate-800">Portfolio Name</div>
                             <FormField
                             control={form.control}
-                            name="flatBrokerage"
+                            name="name"
                             render={({ field }) => (
                                 <FormItem>
                                 <FormControl>
                                     <Input
-                                    type="number"
-                                    min={0}
+                                    maxLength={20}
+                                    placeholder="My Portfolio"
                                     value={field.value}
                                     onChange={field.onChange}
-                                    className="text-lg w-[80px] bg-transparent text-slate-800"
+                                    className="text-lg w-[240px] bg-transparent text-slate-800"
                                     />
                                 </FormControl>
                                 </FormItem>
                             )}
                             />
                         </div>
-                        ) : (
-                        <div className="flex items-center gap-2 text-slate-800">
+                        <div className="grid grid-cols-[0.75fr,1fr] items-center justify-start">
+                            <div className="text-lg text-slate-800">Objective</div>
                             <FormField
                             control={form.control}
-                            name="percentBrokerage"
+                            name="objective"
                             render={({ field }) => (
                                 <FormItem>
-                                <FormControl>
-                                    <Input
-                                    type="number"
-                                    min={0}
-                                    value={field.value}
-                                    onChange={field.onChange}
-                                    className="text-lg w-[80px] bg-transparent text-slate-800"
-                                    />
-                                </FormControl>
+                                <Select
+                                    onValueChange={field.onChange}
+                                    defaultValue={String(field.value)}
+                                >
+                                    <FormControl>
+                                    <SelectTrigger className="w-[240px] text-slate-700">
+                                        <SelectValue placeholder="Select one..." />
+                                    </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                    <SelectItem value="Long-term/Retirement Savings">
+                                        Long-term/Retirement Savings
+                                    </SelectItem>
+                                    <SelectItem value="Passive Income">
+                                        Passive Income
+                                    </SelectItem>
+                                    <SelectItem value="Capital Preservation">
+                                        Capital Preservation
+                                    </SelectItem>
+                                    <SelectItem value="First Home">First Home</SelectItem>
+                                    <SelectItem value="Children">Children</SelectItem>
+                                    <SelectItem value="Trading">Trading</SelectItem>
+                                    </SelectContent>
+                                </Select>
                                 </FormItem>
                             )}
                             />
-                            %
                         </div>
-                        )}
-                    </div>
-                    <div className="flex items-center justify-center gap-8">
-                        {confirmDelete && !loadingDelete && (
-                        <>
-                            <div className="text-lg text-[#dc2b2b]">Are you sure?</div>
-                            <Button type="button" variant="ghost" onClick={onDelete}>
-                            <LuCheck
-                                size={20}
-                                className="cursor-pointer transition-colors duration-300 text-[#dc2b2b]"
-                            />
-                            </Button>
-                        </>
-                        )}
-                        {!confirmDelete && !loadingDelete && (
-                        <>
-                            <div className="text-lg text-[#dc2b2b]">
-                            Delete Portfolio
+                        <div className="flex flex-col place-items-center gap-8">
+                            <div className="text-lg text-center text-slate-800">
+                                Brokerage
                             </div>
+                            <div className="flex gap-8">
                             <Button
-                            type="button"
-                            variant="ghost"
-                            onClick={() => setConfirmDelete(true)}
-                            >
-                            <LuTrash
-                                size={20}
-                                className="cursor-pointer transition-colors duration-300 text-[#dc2b2b]"
-                            />
-                            </Button>
-                        </>
-                        )}
-                        {loadingDelete && (
-                        <div className="text-lg text-[#dc2b2b]">Deleting...</div>
-                        )}
-                    </div>
-                    <div className="w-full grid grid-cols-2 items-center gap-6">
-                        <DialogClose asChild>
-                            <Button
-                                ref={closeRef}
                                 type="button"
-                                variant="secondary"
-                                onClick={onClose}
+                                variant="ghost"
+                                onClick={toggleBrokerageType}
+                                disabled
                             >
-                                Cancel
+                                <div className="h-4 w-4 rounded-full border flex items-center justify-center mr-2">
+                                <LuCircle
+                                    className={cn(
+                                    "h-2.5 w-2.5 hidden",
+                                    brokerageType === "$" && "block fill-slate-700"
+                                    )}
+                                />
+                                </div>
+                                Dollar ($)
                             </Button>
-                        </DialogClose>
-                        {isLoading? (
-                        <Button type="button" disabled>
-                            Please wait...
-                        </Button>
-                        ) : (
-                        <Button type="submit" onClick={() => console.log(form.formState.errors)}>
-                            Done
-                        </Button>
-                        )}
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                onClick={toggleBrokerageType}
+                                disabled
+                            >
+                                <div className="h-4 w-4 rounded-full border flex items-center justify-center mr-2">
+                                <LuCircle
+                                    className={cn(
+                                    "h-2.5 w-2.5 hidden",
+                                    brokerageType !== "$" && "block fill-slate-700"
+                                    )}
+                                />
+                                </div>
+                                Percentage (%)
+                            </Button>
+                            </div>
+                            {brokerageType === "$" ? (
+                            <div className="flex items-center gap-2 text-slate-800">
+                                $
+                                <FormField
+                                control={form.control}
+                                name="flatBrokerage"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormControl>
+                                        <Input
+                                        type="number"
+                                        min={0}
+                                        value={field.value}
+                                        onChange={field.onChange}
+                                        className="text-lg w-[80px] bg-transparent text-slate-800"
+                                        />
+                                    </FormControl>
+                                    </FormItem>
+                                )}
+                                />
+                            </div>
+                            ) : (
+                            <div className="flex items-center gap-2 text-slate-800">
+                                <FormField
+                                control={form.control}
+                                name="percentBrokerage"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormControl>
+                                        <Input
+                                        type="number"
+                                        min={0}
+                                        value={field.value}
+                                        onChange={field.onChange}
+                                        className="text-lg w-[80px] bg-transparent text-slate-800"
+                                        />
+                                    </FormControl>
+                                    </FormItem>
+                                )}
+                                />
+                                %
+                            </div>
+                            )}
+                        </div>
+                        <div className="flex items-center justify-center gap-8">
+                            {confirmDelete && !loadingDelete && (
+                            <>
+                                <div className="text-lg text-[#dc2b2b]">Are you sure?</div>
+                                <Button type="button" variant="ghost" onClick={onDelete}>
+                                <LuCheck
+                                    size={20}
+                                    className="cursor-pointer transition-colors duration-300 text-[#dc2b2b]"
+                                />
+                                </Button>
+                            </>
+                            )}
+                            {!confirmDelete && !loadingDelete && (
+                            <>
+                                <div className="text-lg text-[#dc2b2b]">
+                                Delete Portfolio
+                                </div>
+                                <Button
+                                type="button"
+                                variant="ghost"
+                                onClick={() => setConfirmDelete(true)}
+                                >
+                                <LuTrash
+                                    size={20}
+                                    className="cursor-pointer transition-colors duration-300 text-[#dc2b2b]"
+                                />
+                                </Button>
+                            </>
+                            )}
+                            {loadingDelete && (
+                            <div className="text-lg text-[#dc2b2b]">Deleting...</div>
+                            )}
+                        </div>
+                        <div className="w-full grid grid-cols-2 items-center gap-6">
+                            <DialogClose asChild>
+                                <Button
+                                    ref={closeRef}
+                                    type="button"
+                                    variant="secondary"
+                                    onClick={onClose}
+                                >
+                                    Cancel
+                                </Button>
+                            </DialogClose>
+                            {isLoading? (
+                            <Button type="button" disabled>
+                                Please wait...
+                            </Button>
+                            ) : (
+                            <Button type="submit" onClick={() => console.log(form.formState.errors)}>
+                                Done
+                            </Button>
+                            )}
+                        </div>
+                        </form>
+                    </Form>
                     </div>
-                    </form>
-                </Form>
-                </div>
-            </DialogContent>
-        </Dialog>
+                </DialogContent>
+            </Dialog>
+            <div className="text-xl font-medium text-slate-800 mb-0">
+            {currentPortfolio.name}
+            </div>
+        </div>
     );
 }

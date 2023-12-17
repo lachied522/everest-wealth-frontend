@@ -61,6 +61,7 @@ interface PortfolioMenuItemProps {
 
 const PortfolioMenuItem = ({ portfolio, activePath, dropdownOpen, toggleDropdownOpen }: PortfolioMenuItemProps) => {
   const isOpen = dropdownOpen || activePath.includes(portfolio.id);
+
   return (
     <div className="group">
       <div
@@ -88,7 +89,7 @@ const PortfolioMenuItem = ({ portfolio, activePath, dropdownOpen, toggleDropdown
           Portfolio
         </Link>
         <Link
-          href=""
+          href={`/performance/${portfolio.id}`}
           className={cn(
             "w-full flex gap-2 text-[#303350] text-sm no-underline transition-none cursor-pointer hover:text-[#1476ff]",
             activePath===`/performance/${portfolio.id}` && "text-[#1476ff]"
@@ -124,15 +125,15 @@ const NewPortfolioButton = () => {
 }
 
 export default function SideBar() {
-  const pathname = usePathname();
   const { portfolioData } = useGlobalContext() as GlobalState;
-  const sidebarRef = useRef<HTMLDivElement | null>(null);
   const { 
     sidebarOpen: isOpen, 
     setSidebarOpen: setIsOpen, 
     isMobile 
   } = useSidebarContext();
   const [openIndex, setOpenIndex] = useState<number | null>(null); // keeps track of which menu option is open
+  const sidebarRef = useRef<HTMLDivElement | null>(null);
+  const pathname = usePathname();
 
   const toggleDropdownOpen = (index: number) => {
     if (openIndex===index) {
@@ -141,6 +142,11 @@ export default function SideBar() {
       setOpenIndex(index);
     };
   }
+
+  useEffect(() => {
+    // close dropdown on pathname change
+    setOpenIndex(null);
+  }, [pathname]);
 
   useEffect(() => {
     const closeSidebarOnOutsideClick = (event: MouseEvent) => {

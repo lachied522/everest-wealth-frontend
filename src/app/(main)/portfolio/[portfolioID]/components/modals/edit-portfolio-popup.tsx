@@ -140,7 +140,7 @@ const HoldingRow = ({ holding, update } : {
                 name="value"
                 data-name="value"
                 min={stockPrice || 0}
-                value={stockPrice * holding.units || 0}
+                value={holding.value || 0}
                 onChange={changeValue}
             />
             ) : (

@@ -32,6 +32,7 @@ import { usePortfolioContext } from "../../context/PortfolioState";
 import { columns } from "./recommendations-table-columns";
 import { Tables } from "@/types/supabase";
 import { AdviceData, Transaction } from "@/types/types";
+import Link from "next/link";
 
 const USDollar = new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -155,7 +156,7 @@ export default function RecommendationsTable<TData>({
 
 
     // define loading state
-    if (!data || loadingNewAdvice) {
+    if (loadingNewAdvice) {
         return (
             <div className="rounded-md bg-white border">
                 <Table>
@@ -213,7 +214,7 @@ export default function RecommendationsTable<TData>({
                 ))}
                 </TableHeader>
                 <TableBody>
-                {table.getRowModel().rows?.length ? (
+                {data && table.getRowModel().rows?.length ? (
                     <>
                         {table.getRowModel().rows.map((row) => (
                         <TableRow
@@ -278,7 +279,7 @@ export default function RecommendationsTable<TData>({
                 ) : (
                     <TableRow>
                         <TableCell colSpan={columns.length} className="h-24 text-center">
-                            No current recommendations.
+                            No current recommendations. <Link href={`/advice/${currentPortfolio.id}`}>View previous Advice.</Link>
                         </TableCell>
                     </TableRow>
                 )}

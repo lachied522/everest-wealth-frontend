@@ -66,14 +66,17 @@ export async function disconnect() {
 }
 
 export const searchUniverse = async (q: string) => {
+  if (q.length===0) return [];
+
   await connect();
 
   try {
+      const query = q.toLocaleUpperCase();
       const results = await universeRepository.search()
           .where('symbol').match(q, { fuzzyMatching: true } )
           .or('name').match(q, { fuzzyMatching: true })
           .return.all();
-      
+            
       return results as StockInfo[];
   } catch (e) {
     console.error('Error searching records:', e);
@@ -96,14 +99,16 @@ type Data = {
   active: string
 }
 
+function formatSector(sectorString: string) {
+  return sectorString.split("-").map(function(s) {
+      return s.charAt(0).toUpperCase() + s.slice(1);
+  }).join(" ");
+}
 
 function parseData(data: Data) {
   if (Object.keys(data).length === 0) return
   const parsedData: { [key: string]: any } = new Object();
 
-  // convert to boolean
-  parsedData['domestic'] = data.domestic==="True";
-  parsedData['active'] = data.active==="True";
   // convert any numbers to Number type
   for (const key in data) {
     const value = data[key as keyof Data];
@@ -111,6 +116,11 @@ function parseData(data: Data) {
       parsedData[key] = !isNaN(Number(value))? Number(value): value
     }
   }
+  // convert to boolean
+  parsedData['domestic'] = data.domestic==="True";
+  parsedData['active'] = data.active==="True";
+  // format sector
+  if (data.sector) parsedData['sector'] = formatSector(data.sector);
 
   return parsedData as StockInfo
 }

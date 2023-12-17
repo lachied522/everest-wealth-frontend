@@ -19,6 +19,7 @@ export type StockInfo = {
 export type PopulatedHolding = (
     Tables<'holdings'> & 
     Partial<StockInfo> & {
+        weight: number
         value: number
         totalCost: number
         totalProfit: number
