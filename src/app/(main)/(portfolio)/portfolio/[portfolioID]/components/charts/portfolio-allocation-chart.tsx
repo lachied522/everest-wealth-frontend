@@ -5,7 +5,7 @@ import { PieChart, Pie, Sector, Cell, ResponsiveContainer, Tooltip } from 'recha
 
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 
-import { PortfolioState, usePortfolioContext } from '../../context/PortfolioState';
+import { PortfolioState, usePortfolioContext } from '@/context/portfolio/PortfolioState';
 
 type Total = {
     name: string

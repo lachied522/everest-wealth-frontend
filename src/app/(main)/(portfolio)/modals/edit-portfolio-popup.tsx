@@ -19,7 +19,7 @@ import { LuPencil, LuSearch, LuTrash } from "react-icons/lu";
 import debounce from "lodash.debounce";
 
 import { useGlobalContext } from "@/context/GlobalState";
-import { PortfolioState, usePortfolioContext } from "../../context/PortfolioState";
+import { PortfolioState, usePortfolioContext } from "../context/PortfolioState";
 
 import { PopulatedHolding, StockInfo } from "@/types/types";
 
@@ -281,7 +281,7 @@ export default function EditPortfolioPopup() {
           Edit Portfolio
         </Button>
       </DialogTrigger>
-      <DialogContent className="h-[80vh]">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Add or Remove Holdings</DialogTitle>
         </DialogHeader>

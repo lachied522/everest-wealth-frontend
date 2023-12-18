@@ -1,13 +1,13 @@
 "use client";
 import { useMemo, useState } from 'react';
-import { BarChart, Bar, Rectangle, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/components/lib/utils';
   
 type Timeframe = {
-    label: '1M'|'3M'|'1Y'|'5Y'
+    label: '1M'|'3M'|'1Y'|'5Y'|'ALL'
     tickFormat: 'day'|'month'|'year'
     length: 20|60|240|1200
 }
@@ -33,6 +33,11 @@ const TIMEFRAMES: Timeframe[] = [
         tickFormat: 'year',
         length: 1200,
     },
+    {
+        label: 'ALL',
+        tickFormat: 'year',
+        length: 1200,
+    },
 ]
 
 type TimeSeriesDataPoint = {
@@ -40,11 +45,11 @@ type TimeSeriesDataPoint = {
     value: number;
 };
 
-interface PortfolioDividendChartProps {
+interface PortfolioPerformanceChartProps {
     data: TimeSeriesDataPoint[]
 }
 
-export default function PortfolioDividendChart({ data }: PortfolioDividendChartProps) {
+export default function PortfolioPerformanceChart({ data }: PortfolioPerformanceChartProps) {
     const [timeframe, setTimeframe] = useState<Timeframe>(TIMEFRAMES[2])
 
     console.log(new Date().toUTCString())
@@ -68,10 +73,10 @@ export default function PortfolioDividendChart({ data }: PortfolioDividendChartP
                 </div>
             </CardHeader>
             <CardContent>
-                <BarChart
+                <LineChart
                     width={500}
                     height={300}
-                    data={data}
+                    data={data.slice(1).slice(-timeframe.length)}
                     margin={{
                         top: 5,
                         right: 30,
@@ -79,14 +84,22 @@ export default function PortfolioDividendChart({ data }: PortfolioDividendChartP
                         bottom: 5,
                     }}
                 >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
+                    <XAxis 
+                        dataKey="date"
+                        tickFormatter={(date: Date) => date.toUTCString().slice(8, 16)}
+                        tickCount={4}
+                    />
                     <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="pv" fill="#8884d8" activeBar={<Rectangle fill="pink" stroke="blue" />} />
-                    <Bar dataKey="uv" fill="#82ca9d" activeBar={<Rectangle fill="gold" stroke="purple" />} />
-                </BarChart>
+                    {/* <Tooltip /> */}
+                    <Line 
+                        type="monotone" 
+                        dataKey="value" 
+                        stroke="#2962FF"
+                        strokeWidth={2}
+                        isAnimationActive={false}
+                        dot={false}
+                    />
+                </LineChart>
             </CardContent>
         </Card>
       );

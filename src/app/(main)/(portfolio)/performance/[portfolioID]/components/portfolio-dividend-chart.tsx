@@ -1,28 +1,18 @@
 "use client";
 import { useMemo, useState } from 'react';
-import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, Rectangle, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/components/lib/utils';
   
 type Timeframe = {
-    label: '1M'|'3M'|'1Y'|'5Y'
+    label: '1M'|'3M'|'1Y'|'5Y'|'ALL'
     tickFormat: 'day'|'month'|'year'
     length: 20|60|240|1200
 }
 
 const TIMEFRAMES: Timeframe[] = [
-    {
-        label: '1M',
-        tickFormat: 'day',
-        length: 20,
-    }, 
-    {
-        label: '3M',
-        tickFormat: 'month',
-        length: 60,
-    }, 
     {
         label: '1Y',
         tickFormat: 'month',
@@ -33,6 +23,11 @@ const TIMEFRAMES: Timeframe[] = [
         tickFormat: 'year',
         length: 1200,
     },
+    {
+        label: 'ALL',
+        tickFormat: 'year',
+        length: 1200,
+    },
 ]
 
 type TimeSeriesDataPoint = {
@@ -40,11 +35,11 @@ type TimeSeriesDataPoint = {
     value: number;
 };
 
-interface PortfolioPerformanceChartProps {
+interface PortfolioDividendChartProps {
     data: TimeSeriesDataPoint[]
 }
 
-export default function PortfolioPerformanceChart({ data }: PortfolioPerformanceChartProps) {
+export default function PortfolioDividendChart({ data }: PortfolioDividendChartProps) {
     const [timeframe, setTimeframe] = useState<Timeframe>(TIMEFRAMES[2])
 
     console.log(new Date().toUTCString())
@@ -68,7 +63,7 @@ export default function PortfolioPerformanceChart({ data }: PortfolioPerformance
                 </div>
             </CardHeader>
             <CardContent>
-                <LineChart
+                <BarChart
                     width={500}
                     height={300}
                     data={data.slice(1).slice(-timeframe.length)}
@@ -86,15 +81,8 @@ export default function PortfolioPerformanceChart({ data }: PortfolioPerformance
                     />
                     <YAxis />
                     {/* <Tooltip /> */}
-                    <Line 
-                        type="monotone" 
-                        dataKey="value" 
-                        stroke="#2962FF"
-                        strokeWidth={2}
-                        isAnimationActive={false}
-                        dot={false}
-                    />
-                </LineChart>
+                    <Bar dataKey="value" fill="#8884d8" activeBar={<Rectangle fill="pink" stroke="blue" />} />
+                </BarChart>
             </CardContent>
         </Card>
       );

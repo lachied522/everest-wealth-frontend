@@ -29,6 +29,9 @@
       "@/context/*": [
         "src/app/(main)/context/*"
       ],
+      "@/context/portfolio/*": [
+        "src/app/(main)/(portfolio)/context/*"
+      ],
       "@/types/*": [
         "src/app/types/*"
       ],

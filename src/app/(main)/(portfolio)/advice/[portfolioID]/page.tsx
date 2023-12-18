@@ -66,13 +66,8 @@ export default async function Page({ params }: PageProps) {
     // NOTE: data must be converted to JSON before passing to client
     return (
       <>
-        <div className="mb-6">
-          <div className="flex flex-col">
-              <h1 className="">Statements</h1>
-              <div className="text-lg">
-                View your Statements of Advice
-              </div>
-          </div>
+        <div className="text-lg text-slate-700 mb-8">
+            View your Statements of Advice
         </div>
         <AllAdviceTable jsonData={JSON.stringify(populatedData)} />
       </>

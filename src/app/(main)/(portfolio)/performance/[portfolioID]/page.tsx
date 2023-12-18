@@ -34,7 +34,7 @@ function getDividends(n: number): DividendDataPoint[] {
     startDate.setDate(startDate.getDate() - n + 1); // Set the start date n days ago
     const data: TimeSeriesDataPoint[] = [{ date: startDate, value: 0 }];
   
-    for (let i = 1; i < n; i+20) {
+    for (let i = 1; i < n; i+=20) {
       const randomAmount = 100*Math.random(); // Generate a random value between 0 and 100
       const newDate = new Date(startDate);
       newDate.setDate(startDate.getDate() + i);
@@ -57,9 +57,12 @@ export default function PerformancePage({ params }: PageProps) {
 
 
     return (
-        <div className="flex flex-col justify-center gap-6">
-            <PortfolioPerformanceChart data={performance} />
-            <PortfolioDividendChart data={dividends} />
-        </div>
+        <>
+            <div className="text-lg text-slate-700">Performance</div>
+            <div className="flex flex-col items-center justify-center gap-6">
+                <PortfolioPerformanceChart data={performance} />
+                <PortfolioDividendChart data={dividends} />
+            </div>
+        </>
     )
 }

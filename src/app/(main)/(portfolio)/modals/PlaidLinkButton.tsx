@@ -10,7 +10,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { LuLink, LuLink2 } from 'react-icons/lu';
 
-import { usePortfolioContext } from '../../context/PortfolioState';
+import { usePortfolioContext } from "../context/PortfolioState";
 
 // The usePlaidLink hook manages Plaid Link creation
 // It does not return a destroy function;

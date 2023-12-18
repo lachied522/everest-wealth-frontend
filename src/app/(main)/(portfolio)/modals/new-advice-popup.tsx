@@ -20,7 +20,7 @@ import { LuTrendingUp } from "react-icons/lu";
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 
 import { useGlobalContext } from "@/context/GlobalState";
-import { usePortfolioContext } from "../../context/PortfolioState";
+import { usePortfolioContext } from "../context/PortfolioState";
 
 const WEB_SOCKET_URL = process.env.NEXT_PUBLIC_WEBSOCKET_URL|| "";
 

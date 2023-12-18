@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 
 import { cn } from "@/components/lib/utils";
 
-import { usePortfolioContext } from "../context/PortfolioState";
+import { usePortfolioContext } from "@/context/portfolio/PortfolioState";
 import PortfolioTable from "./PortfolioTable/portfolio-table";
 import { columns as portfolioColumns } from "./PortfolioTable/portfolio-table-columns";
 import RecommendationsTable from "./RecommendationsTable/recommendations-table";

@@ -29,8 +29,7 @@ import { cn } from "@/components/lib/utils";
 import { LuStar } from "react-icons/lu";
 
 import { useGlobalContext } from "@/context/GlobalState";
-import { PortfolioState, usePortfolioContext } from "../../context/PortfolioState";
-import { PopulatedHolding } from "@/types/types";
+import { PortfolioState, usePortfolioContext } from "@/context/portfolio/PortfolioState";
 
 const Star = ({ selected, onClick } : { selected: boolean, onClick: () => void }) => {
     return (

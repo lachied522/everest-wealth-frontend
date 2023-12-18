@@ -28,7 +28,7 @@ import { Button } from "@/components/ui/button";
 import { LuFileText, LuLoader2 } from "react-icons/lu";
 
 import { useGlobalContext } from "@/context/GlobalState";
-import { usePortfolioContext } from "../../context/PortfolioState";
+import { usePortfolioContext } from "@/context/portfolio/PortfolioState";
 import { columns } from "./recommendations-table-columns";
 import { Tables } from "@/types/supabase";
 import { AdviceData, Transaction } from "@/types/types";
