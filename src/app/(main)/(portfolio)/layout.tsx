@@ -6,8 +6,7 @@ import NewAdvicePopup from "./modals/new-advice-popup";
 import PlainLinkButton from "./modals/PlaidLinkButton";
 import PortfolioStatBar from "./portfolio-stat-bar";
 
-export default function PortfolioLayout({ children } : { children: React.ReactNode}) {
-
+export default function PortfolioLayout({ children } : { children: React.ReactNode }) {
 
     return (
         <PortfolioProvider>

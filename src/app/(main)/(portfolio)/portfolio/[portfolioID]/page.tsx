@@ -1,7 +1,13 @@
 import PortfolioChartBar from "./components/charts/portfolio-chart-bar";
 import PortfolioTabs from "./components/portfolio-tabs"
 
-export default async function PortfolioPage() {
+interface PortfolioPageProps {
+  params: {
+    portfolioID: string
+  }
+}
+
+export default async function PortfolioPage({ params }: PortfolioPageProps) {
   
   return (
       <div className="flex flex-col gap-6">

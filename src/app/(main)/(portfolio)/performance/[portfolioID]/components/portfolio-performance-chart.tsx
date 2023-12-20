@@ -41,21 +41,24 @@ const TIMEFRAMES: Timeframe[] = [
 ]
 
 type TimeSeriesDataPoint = {
-    date: Date;
-    value: number;
+    date: Date
+    value: number
 };
 
 interface PortfolioPerformanceChartProps {
-    data: TimeSeriesDataPoint[]
+    portfolio: TimeSeriesDataPoint[]
+    benchmark: TimeSeriesDataPoint[]
 }
 
-export default function PortfolioPerformanceChart({ data }: PortfolioPerformanceChartProps) {
+export default function PortfolioPerformanceChart({
+    portfolio, 
+    benchmark
+}: PortfolioPerformanceChartProps) {
+    const today = new Date()
     const [timeframe, setTimeframe] = useState<Timeframe>(TIMEFRAMES[2])
 
-    console.log(new Date().toUTCString())
-
     return (
-        <Card>
+        <Card className='w-[600px]'>
             <CardHeader>
                 <div className='flex flex-row gap-x-2'>
                 {TIMEFRAMES.map((t, index) => (
@@ -73,33 +76,59 @@ export default function PortfolioPerformanceChart({ data }: PortfolioPerformance
                 </div>
             </CardHeader>
             <CardContent>
-                <LineChart
-                    width={500}
-                    height={300}
-                    data={data.slice(1).slice(-timeframe.length)}
-                    margin={{
-                        top: 5,
-                        right: 30,
-                        left: 20,
-                        bottom: 5,
-                    }}
-                >
-                    <XAxis 
-                        dataKey="date"
-                        tickFormatter={(date: Date) => date.toUTCString().slice(8, 16)}
-                        tickCount={4}
-                    />
-                    <YAxis />
-                    {/* <Tooltip /> */}
-                    <Line 
-                        type="monotone" 
-                        dataKey="value" 
-                        stroke="#2962FF"
-                        strokeWidth={2}
-                        isAnimationActive={false}
-                        dot={false}
-                    />
-                </LineChart>
+                <ResponsiveContainer width='100%' height={300}>
+                    <LineChart
+                        margin={{
+                            top: 5,
+                            right: 30,
+                            left: 20,
+                            bottom: 5,
+                        }}
+                    >
+                        <XAxis
+                            xAxisId="portfolio"
+                            dataKey="date"
+                            hide
+                        />
+                        <XAxis
+                            xAxisId="benchmark"
+                            dataKey="date"
+                            tickFormatter={(date: Date) => date.toUTCString().slice(8, 16)}
+                            tickCount={4}
+                            // domain={[
+                            //     benchmark[benchmark.length - timeframe.length].date.getTime(),
+                            //     benchmark[benchmark.length - 1].date.getTime()
+                            // ]}
+                        />
+                        <YAxis yAxisId="left" />
+                        <YAxis yAxisId="right" orientation="right" />
+                        <Legend />
+                        <Line
+                            data={portfolio.slice(1).slice(-timeframe.length)}
+                            xAxisId="portfolio"
+                            yAxisId="left"
+                            type="monotone" 
+                            dataKey="value" 
+                            stroke="#2962FF"
+                            strokeWidth={2}
+                            isAnimationActive={false}
+                            dot={false}
+                            name="Portfolio"
+                        />
+                        <Line
+                            data={benchmark.slice(1).slice(-timeframe.length*4)}
+                            xAxisId="benchmark"
+                            yAxisId="right"
+                            type="monotone" 
+                            dataKey="value" 
+                            stroke="#FFA500"
+                            strokeWidth={2}
+                            isAnimationActive={false}
+                            dot={false}
+                            name="MSCI World Index"
+                        />
+                    </LineChart>
+                </ResponsiveContainer>
             </CardContent>
         </Card>
       );

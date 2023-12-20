@@ -7,23 +7,64 @@ import { Database, Tables } from '@/types/supabase';
 
 type NewHolding = Omit<Tables<'holdings'>, 'id'|'created_at'|'portfolio_id'>
 
-function getNewHoldings({ currentHoldings, newHoldings } : {
+function getNewRecords({ currentHoldings, newHoldings } : {
  currentHoldings: Tables<'holdings'>[] | null
  newHoldings: NewHolding[]
 }) {
+    if (!currentHoldings) return newHoldings;
     return newHoldings.map(
       (newHolding) => {
-        const currentHolding = currentHoldings?.find((obj) => obj.symbol === newHolding.symbol);
+        const currentHolding = currentHoldings.find((obj) => obj.symbol === newHolding.symbol);
 
         return {
           id: currentHolding? currentHolding.id: undefined,
           symbol: newHolding.symbol,
           units: Math.max(newHolding.units, 0),
-          cost: newHolding.cost? newHolding.cost: 0,
+          cost: newHolding.cost || 0,
           locked: currentHolding? currentHolding.locked: false,
         }
       }
     );
+}
+
+type Transaction = Omit<Tables<'transactions'>, 'id'|'brokerage'|'date'|'portfolio_id'>
+
+function getTransactions({ currentHoldings, newHoldings } : {
+  currentHoldings: Tables<'holdings'>[] | null
+  newHoldings: NewHolding[]
+ }): Transaction[] {
+  if (!currentHoldings) {
+    return newHoldings.map(
+      (newHolding) => ({
+        symbol: newHolding.symbol,
+        units: newHolding.units,
+        price: newHolding.cost || 0,
+        reason: 'adjustment',
+      })
+    )
+  }
+
+  return newHoldings.map(
+    (newHolding) => {
+      const currentHolding = currentHoldings.find((obj) => obj.symbol === newHolding.symbol);
+
+      if (!currentHolding) {
+        return {
+          symbol: newHolding.symbol,
+          units: newHolding.units,
+          price: newHolding.cost || 0,
+          reason: 'adjustment',
+        }
+      }
+
+      return {
+        symbol: newHolding.symbol,
+        units: newHolding.units - currentHolding.units,
+        price: newHolding.cost || 0, // TO DO: make this last_price instead of new holding cost
+        reason: 'adjustment',
+      }
+    }
+  ).filter((transaction) => Math.abs(transaction.units) > 0);
 }
 
 type RequestBody = {
@@ -58,7 +99,7 @@ export async function POST(req: Request) {
 
         if (fetchError) throw new Error(`Error fetching data: ${fetchError}`); // should change status of api response
 
-        const newHoldings = getNewHoldings({
+        const newRecords = getNewRecords({
             currentHoldings,
             newHoldings: body.data,
         }).map(holding => ({
@@ -68,11 +109,27 @@ export async function POST(req: Request) {
         }));
 
         const { data, error: commitError } = await supabase
-        .from('holdings')
-        .upsert(newHoldings, { onConflict: 'id', ignoreDuplicates: false, defaultToNull: false })
-        .select();
+          .from('holdings')
+          .upsert(newRecords, { onConflict: 'id', ignoreDuplicates: false, defaultToNull: false })
+          .select();
 
         if (commitError) throw new Error(`Error committing changes: ${commitError}`);
+
+        // add transaction to transactions table
+        const transactionRecords = getTransactions({ 
+          currentHoldings, 
+          newHoldings: body.data,
+        }).map(transaction => ({
+          // add portfolio_id column
+          ...transaction,
+          portfolio_id: body.portfolio_id,
+        }));
+
+        const { error: transactionsError } = await supabase
+          .from('transactions')
+          .insert(transactionRecords);
+
+        if (transactionsError) console.log(transactionsError);
 
         // populate new holdings with stock data prior to returning to client
         const populatedHoldings = await fetchStockDataFromServer(data);

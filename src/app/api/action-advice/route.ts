@@ -27,7 +27,7 @@ function getNewHoldings({ currentHoldings, transactions } : {
 
 type RequestBody = {
     advice: AdviceData
-    action: string
+    action: 'confirm'|'dismiss'
 }
 
 export async function POST(req: Request) {
@@ -48,8 +48,6 @@ export async function POST(req: Request) {
     let updatedHoldings: Tables<'holdings'>[] = [];
 
     try {
-      if (!['confirm', 'dismiss'].includes(body.action)) throw new Error("action must be 'confirm' or 'dismiss'");
-
       if (body.action==='confirm') {
         // get all holdings matching symbols
         const symbols = Array.from(body.advice.transactions, (obj) => obj.symbol);
@@ -82,11 +80,20 @@ export async function POST(req: Request) {
 
       // update status of advice record
       const status = body.action==='confirm'? 'actioned': 'dismissed';
-      const { error } = await supabase
+      const { error: adviceError } = await supabase
         .from('advice')
         .update({ status })
         .eq('id', body.advice.id)
         .select();
+
+      // add transaction to transactions table
+      const { error: transactionsError } = await supabase
+        .from('transactions')
+        .insert(body.advice.transactions.map((transaction) => ({
+          ...transaction,
+          reason: 'advice',
+          portfolio_id: body.advice.portfolio_id,
+        })));
 
       // populate new holdings with stock data prior to returning to client
       const populatedHoldings = await fetchStockDataFromServer(updatedHoldings);

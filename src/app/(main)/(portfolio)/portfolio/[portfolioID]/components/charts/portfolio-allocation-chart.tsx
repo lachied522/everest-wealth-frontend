@@ -1,7 +1,7 @@
 
 "use client";
 import { useState, useMemo } from 'react';
-import { PieChart, Pie, Sector, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { PieChart, Pie, Sector, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 
@@ -10,6 +10,7 @@ import { PortfolioState, usePortfolioContext } from '@/context/portfolio/Portfol
 type Total = {
     name: string
     value: number
+    colour?: string
 }
 
 const USDollar = new Intl.NumberFormat("en-US", {
@@ -49,13 +50,16 @@ export default function PortfolioAllocationChart({ accessor }: {
             (totals: Total[], holding) => {
                 if (holding[accessor] !== (null || undefined)) {
                     let name = '';
+                    let colour = '';
                     switch (accessor) {
                         case ('active'): {
-                            name = holding.active? 'Active': 'Passive';
+                            name = holding.active? 'Active': 'Passive'
+                            colour = holding.active? '#0088FE': '#00C49F'
                             break
                         } 
                         case ('domestic'): {
-                            name = holding.domestic? 'Domestic': 'International';
+                            name = holding.domestic? 'Domestic': 'International'
+                            colour = holding.domestic? '#0088FE': '#00C49F'
                             break
                         }
                         case ('sector'): {
@@ -69,6 +73,7 @@ export default function PortfolioAllocationChart({ accessor }: {
                     } else {
                         totals.push({
                             name,
+                            colour,
                             value: Math.round((holding.value || 0 )*100)/100,
                         })
                     }
@@ -100,12 +105,17 @@ export default function PortfolioAllocationChart({ accessor }: {
                     {data.map((entry, index) => (
                         <Cell 
                             key={`cell-${index}`} 
-                            fill={COLORS[index % COLORS.length]} 
+                            fill={entry.colour? entry.colour: COLORS[index % COLORS.length]} 
                             onMouseEnter={() => setActiveIndex(index)}
                             onMouseLeave={() => setActiveIndex(undefined)}
                         />
                     ))}
                     </Pie>
+                    {/* <Legend 
+                        align='left'
+                        verticalAlign='middle'
+                        layout='horizontal'
+                    /> */}
                     <Tooltip
                         separator=' '
                         contentStyle={{background: 'white', borderRadius: '0.5rem'}}

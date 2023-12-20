@@ -1,11 +1,33 @@
 
+import { SupabaseClient, createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import PortfolioDividendChart from "./components/portfolio-dividend-chart";
 import PortfolioPerformanceChart from "./components/portfolio-performance-chart"
+import { Database } from "@/types/supabase";
+import { cookies } from "next/headers";
 
 type TimeSeriesDataPoint = {
     date: Date
     value: number
 };
+
+async function getBenchmark(supabase: SupabaseClient): Promise<TimeSeriesDataPoint[]> {
+    const { data, error } = await supabase
+        .from('snapshots')
+        .select('date, value')
+        .eq('portfolio_id', '7f41bdd2-00f5-43ab-a7b4-05feae4ba036');
+    
+    if (!error) {
+        // convert date column to Date object
+        return data.map((obj) => ({
+            ...obj,
+            date: new Date(obj.date)
+        }));
+    } else {
+        console.log(error);
+    }
+
+    return []
+}
 
 function generateRandomWalk(n: number): TimeSeriesDataPoint[] {
     const startDate = new Date();
@@ -50,17 +72,20 @@ interface PageProps {
     }
 }
 
-export default function PerformancePage({ params }: PageProps) {
-    const length = 1200;
-    const performance = generateRandomWalk(length);
-    const dividends = getDividends(length);
+export default async function PerformancePage({ params }: PageProps) {
+    const cookieStore = cookies();
+    const supabase = createServerComponentClient<Database>({ cookies: () => cookieStore });
+    const benchmark = await getBenchmark(supabase);
 
+    const length = 1200;
+    const portfolio = generateRandomWalk(length);
+    const dividends = getDividends(length);
 
     return (
         <>
-            <div className="text-lg text-slate-700">Performance</div>
-            <div className="flex flex-col items-center justify-center gap-6">
-                <PortfolioPerformanceChart data={performance} />
+            <div className="text-lg text-slate-700 mb-8">Performance</div>
+            <div className="flex flex-col items-stretch justify-center gap-6">
+                <PortfolioPerformanceChart portfolio={portfolio} benchmark={benchmark} />
                 <PortfolioDividendChart data={dividends} />
             </div>
         </>

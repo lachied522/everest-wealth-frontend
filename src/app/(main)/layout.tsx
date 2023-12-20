@@ -30,7 +30,7 @@ const fetchData = async (session: Session, supabase: SupabaseClient) => {
     
     if(portfolioError || userError) {
         console.log(`Error fecthing data`);
-        throw new Error(`Error fecthing data`);
+        throw new Error(`Error fecthing data ${portfolioError}`);
     };
 
     console.log("data fetched");
@@ -60,14 +60,18 @@ export default async function RootLayout({ children } : { children: React.ReactN
     const { portfolioData, userData } = await fetchData(session, supabase);
 
     // populate portfolios with stock data
-    const populatedPortfolioData = await Promise.all(portfolioData.map(async (portfolio) => {
-        const populatedHoldings = await fetchStockDataFromServer(portfolio.holdings);
+    const populatedPortfolioData = await Promise.all(
+        portfolioData.map(
+            async (portfolio) => {
+                const populatedHoldings = await fetchStockDataFromServer(portfolio.holdings);
 
-        // calculate total portfolio value
-        const totalValue = populatedHoldings.reduce((acc, obj) => acc + obj.value, 0);
-        
-        return { ...portfolio, holdings: populatedHoldings, totalValue };
-    }));
+                // calculate total portfolio value
+                const totalValue = populatedHoldings.reduce((acc, obj) => acc + obj.value, 0);
+                
+                return { ...portfolio, holdings: populatedHoldings, totalValue };
+            }
+        )
+    );
 
     // NOTE: data must be converted to JSON before passing to client
     return (
