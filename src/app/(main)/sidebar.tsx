@@ -22,7 +22,7 @@ import { useSidebarContext } from "./context/SidebarState";
 import { GlobalState, PortfolioData, useGlobalContext } from "./context/GlobalState";
 import { Button } from "@/components/ui/button";
 
-import NewPortfolioPopup from "./modals/new-portfolio-popup";
+import NewPortfolioPopup from "@/components/modals/new-portfolio-popup";
 
 const PAGES = [
   {

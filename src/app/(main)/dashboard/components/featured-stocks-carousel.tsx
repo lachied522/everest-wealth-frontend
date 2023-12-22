@@ -21,7 +21,7 @@ export default function FeaturedStocksCarousel({ data }: FeaturedStocksCarouselP
         <div className="flex items-stretch gap-6">
             {data.slice(startIndex, startIndex+3).map((stock, index) => (
                 <>
-                    {stock.symbol && <StockCard key={index} symbol={stock.symbol} />}
+                    {stock.symbol && <StockCard key={`featured-${index}`} symbol={stock.symbol} />}
                 </>
             ))}
         </div>

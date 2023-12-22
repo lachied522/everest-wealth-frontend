@@ -77,7 +77,7 @@ export default function PortfolioStatBar() {
     const { currentPortfolio } = usePortfolioContext() as PortfolioState;
     
     return (
-        <div className="gap-4 flex-wrap grid-rows-[auto] grid-cols-[repeat(auto-fit,minmax(248px,1fr))] auto-cols-[1fr] justify-between grid mb-6">
+        <div className="grid flex-wrap grid-rows-[auto] grid-cols-[repeat(auto-fit,minmax(248px,1fr))] auto-cols-[1fr] justify-between gap-4 mb-6">
             <Card className="h-full flex items-center justify-center">
                 <CardContent className="flex items-center justify-center content-center p-2 gap-2">
                     {currentPortfolio ? (

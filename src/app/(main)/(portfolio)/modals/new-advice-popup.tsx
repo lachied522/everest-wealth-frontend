@@ -49,10 +49,6 @@ export default function NewAdvicePopup() {
             setLoadingNewAdvice(false);
             // update advice in global state
             setAdvice(currentPortfolio.id, JSON.parse(event.data));
-            // close modal
-            if (closeRef.current) closeRef.current.click();
-            // navigate to Recommendations tab
-            if (searchParams.get("tab")!=="Recommendations") router.push(`/portfolio/${currentPortfolio.id}?tab=Recommendations`);
         },
         onClose: (event) => {
             console.log('WebSocket closed:', event);
@@ -84,13 +80,17 @@ export default function NewAdvicePopup() {
 
     const onChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const input = e.target.value;
-        setAmount(parseFloat(input));
+        if (parseFloat(input)) {
+            setAmount(parseFloat(input));
+        }
     }, [setAmount]);
 
     const onCancel = () => {
         // reset state
         setAdviceType('review');
         setAmount(0);
+        // close websocket
+        setSocketUrl(null);
     }
 
     const onSubmit = () => {
@@ -102,6 +102,10 @@ export default function NewAdvicePopup() {
             reason: adviceType,
             amount: adviceType==='withdraw'? -amount: amount,
         }));
+        // close modal
+        if (closeRef.current) closeRef.current.click();
+        // navigate to Recommendations tab
+        if (searchParams.get("tab")!=="Recommendations") router.push(`/portfolio/${currentPortfolio.id}?tab=Recommendations`);
     } 
 
     return (
@@ -146,18 +150,18 @@ export default function NewAdvicePopup() {
                             Invest some money
                         </Button>
                     </div>
-                    <div className="h-[200px] flex flex-col justify-between mb-16">
+                    <div className="h-[240px] flex flex-col justify-between px-8 mb-16">
                         {adviceType==='review' && (
                         <div className="gap-6 flex-col flex p-8">
                             <div className="grid w-full max-w-sm items-center gap-1">
-                                <div className="font-semibold text-slate-800">Review and rebalance portfolio</div>
+                                <div className="text-base font-semibold text-slate-800">Review and rebalance portfolio</div>
                             </div>
                         </div>
                         )}
                         {adviceType!=='review' && (
                         <div className="gap-6 flex-col flex p-8">
                             <div className="grid w-full max-w-sm items-center gap-1">
-                                <Label htmlFor="amount">Amount to {adviceType}</Label>
+                                <Label htmlFor="amount" className="text-base">Amount to {adviceType}</Label>
                                 <div className="flex items-center gap-x-4 mb-6">
                                     <div className="text-300">$</div>
                                     <Input
@@ -175,10 +179,10 @@ export default function NewAdvicePopup() {
                         </div>
                         )}
                         <div className="grid grid-cols-2 place-items-center text-sm">
-                            <div className="text-slate-700">
+                            <div className="text-base text-slate-700">
                                 Impied portfolio value
                             </div>
-                            <div className="text-slate-800">
+                            <div className="text-base text-slate-800">
                                 {USDollar.format(proposedValue)}
                             </div>
                         </div>
