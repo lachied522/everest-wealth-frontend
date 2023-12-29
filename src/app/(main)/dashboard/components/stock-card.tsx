@@ -4,10 +4,10 @@ import Link from "next/link";
 
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 
-export default function StockCard({ symbol }: { symbol: string | null }) {
-    if (!symbol) return null;
+import type { StockInfo } from "@/types/types";
 
-    const [data, setData] = useState(null);
+export default function StockCard({ symbol }: { symbol: string | null }) {
+    const [data, setData] = useState<StockInfo | null>(null);
 
     useEffect(() => {
         let active = true; // keep track of whether component is active
@@ -22,6 +22,8 @@ export default function StockCard({ symbol }: { symbol: string | null }) {
             if (active) setData(data);
         }
     }, [symbol]);
+
+    if (!symbol) return null;
 
     return (
         <Link href={`/symbol/${symbol}`} className="no-underline">

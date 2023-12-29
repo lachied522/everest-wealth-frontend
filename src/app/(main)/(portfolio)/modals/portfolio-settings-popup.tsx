@@ -83,7 +83,7 @@ export default function PortfolioSettingsPopup() {
     useEffect(() => {
         // update form values on portfolio change
         if (currentPortfolio) resetForm();
-    }, [currentPortfolio, form]);
+    }, [currentPortfolio, resetForm]);
 
     const commitChanges = useCallback(
         async (data: Partial<FormData>) => {
