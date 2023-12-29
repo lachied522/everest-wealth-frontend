@@ -3,7 +3,8 @@ import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
 import { fetchStockDataFromServer } from '@/lib/redis-utils';
-import { Database, Tables } from '@/types/supabase';
+
+import type { Database, Tables } from '@/types/supabase';
 
 type NewHolding = Omit<Tables<'holdings'>, 'id'|'created_at'|'portfolio_id'>
 

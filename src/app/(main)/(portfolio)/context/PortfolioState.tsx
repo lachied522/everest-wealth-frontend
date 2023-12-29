@@ -1,8 +1,9 @@
 "use client";
 import { createContext, useContext, useState, useMemo, ReactNode } from "react";
 import { useParams } from "next/navigation";
-import { useGlobalContext, GlobalState, PortfolioData } from "@/context/GlobalState";
+import { useGlobalContext, GlobalState } from "@/context/GlobalState";
 
+import type { PortfolioData } from "@/types/types";
 
 export type PortfolioState = {
     currentPortfolio: PortfolioData

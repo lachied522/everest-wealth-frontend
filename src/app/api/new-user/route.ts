@@ -1,10 +1,9 @@
 import { createRouteHandlerClient, Session, SupabaseClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 
-import { Database, Tables } from '@/types/supabase';
 import { NextResponse } from 'next/server';
 
-const WEB_SERVER_BASE_URL = process.env.NEXT_PUBLIC_WEB_SERVER_BASE_URL;
+import type { Database, Tables } from '@/types/supabase';
 
 async function createProfile({ profile, session, supabase } : {
     profile: Partial<Tables<'profiles'>>

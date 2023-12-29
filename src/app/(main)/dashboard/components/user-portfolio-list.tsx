@@ -15,8 +15,10 @@ import {
 
 import { Button } from "@/components/ui/button";
 
-import { GlobalState, PortfolioData, useGlobalContext } from "@/context/GlobalState";
+import { GlobalState, useGlobalContext } from "@/context/GlobalState";
 import NewPortfolioPopup from "@/components/modals/new-portfolio-popup";
+
+import type { PortfolioData } from "@/types/types";
 
 const ChangeIndicator = ({ change }: { change: number }) => {
     return (

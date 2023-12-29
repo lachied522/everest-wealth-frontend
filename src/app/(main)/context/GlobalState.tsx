@@ -7,11 +7,10 @@ import React, {
   useReducer,
   ReactNode
 } from "react";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClientComponentClient, Session } from "@supabase/auth-helpers-nextjs";
 
-import { Session } from '@supabase/auth-helpers-nextjs';
-import { Database, Tables } from '@/types/supabase';
-import { PopulatedHolding } from "@/types/types";
+import type { Database, TablesUpdate } from '@/types/supabase';
+import type { PortfolioData, PopulatedHolding, AdviceData } from "@/types/types";
 
 import GlobalReducer from "./GlobalReducer";
 
@@ -26,16 +25,18 @@ type Notification = {
   msg: string
 }
 
-export type PortfolioData = (Tables<'portfolios'> & {
-  holdings: PopulatedHolding[]
-  totalValue: number
-  advice: Tables<'advice'>[]
-})
+type PortfolioUpdate = TablesUpdate<'portfolios'>
 
 export type GlobalState = {
   portfolioData: PortfolioData[]
   watchlist: string[]
   notifications: Notification[]
+  updatePortfolio: (id: string, data: PopulatedHolding[]) => void
+  setAdvice: (id: string, data: AdviceData) => void
+  toggleFavourite: (id: string) => Promise<void>
+  toggleWatchlist: (symbol: string) => Promise<void>
+  updatePortfolioSettings: (id: string, data: PortfolioUpdate) => Promise<boolean>
+  onPortfolioDelete: (id: string) => Promise<boolean>
 }
 
 export type Reducer = (
@@ -84,52 +85,41 @@ export const GlobalProvider = ({
     });
   }, [session, dispatch]);
 
-  const toggleFavourite = useCallback(async (id: string) => {
-    if (!session) return;
+  const toggleFavourite = useCallback(
+    async (id: string) => {
+      if (!session) return;
 
-    const { error } = await supabase.rpc("toggle_locked", {
-      holding_id: id,
-    });
-
-    if (!error) {
-      // update state
-      dispatch({
-        type: "TOGGLE_FAVOURITE",
-        payload: {
-          id,
-        },
+      const { error } = await supabase.rpc("toggle_locked", {
+        holding_id: id,
       });
-    } else {
-      console.log(error);
-    }
+
+      if (!error) {
+        // update state
+        dispatch({
+          type: "TOGGLE_FAVOURITE",
+          payload: {
+            id,
+          },
+        });
+      } else {
+        console.log(error);
+      }
   }, [supabase, session, dispatch]);
 
-  const setAdvice = useCallback((id: string, data: Tables<'advice'>[]) => {
-    dispatch({
-      type: "SET_ADVICE",
-      payload: {
-        id,
-        data
-      }
-    })
+  const setAdvice = useCallback(
+    (id: string, data: AdviceData) => {
+      dispatch({
+        type: "SET_ADVICE",
+        payload: {
+          id,
+          data
+        }
+      })
   }, []);
 
-  const toggleAdviceActioned = useCallback((id: string) => {
-    // toggle 'actioned' state of advice for portfolio
-    dispatch({
-      type: "TOGGLE_ACTIONED",
-      payload: {
-        id,
-      },
-    });
-  }, [dispatch]);
-
   const updatePortfolioSettings = useCallback(async (
-    id: string, data: {
-    name: string
-    objective: string
-    flat_brokerage: number
-  }) => {
+    id: string, data: PortfolioUpdate
+  ) => {
     const { error } = await supabase
       .from("portfolios")
       .update(data)
@@ -172,15 +162,16 @@ export const GlobalProvider = ({
     return true;
   }, [supabase, dispatch]);
 
-  const toggleWatchlist = useCallback(async (symbol: string) => {
-    // update DB
-    const { data, error } = await supabase.rpc("toggle_symbol_in_watchlist", {
-      user_id: session.user.id,
-      symbol,
-    });
+  const toggleWatchlist = useCallback(
+    async (symbol: string) => {
+      // update DB
+      const { data, error } = await supabase.rpc("toggle_symbol_in_watchlist", {
+        user_id: session.user.id,
+        symbol,
+      });
 
-    // update state
-    setWatchlist(data as string[]);
+      // update state
+      setWatchlist(data as string[]);
   }, [supabase, session, setWatchlist]);
 
   return (
@@ -194,7 +185,6 @@ export const GlobalProvider = ({
         toggleFavourite,
         updatePortfolioSettings,
         setAdvice,
-        toggleAdviceActioned,
         onPortfolioDelete,
         toggleWatchlist
       }}

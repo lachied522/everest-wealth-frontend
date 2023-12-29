@@ -4,10 +4,10 @@ import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { LuPlus, LuFileText, LuMinus, LuGlobe2 } from "react-icons/lu";
 
-import { useGlobalContext } from "@/context/GlobalState";
+import { useGlobalContext, GlobalState } from "@/context/GlobalState";
 
 export default function WatchlistButton({ symbol } : { symbol: string }) {
-    const { watchlist, toggleWatchlist } = useGlobalContext();
+    const { watchlist, toggleWatchlist } = useGlobalContext() as GlobalState;
 
     const inWatchlist = useMemo(() => {
         if (watchlist && watchlist?.length > 0) {

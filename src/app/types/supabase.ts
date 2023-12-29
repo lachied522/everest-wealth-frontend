@@ -100,30 +100,39 @@ export interface Database {
       }
       portfolios: {
         Row: {
+          active: number | null
           created_at: string
           flat_brokerage: number
           id: string
+          international: number | null
           item_access_token: string | null
           name: string
           objective: string
+          preferences: Json | null
           user_id: string | null
         }
         Insert: {
+          active?: number | null
           created_at?: string
           flat_brokerage?: number
           id?: string
+          international?: number | null
           item_access_token?: string | null
           name?: string
           objective?: string
+          preferences?: Json | null
           user_id?: string | null
         }
         Update: {
+          active?: number | null
           created_at?: string
           flat_brokerage?: number
           id?: string
+          international?: number | null
           item_access_token?: string | null
           name?: string
           objective?: string
+          preferences?: Json | null
           user_id?: string | null
         }
         Relationships: [
@@ -232,25 +241,31 @@ export interface Database {
       }
       transactions: {
         Row: {
+          brokerage: number | null
           date: string
           id: string
           portfolio_id: string
+          price: number | null
           reason: string | null
           symbol: string
           units: number
         }
         Insert: {
+          brokerage?: number | null
           date?: string
           id?: string
           portfolio_id: string
+          price?: number | null
           reason?: string | null
           symbol: string
           units: number
         }
         Update: {
+          brokerage?: number | null
           date?: string
           id?: string
           portfolio_id?: string
+          price?: number | null
           reason?: string | null
           symbol?: string
           units?: number

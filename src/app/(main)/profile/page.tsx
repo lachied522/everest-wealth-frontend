@@ -3,9 +3,9 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import Image from 'next/image';
 
-import { Database } from '@/types/supabase';
-
 import ProfileForm from "./components/profile-form";
+
+import type { Database } from '@/types/supabase';
 
 export default async function Page() {
   const cookieStore = cookies();

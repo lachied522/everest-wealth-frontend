@@ -1,7 +1,7 @@
 import { fetchSymbol } from "./redis";
 
-import { Tables } from "@/types/supabase";
-import { PopulatedHolding } from "@/types/types";
+import type { Tables } from "@/types/supabase";
+import type { PopulatedHolding } from "@/types/types";
 
 export async function fetchStockDataFromServer(holdings: Tables<'holdings'>[]) {
 

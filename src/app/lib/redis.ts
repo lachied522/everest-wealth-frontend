@@ -2,7 +2,7 @@
 import { createClient, SchemaFieldTypes } from 'redis';
 import { Schema, Repository, Entity } from 'redis-om';
 
-import { StockInfo } from '@/types/types';
+import type { StockInfo } from '@/types/types';
 
 let GlobalWithClient = global as typeof globalThis & {
   client: ReturnType<typeof createClient>

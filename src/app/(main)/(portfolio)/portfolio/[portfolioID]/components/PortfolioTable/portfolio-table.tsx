@@ -28,8 +28,10 @@ import { cn } from "@/components/lib/utils";
 
 import { LuStar } from "react-icons/lu";
 
-import { useGlobalContext } from "@/context/GlobalState";
-import { PortfolioState, usePortfolioContext } from "@/context/portfolio/PortfolioState";
+import { useGlobalContext, GlobalState } from "@/context/GlobalState";
+import { usePortfolioContext, PortfolioState } from "@/context/portfolio/PortfolioState";
+
+import type { PopulatedHolding } from "@/types/types";
 
 const Star = ({ selected, onClick } : { selected: boolean, onClick: () => void }) => {
     return (
@@ -51,7 +53,7 @@ interface PortfolioTableProps<TData, TValue> {
 export default function PortfolioTable<TData, TValue>({
     columns,
 }: PortfolioTableProps<TData, TValue>) {
-    const { toggleFavourite } = useGlobalContext()
+    const { toggleFavourite } = useGlobalContext() as GlobalState;
     const { currentPortfolio } = usePortfolioContext() as PortfolioState;
     const [data, setData] = useState<TData[] | null>(null);
     const [sorting, setSorting] = useState<SortingState>([])
@@ -79,9 +81,9 @@ export default function PortfolioTable<TData, TValue>({
         <div className="rounded-md bg-white border">
             <Table>
                 <TableHeader className="bg-slate-100/50 transition-none">
-                {table?.getHeaderGroups().map((headerGroup) => (
+                {table.getHeaderGroups().map((headerGroup) => (
                     <TableRow key={headerGroup.id}>
-                        <TableHead><div/></TableHead> {/* add spacer for 'locked' column */}
+                        <TableHead><div className="w-[24px]"/>{/* add spacer for 'locked' column */}</TableHead>
                         {headerGroup.headers.map((header) => {
                         return (
                         <TableHead key={header.id}>
@@ -107,7 +109,7 @@ export default function PortfolioTable<TData, TValue>({
                             data-state={row.getIsSelected() && "selected"}
                         >
                             <TableCell className="items-center">
-                                <Star selected={Boolean(row.original['locked' as keyof TData])} onClick={() => toggleFavourite(row.original['id' as keyof TData])}/>
+                                <Star selected={Boolean(row.original['locked' as keyof TData])} onClick={() => toggleFavourite(row.original['id' as keyof TData] as PopulatedHolding['id'])}/>
                             </TableCell>
                             {row.getVisibleCells().map((cell) => (
                             <TableCell key={cell.id} className="items-center">
@@ -127,7 +129,7 @@ export default function PortfolioTable<TData, TValue>({
                 ) : (
                     Array.from({ length: 5 }).map((_, index) => (
                         <TableRow key={index}>
-                            <TableCell><div/></TableCell> {/* add spacer for 'locked' column */}
+                            <TableCell><div className="w-[24px]"/>{/* add spacer for 'locked' column */}</TableCell>
                             {columns.map((_, index) => (
                                 <TableCell key={index}>
                                     <Skeleton className="w-full h-[24px]"/>

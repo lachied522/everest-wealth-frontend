@@ -8,13 +8,10 @@ import { Button } from "@/components/ui/button";
 
 import { cn } from "@/components/lib/utils";
 
-import { usePortfolioContext } from "@/context/portfolio/PortfolioState";
+import { usePortfolioContext, PortfolioState } from "@/context/portfolio/PortfolioState";
 import PortfolioTable from "./PortfolioTable/portfolio-table";
 import { columns as portfolioColumns } from "./PortfolioTable/portfolio-table-columns";
 import RecommendationsTable from "./RecommendationsTable/recommendations-table";
-
-import { PopulatedHolding } from "@/types/types";
-
 
 // define tabs and columns to display
 const TABS = [
@@ -56,14 +53,14 @@ const AdviceNotification = ({ value }: { value: number }) => {
     )
 }
 
-const PortfolioTabs = () => {
+export default function PortfolioTabs() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const { currentPortfolio } = usePortfolioContext();
-    const [currentTab, setCurrentTab] = useState(TABS[1]); // keeps track of current tab, defaults to 'overview'
+    const { currentPortfolio } = usePortfolioContext() as PortfolioState;
+    const [currentTab, setCurrentTab] = useState<typeof TABS[number]>(TABS[1]); // keeps track of current tab, defaults to 'overview'
     // @ts-ignore: issue with ColumnDef type https://github.com/TanStack/table/issues/4241
     const [visibleColumns, setVisibleColumns] = useState(portfolioColumns.filter((column) => currentTab.visibleColumns.includes(column.accessorKey))); 
-    const [adviceNotification, setAdviceNotification] = useState(0); // shows user whether the advice tab is non-empty
+    const [adviceNotification, setAdviceNotification] = useState<number>(0); // shows user whether the advice tab is non-empty
 
     useEffect(() => {
         // get current tab
@@ -80,7 +77,7 @@ const PortfolioTabs = () => {
         // update visible columns on tab change
         if (currentTab!==TABS[0]) {
             // @ts-ignore: issue with ColumnDef type https://github.com/TanStack/table/issues/4241
-            const newColumns = portfolioColumns.filter((column: ColumnDef<PopulatedHolding | any>) => currentTab.visibleColumns.includes(column.accessorKey));
+            const newColumns = portfolioColumns.filter((column) => currentTab.visibleColumns.includes(column.accessorKey));
             setVisibleColumns(newColumns);
         }
     }, [currentTab]);
@@ -93,41 +90,29 @@ const PortfolioTabs = () => {
         <>
             <div className="flex gap-3 mb-4 px-3">
             {TABS.map((tab, index) => (
-                <div key={tab.tabName} className="relative">
-                    {index===0 ? (
-                    <>
-                        <AdviceNotification value={adviceNotification}/>
-                        <Button
-                            variant="tab"
-                            className={cn(
-                                tab===currentTab && "underline"
-                            )}
-                            onClick={() => {onTabClick(index)}}
-                        >
-                            {tab.tabName}
-                        </Button>
-                    </>
-                    ) : (
+                <div key={`button-${tab.tabName}-tab`} className="relative">
+                    {index===0 && (
+                    <AdviceNotification value={adviceNotification}/>
+                    )}
                     <Button
                         key={tab.tabName}
                         variant="tab"
                         className={cn(
+                            "text-base",
                             tab===currentTab && "underline"
                         )}
                         onClick={() => {onTabClick(index)}}
                     >
                         {tab.tabName}
-                    </Button>)}
+                    </Button>
                 </div>
             ))}
             </div>
             {currentTab === TABS[0] ? (
-                <RecommendationsTable setAdviceNotification={setAdviceNotification} />
+            <RecommendationsTable setAdviceNotification={setAdviceNotification} />
             ) : (
-                <PortfolioTable columns={visibleColumns} />
+            <PortfolioTable columns={visibleColumns} />
             )}
         </>
     )
 };
-
-export default PortfolioTabs;

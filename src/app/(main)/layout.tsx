@@ -2,46 +2,58 @@ import { createServerComponentClient, Session, SupabaseClient } from '@supabase/
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
+import { fetchStockDataFromServer } from '@/lib/redis-utils';
+
 import { GlobalProvider } from "./context/GlobalState";
 import { SidebarProvider } from "./context/SidebarState";
-
-import { fetchStockDataFromServer } from '@/lib/redis-utils';
 
 import Sidebar from "./sidebar";
 import Header from "./header";
 import Container from './container';
 import Footer from './footer';
 
-import { Database } from '@/types/supabase';
+import type { Database } from '@/types/supabase';
 
 const fetchData = async (session: Session, supabase: SupabaseClient) => {
-    // portfolios belong to user, plus most recent record from advice table for each portfolio
-    const { data: portfolioData, error: portfolioError } = await supabase
-    .from("portfolios")
-    .select("*, advice(*), holdings(*)")
-    .eq("user_id", session.user.id)
-    .order("created_at", { foreignTable: "advice", ascending: false })
-    .limit(1, { foreignTable: "advice" });
+    try {
+        const { data: portfolioData, error: portfolioError } = await supabase
+        .from("portfolios")
+        .select("*, holdings(*), advice(*)")
+        .eq("user_id", session.user.id)
+        .order("created_at", { referencedTable: "advice", ascending: false })
+        .limit(1, { referencedTable: "advice" });
 
-    const { data: userData, error: userError} = await supabase
-    .from("users")
-    .select("watchlist, notifications")
-    .eq("id", session.user.id);
-    
-    if(portfolioError || userError) {
-        console.log(`Error fecthing data`);
-        throw new Error(`Error fecthing data ${portfolioError}`);
-    };
+        const { data: userData, error: userError} = await supabase
+        .from("users")
+        .select("watchlist, notifications")
+        .eq("id", session.user.id);
+        
+        if(portfolioError || userError) {
+            console.log(portfolioError);
+            throw new Error(`Error fecthing data ${portfolioError}`);
+        };
 
-    console.log("data fetched");
+        console.log("data fetched");
 
-    return {
-        portfolioData: portfolioData || [], 
-        userData: {
-            watchlist: userData[0].watchlist || [],
-            notifications: JSON.parse(userData[0].notifications) || []
-        }
-    };
+        return {
+            portfolioData: portfolioData || [], 
+            userData: {
+                watchlist: userData[0].watchlist || [],
+                notifications: JSON.parse(userData[0].notifications) || []
+            }
+        };
+
+    } catch (e) {
+        console.log(e);
+
+        return {
+            portfolioData: [], 
+            userData: {
+                watchlist: [],
+                notifications: []
+            }
+        };
+    }
 };
 
 export default async function RootLayout({ children } : { children: React.ReactNode}) {

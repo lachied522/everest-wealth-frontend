@@ -3,9 +3,7 @@
  *  https://ui.shadcn.com/docs/components/form 
  */
 
-import { useState } from "react"
-
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
+import { useCallback, useState } from "react"
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -32,10 +30,10 @@ import { Button } from "@/components/ui/button"
 
 import { LuPencil, LuSave, LuMapPin } from "react-icons/lu"
 
-import { Tables } from "@/types/supabase";
-
 import DOBPicker from "./dob-picker";
 import IndustryPreferences from "@/components/industry-preferences"
+
+import type { Tables, TablesInsert } from "@/types/supabase";
 
 const FormSchema = z.object({
     DOB: z.date().max(new Date(), { message: "Please select a valid DOB" }),
@@ -60,7 +58,6 @@ interface ProfileFormProps {
 }
 
 export default function ProfileForm({ data, userName } : ProfileFormProps) {
-    const supabase = createClientComponentClient()
     const [isEdit, setIsEdit] = useState<boolean>(false)
 
     const form = useForm<z.infer<typeof FormSchema>>({
@@ -81,25 +78,24 @@ export default function ProfileForm({ data, userName } : ProfileFormProps) {
         },
     })
 
-    const commitProfile = async (formData: Partial<Tables<'profiles'>>) => {
-        const {
-            data: { session },
-        } = await supabase.auth.getSession()
+    const commitProfile = useCallback(
+        async (data: Omit<TablesInsert<'profiles'>, 'user_id'>) => {
+            const response = await fetch(
+                '/api/commit-profile',
+                {
+                    method: "POST",
+                    body: JSON.stringify(data),
+                    headers: {
+                        "Content-Type": "application/json",
+                    }
+                }
+            )
+            .then(res => res.json());
 
-        if (!session) return
-
-        const { data, error } = await supabase
-            .from('profiles')
-            .insert({
-                ...formData,
-                'user_id': session.user.id
-            })
-            .select()
-    
-        if (error) console.log(error)
-
-        console.log(data);
-    }
+            return response;
+        },
+        []
+    )
 
     async function onSubmit(values: z.infer<typeof FormSchema>) {
         commitProfile({
@@ -110,7 +106,7 @@ export default function ProfileForm({ data, userName } : ProfileFormProps) {
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-8">
                 <div className='grid grid-cols-4 items-center justify-items-center'>
                     <div className="text-lg font-medium text-slate-800 mb-2">
                         {userName || 'Name'}
@@ -149,115 +145,115 @@ export default function ProfileForm({ data, userName } : ProfileFormProps) {
                     )}
                 </div>
                 <div>
-                <h4 className="mb-6">Finances</h4>
-                <Card className="grid grid-cols-2 items-center justify-items-center gap-12 p-16">
-                    <div className="w-full text-left text-lg text-slate-800">Employment type</div>
-                    <FormField
-                        control={form.control}
-                        name="employment"
-                        render={({ field }) => (
-                            <FormItem>
-                                <Select onValueChange={field.onChange} defaultValue={String(field.value)}>
+                    <h4 className="mb-6">Finances</h4>
+                    <Card className="grid grid-cols-2 items-center justify-items-center gap-12 p-16">
+                        <div className="w-full text-left text-lg text-slate-800">Employment type</div>
+                        <FormField
+                            control={form.control}
+                            name="employment"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <Select onValueChange={field.onChange} defaultValue={String(field.value)}>
+                                        <FormControl>
+                                            <SelectTrigger className="w-[180px]">
+                                                <SelectValue placeholder="Select one..." />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="student">Student</SelectItem>
+                                            <SelectItem value="casual">Casual</SelectItem>
+                                            <SelectItem value="part-time">Part Time</SelectItem>
+                                            <SelectItem value="full-time">Full Time</SelectItem>
+                                            <SelectItem value="freelance">Freelance</SelectItem>
+                                            <SelectItem value="retired">Retired</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </FormItem>
+                            )}
+                        />
+                        <div className="w-full text-left text-lg text-slate-800">
+                            What proportion of your monthly income do you usually invest?
+                        </div>
+                        <FormField
+                            control={form.control}
+                            name="salary"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <Select onValueChange={field.onChange} defaultValue={String(field.value)}>
+                                        <FormControl>
+                                            <SelectTrigger className="w-[180px]">
+                                                <SelectValue placeholder="Select one..." />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="0">0%</SelectItem>
+                                            <SelectItem value="1">1% - 5%</SelectItem>
+                                            <SelectItem value="2">5% - 10%</SelectItem>
+                                            <SelectItem value="3">10% - 25%</SelectItem>
+                                            <SelectItem value="4">25% - 50%</SelectItem>
+                                            <SelectItem value="5">50% +</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </FormItem>
+                            )}
+                        />
+                        <div className="w-full text-left text-lg text-slate-800">
+                            What proportion of your net worth does your portfolio make up?
+                        </div>
+                        <FormField
+                            control={form.control}
+                            name="assets"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <Select onValueChange={field.onChange} defaultValue={String(field.value)}>
+                                        <FormControl>
+                                            <SelectTrigger className="w-[180px]">
+                                                <SelectValue placeholder="Select one..." />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="0">0% - 10%</SelectItem>
+                                            <SelectItem value="1">10% - 25%</SelectItem>
+                                            <SelectItem value="2">25% - 50%</SelectItem>
+                                            <SelectItem value="3">50% - 75%</SelectItem>
+                                            <SelectItem value="4">75% +</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </FormItem>
+                            )}
+                        />
+                        <div className="w-full text-left text-lg text-slate-800">
+                            Are you borrowing to invest in shares?
+                        </div>
+                        <FormField
+                            control={form.control}
+                            name="borrowing"
+                            render={({field}) => (
+                                <FormItem>
                                     <FormControl>
-                                        <SelectTrigger className="w-[180px]">
-                                            <SelectValue placeholder="Select one..." />
-                                        </SelectTrigger>
+                                        <RadioGroup
+                                            onValueChange={field.onChange}
+                                            defaultValue={String(field.value)}
+                                            className="flex items-center justify-center gap-4"
+                                        >
+                                            <FormItem className="flex items-center space-x-3 space-y-0">
+                                                <FormControl>
+                                                    <RadioGroupItem value="true" />
+                                                </FormControl>
+                                                <FormLabel className="font-normal">Yes</FormLabel>
+                                            </FormItem>
+                                            <FormItem  className="flex items-center space-x-3 space-y-0">
+                                                <FormControl>
+                                                    <RadioGroupItem value="false" />
+                                                </FormControl>
+                                                <FormLabel className="font-normal">No</FormLabel>
+                                            </FormItem>
+                                        </RadioGroup>
                                     </FormControl>
-                                    <SelectContent>
-                                        <SelectItem value="student">Student</SelectItem>
-                                        <SelectItem value="casual">Casual</SelectItem>
-                                        <SelectItem value="part-time">Part Time</SelectItem>
-                                        <SelectItem value="full-time">Full Time</SelectItem>
-                                        <SelectItem value="freelance">Freelance</SelectItem>
-                                        <SelectItem value="retired">Retired</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </FormItem>
-                        )}
-                    />
-                    <div className="w-full text-left text-lg text-slate-800">
-                        What proportion of your monthly income do you usually invest?
-                    </div>
-                    <FormField
-                        control={form.control}
-                        name="salary"
-                        render={({ field }) => (
-                            <FormItem>
-                                <Select onValueChange={field.onChange} defaultValue={String(field.value)}>
-                                    <FormControl>
-                                        <SelectTrigger className="w-[180px]">
-                                            <SelectValue placeholder="Select one..." />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        <SelectItem value="0">0%</SelectItem>
-                                        <SelectItem value="1">1% - 5%</SelectItem>
-                                        <SelectItem value="2">5% - 10%</SelectItem>
-                                        <SelectItem value="3">10% - 25%</SelectItem>
-                                        <SelectItem value="4">25% - 50%</SelectItem>
-                                        <SelectItem value="5">50% +</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </FormItem>
-                        )}
-                    />
-                    <div className="w-full text-left text-lg text-slate-800">
-                        What proportion of your net worth does your portfolio make up?
-                    </div>                
-                    <FormField
-                        control={form.control}
-                        name="assets"
-                        render={({ field }) => (
-                            <FormItem>
-                                <Select onValueChange={field.onChange} defaultValue={String(field.value)}>
-                                    <FormControl>
-                                        <SelectTrigger className="w-[180px]">
-                                            <SelectValue placeholder="Select one..." />
-                                        </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        <SelectItem value="0">0% - 10%</SelectItem>
-                                        <SelectItem value="1">10% - 25%</SelectItem>
-                                        <SelectItem value="2">25% - 50%</SelectItem>
-                                        <SelectItem value="3">50% - 75%</SelectItem>
-                                        <SelectItem value="4">75% +</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </FormItem>
-                        )}
-                    />
-                    <div className="w-full text-left text-lg text-slate-800">
-                        Are you borrowing to invest in shares?
-                    </div>
-                    <FormField
-                        control={form.control}
-                        name="borrowing"
-                        render={({field}) => (
-                            <FormItem>
-                                <FormControl>
-                                    <RadioGroup 
-                                        onValueChange={field.onChange}
-                                        defaultValue={String(field.value)}
-                                        className="flex items-center justify-center gap-4"
-                                    >
-                                        <FormItem className="flex items-center space-x-3 space-y-0">
-                                            <FormControl>
-                                                <RadioGroupItem value="true" />
-                                            </FormControl>
-                                            <FormLabel className="font-normal">Yes</FormLabel>
-                                        </FormItem>
-                                        <FormItem  className="flex items-center space-x-3 space-y-0">
-                                            <FormControl>
-                                                <RadioGroupItem value="false" />
-                                            </FormControl>
-                                            <FormLabel className="font-normal">No</FormLabel>
-                                        </FormItem>
-                                    </RadioGroup>
-                                </FormControl>
-                            </FormItem>
-                        )}
-                    />
-                </Card>
+                                </FormItem>
+                            )}
+                        />
+                    </Card>
                 </div>
                 <div>
                     <h4 className="mb-6">Experience</h4>
@@ -503,23 +499,24 @@ export default function ProfileForm({ data, userName } : ProfileFormProps) {
                             international stocks?
                         </div>
                         <FormField 
-                                control={form.control}
-                                name="international"
-                                render={({field}) => (
-                                    <FormItem className="flex gap-4 justify-stretch">
-                                        <span>0</span>
-                                        <FormControl>
-                                            <Slider 
-                                                min={0} 
-                                                max={100} 
-                                                step={1} 
-                                                defaultValue={[field.value || 50]}
-                                                onValueChange={field.onChange}
-                                                className="w-[240px] cursor-pointer"/>
-                                        </FormControl>
-                                        <span>100</span>
-                                    </FormItem>
-                                )}
+                            control={form.control}
+                            name="international"
+                            render={({field}) => (
+                                <FormItem className="flex gap-4 justify-stretch">
+                                    <span>0</span>
+                                    <FormControl>
+                                        <Slider 
+                                            min={0} 
+                                            max={100} 
+                                            step={1} 
+                                            defaultValue={[field.value || 50]}
+                                            onValueChange={field.onChange}
+                                            className="w-[240px] cursor-pointer"
+                                        />
+                                    </FormControl>
+                                    <span>100</span>
+                                </FormItem>
+                            )}
                         />
                         <div className="text-lg text-slate-800">
                             What proportion of your portfolio do you wish to invest in ETFs?
@@ -537,7 +534,8 @@ export default function ProfileForm({ data, userName } : ProfileFormProps) {
                                                 step={1} 
                                                 defaultValue={[field.value || 50]}
                                                 onValueChange={field.onChange}
-                                                className="w-[240px] cursor-pointer"/>
+                                                className="w-[240px] cursor-pointer"
+                                            />
                                         </FormControl>
                                         <span>100</span>
                                     </FormItem>

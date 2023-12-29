@@ -7,7 +7,8 @@ import debounce from "lodash.debounce";
 import { Input } from "@/components/ui/input";
 
 import { LuSearch } from "react-icons/lu";
-import { StockInfo } from "@/types/types";
+
+import type { StockInfo } from "@/types/types";
 
 const SearchHit = ({ hit, selectHit } : { 
     hit: StockInfo, 

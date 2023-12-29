@@ -4,7 +4,9 @@ import Link from "next/link";
 
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 
-export default function StockCard({ symbol }: { symbol: string }) {
+export default function StockCard({ symbol }: { symbol: string | null }) {
+    if (!symbol) return null;
+
     const [data, setData] = useState(null);
 
     useEffect(() => {
@@ -15,7 +17,7 @@ export default function StockCard({ symbol }: { symbol: string }) {
         }
 
         async function getData() {
-            const params = new URLSearchParams({ s: symbol });
+            const params = new URLSearchParams({ s: symbol! });
             const data = await fetch(`/api/get-stock-info?${params}`).then(res => res.json());
             if (active) setData(data);
         }

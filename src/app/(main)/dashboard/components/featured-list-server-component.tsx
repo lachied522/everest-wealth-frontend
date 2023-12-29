@@ -1,10 +1,10 @@
 
 import { cookies } from 'next/headers';
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
-import { Database } from '@/types/supabase';
 
 import FeaturedStocksCarousel from './featured-stocks-carousel';
 
+import type { Database } from '@/types/supabase';
 
 export default async function FeaturedStocksServerComponent() {
     const cookieStore = cookies();

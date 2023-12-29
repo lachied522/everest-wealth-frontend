@@ -1,6 +1,6 @@
 "use client";
-import { useState, useEffect, useRef, useCallback } from "react";
-import { usePathname, useParams } from "next/navigation";
+import { useState, useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -19,38 +19,12 @@ import {
 import { Separator } from "@/components/ui/separator";
 
 import { useSidebarContext } from "./context/SidebarState";
-import { GlobalState, PortfolioData, useGlobalContext } from "./context/GlobalState";
+import { GlobalState, useGlobalContext } from "./context/GlobalState";
 import { Button } from "@/components/ui/button";
 
 import NewPortfolioPopup from "@/components/modals/new-portfolio-popup";
 
-const PAGES = [
-  {
-    name: "Dashboard",
-    href: "/dashboard",
-    Icon: BiHomeAlt2,
-  },
-  {
-    name: "Portfolio",
-    href: "/portfolio",
-    Icon: BiBriefcaseAlt,
-  },
-  {
-    name: "Performance",
-    href: "",
-    Icon:  LuFileLineChart,
-  },
-  {
-    name: "Advice",
-    href: "/advice",
-    Icon: LuFileBarChart,
-  },
-  {
-    name: "Profile",
-    href: "/profile",
-    Icon: LuUser2,
-  }
-];
+import type { PortfolioData } from "@/types/types";
 
 interface PortfolioMenuItemProps {
   portfolio: PortfolioData

@@ -1,4 +1,4 @@
-import { Tables } from "./supabase";
+import type { Tables } from "./supabase";
 
 export type StockInfo = {
     symbol: string
@@ -42,3 +42,15 @@ export type AdviceData = (
         brokerage: number
     }
 )
+
+export type Preferences = {
+    [key: string]: 'like' | 'dislike'
+} | null
+
+export type PortfolioData = (
+    Omit<Tables<'portfolios'>, 'preferences'> & {
+    holdings: PopulatedHolding[]
+    totalValue: number
+    advice: AdviceData[]
+    preferences: Preferences
+})

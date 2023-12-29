@@ -1,76 +1,105 @@
 "use client";
-
 import { cn } from "@/components/lib/utils";
 
+import { Preferences } from "@/types/types";
+
+const SECTORS = [
+  {
+    name: 'financials',
+    key: 'financials',
+  },
+  {
+    name: 'energy',
+    key: 'energy',
+  },
+  {
+    name: 'materials',
+    key: 'materials',
+  },
+  {
+    name: 'consumer discretionary',
+    key: 'consumer-cyclical',
+  },
+  {
+    name: 'communication services',
+    key: 'communication-services',
+  },
+  {
+    name: 'industrials',
+    key: 'industrials',
+  },
+  {
+    name: 'consumer staples',
+    key: 'consumer-defensive',
+  },
+  {
+    name: 'real estate',
+    key: 'real-estate',
+  },
+  {
+    name: 'technology',
+    key: 'technology',
+  },
+  {
+    name: 'healthcare',
+    key: 'healthcare',
+  },
+  {
+    name: 'utilities',
+    key: 'utilities',
+  }
+]
 
 interface SectorPrefenceProps {
-  sectorName: string
+  sector: typeof SECTORS[number]
   value: 'like' | 'dislike' | null
-  togglePreference: (sectorName: string) => void
+  togglePreference: (sector: typeof SECTORS[number]) => void
 }
 
-const SectorPrefence = ({ sectorName, value, togglePreference }: SectorPrefenceProps) => {
+const SectorPrefence = ({ sector, value, togglePreference }: SectorPrefenceProps) => {
     const onClick = () => {
-      togglePreference(sectorName);
+      togglePreference(sector);
     }
 
     return (
         <div 
           onClick={onClick}
           className={cn(
-                "flex flex-1 border rounded-full p-6 text-xs items-center justify-center h-[30px] max-w-[160px] text-center text-slate-800 cursor-pointer",
+                "flex flex-1 border rounded-full px-2 py-4 text-xs items-center justify-center h-[36px] max-w-[160px] text-center text-slate-800 cursor-pointer",
                 value==="like" && "text-[#13a570] bg-[#edfbee] border-solid border-[#edfbee]",
                 value==="dislike" && "text-[#dc2b2b] bg-[#ffeff0] border-[#ffeff0]"
             )}
         >
-            {sectorName}
+            {sector.name}
         </div>
     )
 }
 
-type Preferences = {
-  [key: string]: 'like' | 'dislike'
-}
-
 interface IndustryPreferencesProps {
-  value:  Preferences | null
+  value:  Preferences
   handleChange: (event: any) => void
 }
 
 export default function IndustryPreferences({ value, handleChange }: IndustryPreferencesProps) {
-  const sectors = [
-    'financials',
-    'energy',
-    'materials',
-    'consumer discretionary',
-    'communication services',
-    'industrials',
-    'consumer staples',
-    'real estate',
-    'information technology',
-    'health care',
-    'utilities'
-  ]
-
-  const togglePreference = (sectorName: string) => {
+  const togglePreference = (sector: typeof SECTORS[number]) => {
     if (!value) {
       handleChange({
-        [sectorName]: 'like'
+        [sector.key]: 'like'
       })
       return;
     }
 
     const newValue = {...value}; // clone preferences
 
-    switch (value[sectorName]) {
+    switch (value[sector.key]) {
       case 'like': 
-        newValue[sectorName] = 'dislike';
+        newValue[sector.key] = 'dislike';
         break;
       case 'dislike': 
-        delete newValue[sectorName];
+        delete newValue[sector.key];
         break;
       default:
-        newValue[sectorName] = 'like';
+        newValue[sector.key] = 'like';
     }
 
     handleChange(newValue);
@@ -78,24 +107,22 @@ export default function IndustryPreferences({ value, handleChange }: IndustryPre
 
   return (
       <div className="flex flex-col items-center">
-        <div className="flex flex-col items-center gap-4 mb-8">
-          <div className="flex items-center justify-start gap-2">
-            <div className="flex border rounded-full px-2.5 py-2 text-xs items-center justify-center h-[30px] w-[160px] text-center text-[#13a570] bg-[#edfbee] border-solid border-[#edfbee]">Green</div>
-            <span>=</span>
-            <span>like</span>
+        <div className="flex items-center gap-4 mb-8">
+          <div className="grid grid-cols-2 items-center gap-2">
+            <div className="flex border rounded-full px-2 py-4 text-xs items-center justify-center h-[36px] text-center text-[#13a570] bg-[#edfbee] border-solid border-[#edfbee]">Green</div>
+            <span>= like</span>
           </div>
-          <div className="flex items-center justify-start gap-2">
-            <div className="flex border rounded-full px-2.5 py-2 text-xs items-center justify-center h-[30px] w-[160px] text-center text-[#dc2b2b] bg-[#ffeff0] border-[#ffeff0]">Red</div>
-            <span>=</span>
-            <span>dislike</span>
+          <div className="grid grid-cols-2 items-center gap-2">
+            <div className="flex border rounded-full px-2 py-4 text-xs items-center justify-center h-[36px] text-center text-[#dc2b2b] bg-[#ffeff0] border-[#ffeff0]">Red</div>
+            <span>= dislike</span>
           </div>
         </div>  
-        <div className="flex flex-wrap max-w-[80%] gap-4 text-center justify-center items-center p-2">
-          {sectors.map((sectorName, index) => (
+        <div className="flex flex-wrap max-w-[80%] gap-4 text-center justify-center items-center">
+          {SECTORS.map((sector, index) => (
               <SectorPrefence 
                   key={index}
-                  sectorName={sectorName}
-                  value={value? value[sectorName]: null}
+                  sector={sector}
+                  value={value? value[sector.key]: null}
                   togglePreference={togglePreference}
               />
           ))}

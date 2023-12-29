@@ -15,7 +15,7 @@ import { GiAustralia } from "react-icons/gi";
 
 import { Button } from "@/components/ui/button";
 
-import { PopulatedHolding } from "@/types/types";
+import type { PopulatedHolding } from "@/types/types";
 
 const USDollar = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -53,7 +53,7 @@ function PortfolioTableColumnHeader<TData, TValue> ({
         )}
       </Button>
     )
-  }
+}
 
 export const columns: ColumnDef<PopulatedHolding>[] = [
     // {
@@ -84,6 +84,7 @@ export const columns: ColumnDef<PopulatedHolding>[] = [
         header: ({ column }) => (
           <PortfolioTableColumnHeader column={column} title={"Name"} />
         ),
+        maxSize: 24
     },
     {
       accessorKey: 'units',
@@ -91,7 +92,7 @@ export const columns: ColumnDef<PopulatedHolding>[] = [
         <PortfolioTableColumnHeader column={column} title={"Units"} />
       ),
       cell: ({ row }) => (
-        <div className="text-center">{row.getValue('units')}</div>
+        <div className="text-right mr-3">{row.getValue('units')}</div>
       )
     },
     {
@@ -100,7 +101,7 @@ export const columns: ColumnDef<PopulatedHolding>[] = [
           <PortfolioTableColumnHeader column={column} title={"Cost"} />
         ),
         cell: ({ row }) => (
-          USDollar.format(row.getValue('totalCost'))
+          <div className="text-right mr-3">{USDollar.format(row.getValue('totalCost'))}</div>
         )
     },
     {
@@ -109,7 +110,7 @@ export const columns: ColumnDef<PopulatedHolding>[] = [
           <PortfolioTableColumnHeader column={column} title={"Value"} />
         ),
         cell: ({ row }) => (
-          USDollar.format(row.getValue('value'))
+          <div className="text-right mr-3">{USDollar.format(row.getValue('value'))}</div>
         )
     },
     {
@@ -118,7 +119,7 @@ export const columns: ColumnDef<PopulatedHolding>[] = [
           <PortfolioTableColumnHeader column={column} title={"Profit/Loss"} />
         ),
         cell: ({ row }) => (
-          USDollar.format(row.getValue('totalProfit'))
+          <div className="text-right mr-3">{USDollar.format(row.getValue('totalProfit'))}</div>
         )
     },
     {

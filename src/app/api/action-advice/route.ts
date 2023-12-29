@@ -3,8 +3,9 @@ import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
 import { fetchStockDataFromServer } from '@/lib/redis-utils';
-import { Database, Tables } from '@/types/supabase';
-import { AdviceData, Transaction } from '@/types/types';
+
+import type { Database, Tables } from '@/types/supabase';
+import type { AdviceData, Transaction } from '@/types/types';
 
 function getNewHoldings({ currentHoldings, transactions } : { 
   currentHoldings: Tables<'holdings'>[] | null

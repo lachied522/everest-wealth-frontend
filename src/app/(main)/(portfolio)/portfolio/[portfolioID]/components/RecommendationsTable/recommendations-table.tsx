@@ -27,11 +27,11 @@ import { Button } from "@/components/ui/button";
 
 import { LuFileText, LuLoader2 } from "react-icons/lu";
 
-import { useGlobalContext } from "@/context/GlobalState";
-import { usePortfolioContext } from "@/context/portfolio/PortfolioState";
+import { GlobalState, useGlobalContext } from "@/context/GlobalState";
+import { usePortfolioContext, PortfolioState } from "@/context/portfolio/PortfolioState";
 import { columns } from "./recommendations-table-columns";
 import { Tables } from "@/types/supabase";
-import { AdviceData, Transaction } from "@/types/types";
+import { AdviceData, PopulatedHolding, Transaction } from "@/types/types";
 import Link from "next/link";
 
 const USDollar = new Intl.NumberFormat("en-US", {
@@ -64,8 +64,8 @@ interface RecommendationsTableProps {
 export default function RecommendationsTable<TData>({
     setAdviceNotification,
 }:  RecommendationsTableProps) {
-    const { updatePortfolio, setAdvice } = useGlobalContext();
-    const { currentPortfolio, loadingNewAdvice } = usePortfolioContext();
+    const { updatePortfolio, setAdvice } = useGlobalContext() as GlobalState;
+    const { currentPortfolio, loadingNewAdvice } = usePortfolioContext() as PortfolioState;
     const [data, setData] = useState<AdviceData | null>(null);
     const [sorting, setSorting] = useState<SortingState>([]);
     const router = useRouter();
@@ -124,7 +124,7 @@ export default function RecommendationsTable<TData>({
             }
         })
         .then(res => res.json())
-        .then(({ success, data }: { success: boolean, data: Tables<'holdings'>[] }) => {
+        .then(({ success, data }: { success: boolean, data: PopulatedHolding[] }) => {
             if (!success) throw new Error('Api error');
 
             if (data.length > 0) {

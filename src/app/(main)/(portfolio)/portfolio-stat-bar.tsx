@@ -15,8 +15,9 @@ import {
 
 import { Skeleton } from "@/components/ui/skeleton";
 
-import { PortfolioData } from "@/context/GlobalState";
 import { PortfolioState, usePortfolioContext } from "@/context/portfolio/PortfolioState";
+
+import type { PortfolioData } from "@/types/types";
 
 const USDollar = new Intl.NumberFormat("en-US", {
     style: "currency",

@@ -1,4 +1,4 @@
-import type { PortfolioData } from "./GlobalState";
+import type { PortfolioData } from "@/types/types";
 
 type Action = {
     type: string

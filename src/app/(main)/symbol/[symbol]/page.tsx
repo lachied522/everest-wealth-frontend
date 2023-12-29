@@ -28,12 +28,6 @@ function formatMarketCap(marketCap: number | null) {
     }
 }
 
-function formatSector(sectorString: string) {
-    return sectorString.split("-").map(function(s) {
-        return s.charAt(0).toUpperCase() + s.slice(1);
-    }).join(" ");
-}
-
 function ChangeIndicator({ last, change }: { last: number, change: number }) {
     if (!change || !last) return <div className="text-green-500">+0%</div>;
 
@@ -107,7 +101,7 @@ export default async function Page({ params }: PageProps) {
                     </div>
                     <div className="flex gap-2">
                         <span className="text-slate-800 font-semibold">Sector</span>
-                        {formatSector(data.sector || "")}
+                        {data.sector}
                     </div>
                 </div>
             </div>

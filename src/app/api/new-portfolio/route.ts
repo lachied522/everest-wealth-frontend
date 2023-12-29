@@ -2,7 +2,7 @@ import { createRouteHandlerClient, Session } from '@supabase/auth-helpers-nextjs
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
-import { Database, Tables } from '@/types/supabase';
+import type { Database, Tables } from '@/types/supabase';
 
 async function newAdvice({ amount, portfolio, session } : {
     portfolio: Tables<'portfolios'>

@@ -238,13 +238,13 @@ export default function EditPortfolioPopup() {
 
       fetch('/api/commit-portfolio', {
         method: "POST",
-          body: JSON.stringify({
-              portfolio_id: currentPortfolio.id, 
-              data: updatedHoldings,
-          }),
-          headers: {
-              "Content-Type": "application/json",
-          }
+        body: JSON.stringify({
+            portfolio_id: currentPortfolio.id, 
+            data: updatedHoldings,
+        }),
+        headers: {
+            "Content-Type": "application/json",
+        }
       })
       .then(res => res.json())
       .then(({ success, data }) => {

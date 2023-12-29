@@ -20,7 +20,7 @@ import { LuTrendingUp } from "react-icons/lu";
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 
 import { useGlobalContext } from "@/context/GlobalState";
-import { usePortfolioContext } from "../context/PortfolioState";
+import { PortfolioState, usePortfolioContext } from "@/context/portfolio/PortfolioState";
 
 const WEB_SOCKET_URL = process.env.NEXT_PUBLIC_WEBSOCKET_URL|| "";
 
@@ -31,7 +31,7 @@ const USDollar = new Intl.NumberFormat("en-US", {
 
 export default function NewAdvicePopup() {
     const { session, setAdvice } = useGlobalContext();
-    const { currentPortfolio, setLoadingNewAdvice } = usePortfolioContext();
+    const { currentPortfolio, setLoadingNewAdvice } = usePortfolioContext() as PortfolioState;
     const router = useRouter();
     const searchParams = useSearchParams();
     const [socketUrl, setSocketUrl] = useState<string | null>(null); // set url to null until called
@@ -62,8 +62,8 @@ export default function NewAdvicePopup() {
 
     useEffect(() => {
         if (currentPortfolio) {
-            setCurrentValue(parseFloat(currentPortfolio.totalValue));
-            setProposedValue(parseFloat(currentPortfolio.totalValue));
+            setCurrentValue(currentPortfolio.totalValue);
+            setProposedValue(currentPortfolio.totalValue);
             setAmount(0);
         }
     }, [currentPortfolio]);
@@ -97,11 +97,13 @@ export default function NewAdvicePopup() {
         setLoadingNewAdvice(true);
         // establish websocket connection
         setSocketUrl(`${WEB_SOCKET_URL}/ws/${session.user.id}`);
-        sendMessage(JSON.stringify({
-            portfolio_id: currentPortfolio.id, 
-            reason: adviceType,
-            amount: adviceType==='withdraw'? -amount: amount,
-        }));
+        sendMessage(
+            JSON.stringify({
+                portfolio_id: currentPortfolio.id, 
+                reason: adviceType,
+                amount: adviceType==='withdraw'? -amount: amount,
+            })
+        );
         // close modal
         if (closeRef.current) closeRef.current.click();
         // navigate to Recommendations tab
@@ -170,7 +172,6 @@ export default function NewAdvicePopup() {
                                         name="amount"
                                         min="0"
                                         placeholder="e.g. 1000"
-                                        value={amount}
                                         onChange={onChange}
                                         required
                                     />
