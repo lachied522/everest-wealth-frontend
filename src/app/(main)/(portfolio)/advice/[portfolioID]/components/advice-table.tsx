@@ -2,7 +2,7 @@
 /* 
  *  docs: https://ui.shadcn.com/docs/components/data-table 
 */
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 import {
     ColumnDef,
@@ -23,7 +23,8 @@ import {
 } from "@/components/ui/table";
 
 import { columns } from "./advice-table-columns";
-import { AdviceData } from "@/types/types";
+
+import type { AdviceData } from "@/types/types";
 
 interface AdviceTableProps {
     data: AdviceData
@@ -67,28 +68,18 @@ export default function AdviceTable<TData>({
                 ))}
                 </TableHeader>
                 <TableBody>
-                {table.getRowModel().rows?.length ? (
-                    <>
-                        {table.getRowModel().rows.map((row) => (
-                        <TableRow
-                            key={row.id}
-                            data-state={row.getIsSelected() && "selected"}
-                        >
-                            {row.getVisibleCells().map((cell) => (
-                            <TableCell key={cell.id} className="items-center">
-                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                            </TableCell>
-                            ))}
-                        </TableRow>
-                        ))}
-                    </>
-                ) : (
-                    <TableRow>
-                        <TableCell colSpan={columns.length} className="h-24 text-center">
-                            No current recommendations.
+                    {table.getRowModel().rows.map((row) => (
+                    <TableRow
+                        key={row.id}
+                        data-state={row.getIsSelected() && "selected"}
+                    >
+                        {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id} className="items-center">
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
                         </TableCell>
+                        ))}
                     </TableRow>
-                )}
+                    ))}
                 </TableBody>
             </Table>
         </div>

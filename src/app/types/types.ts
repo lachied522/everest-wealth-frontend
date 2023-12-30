@@ -54,3 +54,8 @@ export type PortfolioData = (
     advice: AdviceData[]
     preferences: Preferences
 })
+
+export type TimeSeriesDataPoint = {
+    date: Date
+    value: number
+};

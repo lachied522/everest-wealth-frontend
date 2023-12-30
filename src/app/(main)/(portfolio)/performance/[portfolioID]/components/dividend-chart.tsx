@@ -5,6 +5,11 @@ import { BarChart, Bar, Rectangle, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/components/lib/utils';
+
+const USDollar = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+});
   
 type Timeframe = {
     label: '1M'|'3M'|'1Y'|'5Y'|'ALL'
@@ -35,37 +40,31 @@ type TimeSeriesDataPoint = {
     value: number;
 };
 
-interface PortfolioDividendChartProps {
+interface DividendChartProps {
     data: TimeSeriesDataPoint[]
 }
 
-export default function PortfolioDividendChart({ data }: PortfolioDividendChartProps) {
+export default function DividendChart({ data }: DividendChartProps) {
     const [timeframe, setTimeframe] = useState<Timeframe>(TIMEFRAMES[2])
 
-    console.log(new Date().toUTCString())
-
     return (
-        <Card>
-            <CardHeader>
-                <div className='flex flex-row gap-x-2'>
-                {TIMEFRAMES.map((t, index) => (
-                    <Button 
-                        key={`t-${index}`}
-                        variant='ghost'
-                        onClick={() => setTimeframe(t)}
-                        className={cn(
-                            timeframe===t && 'bg-accent text-accent-foreground'
-                        )}
-                    >
-                        {t.label}
-                    </Button>
-                ))}
-                </div>
-            </CardHeader>
-            <CardContent>
+        <>
+            <div className='flex flex-row gap-x-2'>
+            {TIMEFRAMES.map((t, index) => (
+                <Button
+                    key={`t-${index}`}
+                    variant='ghost'
+                    onClick={() => setTimeframe(t)}
+                    className={cn(
+                        timeframe===t && 'bg-accent text-accent-foreground'
+                    )}
+                >
+                    {t.label}
+                </Button>
+            ))}
+            </div>
+            <ResponsiveContainer width='75%' minWidth={600} height={400}>
                 <BarChart
-                    width={500}
-                    height={300}
                     data={data.slice(1).slice(-timeframe.length)}
                     margin={{
                         top: 5,
@@ -79,11 +78,18 @@ export default function PortfolioDividendChart({ data }: PortfolioDividendChartP
                         tickFormatter={(date: Date) => date.toUTCString().slice(8, 16)}
                         tickCount={4}
                     />
-                    <YAxis />
+                    <YAxis
+                        tickFormatter={(value: number) => USDollar.format(value)}
+                    />
                     {/* <Tooltip /> */}
-                    <Bar dataKey="value" fill="#8884d8" activeBar={<Rectangle fill="pink" stroke="blue" />} />
+                    <Bar
+                        dataKey="value"
+                        fill="#8884d8"
+                        barSize={48}
+                        activeBar={<Rectangle fill="pink" stroke="blue" />}
+                    />
                 </BarChart>
-            </CardContent>
-        </Card>
+            </ResponsiveContainer>
+        </>
       );
 }

@@ -39,7 +39,7 @@ const Star = ({ selected, onClick } : { selected: boolean, onClick: () => void }
         size={20}
         onClick={onClick}
         className={cn(
-            'cursor-pointer hover:scale-105',
+            'cursor-pointer hover:scale-105 ml-1',
             selected && 'fill-yellow-400 text-yellow-400'
         )}
       />
@@ -83,7 +83,7 @@ export default function PortfolioTable<TData, TValue>({
                 <TableHeader className="bg-slate-100/50 transition-none">
                 {table.getHeaderGroups().map((headerGroup) => (
                     <TableRow key={headerGroup.id}>
-                        <TableHead><div className="w-[24px]"/>{/* add spacer for 'locked' column */}</TableHead>
+                        <TableHead className="w-[24px]"><div />{/* add spacer for 'locked' column */}</TableHead>
                         {headerGroup.headers.map((header) => {
                         return (
                         <TableHead key={header.id}>
@@ -108,7 +108,7 @@ export default function PortfolioTable<TData, TValue>({
                             key={row.id}
                             data-state={row.getIsSelected() && "selected"}
                         >
-                            <TableCell className="items-center">
+                            <TableCell className="w-[24px]">
                                 <Star selected={Boolean(row.original['locked' as keyof TData])} onClick={() => toggleFavourite(row.original['id' as keyof TData] as PopulatedHolding['id'])}/>
                             </TableCell>
                             {row.getVisibleCells().map((cell) => (
@@ -129,7 +129,7 @@ export default function PortfolioTable<TData, TValue>({
                 ) : (
                     Array.from({ length: 5 }).map((_, index) => (
                         <TableRow key={index}>
-                            <TableCell><div className="w-[24px]"/>{/* add spacer for 'locked' column */}</TableCell>
+                            <TableCell className="w-[24px]"><div />{/* add spacer for 'locked' column */}</TableCell>
                             {columns.map((_, index) => (
                                 <TableCell key={index}>
                                     <Skeleton className="w-full h-[24px]"/>

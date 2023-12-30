@@ -2,8 +2,6 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
-import { ColumnDef } from "@tanstack/react-table";
-
 import { Button } from "@/components/ui/button";
 
 import { cn } from "@/components/lib/utils";

@@ -29,13 +29,21 @@ export default function NotificiationMenu() {
             <DropdownMenuContent className="w-[180px]">
                 <DropdownMenuLabel>Notifications</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                {notifications.map((notification, index) => (
-                    <DropdownMenuItem key={index}>
-                        <Link href={notification.href} className="text-slate-600 no-underline">
-                            {notification.msg}
-                        </Link>
-                    </DropdownMenuItem>
-                ))}
+                {notifications.length > 0 ? (
+                    <>
+                        {notifications.map((notification, index) => (
+                        <DropdownMenuItem key={index}>
+                            <Link href={notification.href} className="text-slate-600 no-underline">
+                                {notification.msg}
+                            </Link>
+                        </DropdownMenuItem>
+                        ))}
+                    </>
+                ) : (
+                    <div className="p-1 text-center">
+                        No Notifications
+                    </div>
+                )}
             </DropdownMenuContent>
         </DropdownMenu>
     )

@@ -1,10 +1,10 @@
-import { createServerComponentClient, Session, SupabaseClient } from '@supabase/auth-helpers-nextjs';
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 
-import { Database } from '@/types/supabase';
-import { AdviceData, Transaction } from '@/types/types';
-
 import AllAdviceTable from './components/all-advice-table';
+
+import type { Database } from '@/types/supabase';
+import type { AdviceData, Transaction } from '@/types/types';
 
 function populateTransactionsColumns(transactions: Transaction[]) {
   // populate columns
@@ -63,13 +63,12 @@ export default async function Page({ params }: PageProps) {
       }
     });
     
-    // NOTE: data must be converted to JSON before passing to client
     return (
       <>
         <div className="text-lg text-slate-700 mb-8">
             View your Statements of Advice
         </div>
-        <AllAdviceTable jsonData={JSON.stringify(populatedData)} />
+        <AllAdviceTable data={populatedData as AdviceData[]} />
       </>
     );
 }

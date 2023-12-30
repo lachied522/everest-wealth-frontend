@@ -1,9 +1,10 @@
 
-import { SupabaseClient, createServerComponentClient } from "@supabase/auth-helpers-nextjs";
-import PortfolioDividendChart from "./components/portfolio-dividend-chart";
-import PortfolioPerformanceChart from "./components/portfolio-performance-chart"
-import { Database } from "@/types/supabase";
+import { createServerComponentClient, SupabaseClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
+
+import PerformanceTabs from "./components/performance-tabs";
+
+import type { Database } from "@/types/supabase";
 
 type TimeSeriesDataPoint = {
     date: Date
@@ -29,17 +30,30 @@ async function getBenchmark(supabase: SupabaseClient): Promise<TimeSeriesDataPoi
     return []
 }
 
-function generateRandomWalk(n: number): TimeSeriesDataPoint[] {
+async function getPerformance({ supabase, portfolioID, n } : {
+    supabase: SupabaseClient
+    portfolioID: string
+    n: number
+}): Promise<TimeSeriesDataPoint[]> {
+    // get portfolio from DB
+    const { data: snapshots, error } = await supabase
+        .from('snapshots')
+        .select('date, value')
+        .eq('portfolio_id', portfolioID)
+        .order('date', { ascending: false });
+
+    // use Random Walk to simulate performance data
+    const endValue = snapshots? snapshots[0].value: 10000;
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - n + 1); // Set the start date n days ago
-    const data: TimeSeriesDataPoint[] = [{ date: startDate, value: 0 }];
+    const data: TimeSeriesDataPoint[] = [{ date: startDate, value: endValue }];
   
     for (let i = 1; i < n; i++) {
-      const randomChange = Math.random() - 0.5; // Generate a random value between -0.5 and 0.5
+      const randomChange = 2*Math.random() - 1; // Generate a random value between -1 and 1
       const previousValue = data[i - 1].value;
-      const newValue = previousValue + randomChange;
+      const newValue = previousValue * (1 + randomChange/100);
       const newDate = new Date(startDate);
-      newDate.setDate(startDate.getDate() + i);
+      newDate.setDate(startDate.getDate() - i);
       data.push({ date: newDate, value: newValue });
     }
   
@@ -56,7 +70,7 @@ function getDividends(n: number): DividendDataPoint[] {
     startDate.setDate(startDate.getDate() - n + 1); // Set the start date n days ago
     const data: TimeSeriesDataPoint[] = [{ date: startDate, value: 0 }];
   
-    for (let i = 1; i < n; i+=20) {
+    for (let i = 1; i < n; i+=100) {
       const randomAmount = 100*Math.random(); // Generate a random value between 0 and 100
       const newDate = new Date(startDate);
       newDate.setDate(startDate.getDate() + i);
@@ -75,19 +89,22 @@ interface PageProps {
 export default async function PerformancePage({ params }: PageProps) {
     const cookieStore = cookies();
     const supabase = createServerComponentClient<Database>({ cookies: () => cookieStore });
-    const benchmark = await getBenchmark(supabase);
+
+    const portfolioID = params.portfolioID;
 
     const length = 1200;
-    const portfolio = generateRandomWalk(length);
+    const [performance, benchmark] = await Promise.all([
+        getPerformance({ portfolioID, supabase, n: length }),
+        getBenchmark(supabase)
+    ])
+
     const dividends = getDividends(length);
 
     return (
-        <>
-            <div className="text-lg text-slate-700 mb-8">Performance</div>
-            <div className="flex flex-col items-stretch justify-center gap-6">
-                <PortfolioPerformanceChart portfolio={portfolio} benchmark={benchmark} />
-                <PortfolioDividendChart data={dividends} />
-            </div>
-        </>
+        <PerformanceTabs
+            performance={performance}
+            benchmark={benchmark}
+            dividends={dividends}
+        />
     )
 }
