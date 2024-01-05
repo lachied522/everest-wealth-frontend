@@ -49,7 +49,7 @@ export default async function Page() {
         <h2>Your Profile</h2>
         <p className='text-lg text-slate-800'>Your profile helps us make recommendations that are appropriate for you. It is important to make sure your profile is update to date.</p>
       </div>
-      <ProfileForm data={data[0]} userName={session.user.user_metadata['name']} />
+      <ProfileForm data={data[0]} metaData={session.user.user_metadata} />
     </>
   );
 };

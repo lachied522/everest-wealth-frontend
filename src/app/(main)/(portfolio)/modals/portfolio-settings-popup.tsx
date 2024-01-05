@@ -382,15 +382,14 @@ export default function PortfolioSettingsPopup() {
                                 <ScrollArea className="h-[60vh] my-6">
                                     <div className="flex flex-col items-stretch justify-items-between gap-12 p-6">
                                         <div>
-                                            <div className="text-base text-slate-800 mb-2">
+                                            <div className="text-base text-slate-800 mb-3">
                                                 Portion of your portfolio invested in ETFs
                                             </div>
                                             <FormField
                                                 control={form.control}
                                                 name="active"
                                                 render={({ field }) => (
-                                                    <FormItem className="flex gap-4 items-center justify-center">
-                                                        <span>0</span>
+                                                    <FormItem className="flex gap-4 space-y-0 items-center justify-center">
                                                         <FormControl>
                                                             <Slider
                                                                 min={0}
@@ -401,21 +400,20 @@ export default function PortfolioSettingsPopup() {
                                                                 className="w-[240px] cursor-pointer"
                                                             />
                                                         </FormControl>
-                                                        <span>100</span>
+                                                        <div className="font-semibold">{field.value}</div>
                                                     </FormItem>
                                                 )}
                                             />
                                         </div>
                                         <div>
-                                            <div className="text-base text-slate-800 mb-2">
+                                            <div className="text-base text-slate-800 mb-3">
                                                 Portion of your portfolio invested in international stocks
                                             </div>
                                             <FormField
                                                 control={form.control}
                                                 name="international"
                                                 render={({field}) => (
-                                                    <FormItem className="flex gap-4 items-center justify-center">
-                                                        <span>0</span>
+                                                    <FormItem className="flex gap-4 space-y-0 items-center justify-center">
                                                         <FormControl>
                                                             <Slider
                                                                 min={0}
@@ -426,7 +424,7 @@ export default function PortfolioSettingsPopup() {
                                                                 className="w-[240px] cursor-pointer"
                                                             />
                                                         </FormControl>
-                                                        <span>100</span>
+                                                        <div className="font-semibold">{field.value}</div>
                                                     </FormItem>
                                                 )}
                                             />

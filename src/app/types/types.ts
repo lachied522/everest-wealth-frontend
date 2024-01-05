@@ -1,5 +1,10 @@
 import type { Tables } from "./supabase";
 
+export type UserMetaData = {
+    name?: string
+    DOB?: string
+}
+
 export type StockInfo = {
     symbol: string
     name: string | null
@@ -48,10 +53,11 @@ export type Preferences = {
 } | null
 
 export type PortfolioData = (
-    Omit<Tables<'portfolios'>, 'preferences'> & {
-    holdings: PopulatedHolding[]
+    Omit<Tables<'portfolios'>, 'item_access_token'|'preferences'> & {
     totalValue: number
+    holdings: PopulatedHolding[]
     advice: AdviceData[]
+    item_access_token: boolean
     preferences: Preferences
 })
 

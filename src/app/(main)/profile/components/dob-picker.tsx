@@ -1,8 +1,11 @@
 "use client"
-import { useState, useMemo } from "react"
+import { useState, useCallback } from "react"
 
 import { format, isValid, parse } from "date-fns"
 import { Calendar } from "@/components/ui/calendar"
+
+import { LuCalendar } from "react-icons/lu"
+
 import {
     Popover,
     PopoverContent,
@@ -11,23 +14,24 @@ import {
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 
-import { LuCalendar } from "react-icons/lu"
 
 import { cn } from "@/components/lib/utils"
 
 interface DOBPickerProps {
-    value: Date
-    onChange: (v: any) => void
+    value: string
+    onChange?: (v: any) => void
 }
 
 export default function DOBPicker({
     value,
     onChange
 }: DOBPickerProps) {
-    const [selected, setSelected] = useState<Date>(value)
+    const [selected, setSelected] = useState<Date>(new Date(value))
     const [inputValue, setInputValue] = useState<string>('')
 
-    const onInputChange = (e: React.FormEvent<HTMLInputElement>) => {
+    const onInputChange = useCallback((e: React.FormEvent<HTMLInputElement>) => {
+        if (!onChange) return;
+
         setInputValue(e.currentTarget.value)
 
         const date = parse(e.currentTarget.value, 'dd/MM/y', new Date())
@@ -37,7 +41,7 @@ export default function DOBPicker({
         } else {
             onChange(undefined)
         }
-    }
+    }, [onChange, setInputValue]);
 
     return (
         <Popover>
@@ -51,7 +55,7 @@ export default function DOBPicker({
                 >
                     <LuCalendar size={16} className="text-blue-800 mr-2"/>
                     {isValid(value) && (
-                        format(value, "PPP")
+                        format(new Date(value), "PPP")
                     )}
                     {!isValid(value) && (
                         <span>Select your DOB</span>

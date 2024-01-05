@@ -1,6 +1,6 @@
 "use client";
 // https://github.com/plaid/quickstart/blob/master/frontend/src/Components/Link/index.tsx
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 
 import {
     usePlaidLink,
@@ -10,7 +10,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { LuLink, LuLink2 } from 'react-icons/lu';
 
-import { usePortfolioContext } from "../context/PortfolioState";
+import { usePortfolioContext, PortfolioState } from "../context/PortfolioState";
+import { useGlobalContext, GlobalState } from '@/context/GlobalState';
 
 // The usePlaidLink hook manages Plaid Link creation
 // It does not return a destroy function;
@@ -22,10 +23,16 @@ const config: PlaidLinkOptions = {
     token: 'GENERATED_LINK_TOKEN',
 };
 
-export default function PlainLinkButton() {
-    const { currentPortfolio } = usePortfolioContext();
-    const [isLinked, setIsLinked] = useState(!!currentPortfolio.item_access_token); // keeps track of whether a broker is linked
-    const [LinkToken, setLinkToken] = useState(null);
+export default function PlaidLinkButton() {
+    const { dispatch } = useGlobalContext() as GlobalState;
+    const { currentPortfolio } = usePortfolioContext() as PortfolioState;
+    const [LinkToken, setLinkToken] = useState<string | null>(null);
+
+    const isLinked: boolean | null = useMemo(() => {
+        if (!currentPortfolio) return false;
+
+        return currentPortfolio.item_access_token;
+    }, [currentPortfolio]);
 
     const onSuccess = useCallback(async (publicToken: string) => {
         const response = await fetch('/api/exchange-public-token', {
@@ -33,13 +40,23 @@ export default function PlainLinkButton() {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ 
+            body: JSON.stringify({
                 portfolio_id: currentPortfolio.id,
                 public_token: publicToken,
             }),
         });
 
-        if (response.ok) setIsLinked(true);
+        if (response.ok) {
+            dispatch({
+                type: "UPDATE_SETTINGS",
+                payload: {
+                    id: currentPortfolio.id,
+                    data: {
+                        item_access_token: true,
+                    }
+                }
+            })
+        }
     }, [currentPortfolio]);
 
     const { open, ready } = usePlaidLink({
@@ -61,7 +78,7 @@ export default function PlainLinkButton() {
         }
 
         const res = await response.json();
-        
+
         setLinkToken(res.link_token);
     }, []);
 
@@ -72,9 +89,9 @@ export default function PlainLinkButton() {
     return (
         <>
         {isLinked ? (
-            <Button 
-                variant='outline' 
-                onClick={() => onUnlink()} 
+            <Button
+                variant='outline'
+                onClick={() => onUnlink()}
             >
                 <LuLink2 className="mr-2" />
                 Broker Linked

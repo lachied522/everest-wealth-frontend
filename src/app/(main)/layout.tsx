@@ -12,9 +12,37 @@ import Header from "./header";
 import Container from './container';
 import Footer from './footer';
 
-import type { Database } from '@/types/supabase';
+import type { Database, Tables } from '@/types/supabase';
+import type { PortfolioData } from '@/types/types';
 
-const fetchData = async (session: Session, supabase: SupabaseClient) => {
+type RawPortfolioData = Tables<'portfolios'> & {
+    holdings: Tables<'holdings'>[]
+    advice: Tables<'advice'>[]
+}
+
+type FormattedPortfolioData = Omit<RawPortfolioData, 'item_access_token'> & {
+    item_access_token: boolean
+}
+
+const formatData = (data: RawPortfolioData[] | null): FormattedPortfolioData[] => {
+    if (!data) return [];
+    // item_access token must be remove before sending to client
+    return data?.map((obj) => ({
+        ...obj,
+        item_access_token: !!obj.item_access_token
+    }))
+}
+
+const fetchData = async (
+    session: Session,
+    supabase: SupabaseClient
+): Promise<{
+    portfolioData: FormattedPortfolioData[]
+    userData: {
+        watchlist: string[]
+        notifications: any
+    }
+}> => {
     try {
         const { data: portfolioData, error: portfolioError } = await supabase
         .from("portfolios")
@@ -22,6 +50,8 @@ const fetchData = async (session: Session, supabase: SupabaseClient) => {
         .eq("user_id", session.user.id)
         .order("created_at", { referencedTable: "advice", ascending: false })
         .limit(1, { referencedTable: "advice" });
+
+        const formattedData = formatData(portfolioData);
 
         const { data: userData, error: userError} = await supabase
         .from("users")
@@ -36,7 +66,7 @@ const fetchData = async (session: Session, supabase: SupabaseClient) => {
         console.log("data fetched");
 
         return {
-            portfolioData: portfolioData || [], 
+            portfolioData: formattedData,
             userData: {
                 watchlist: userData[0].watchlist || [],
                 notifications: JSON.parse(userData[0].notifications) || []

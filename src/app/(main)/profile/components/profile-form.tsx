@@ -24,19 +24,18 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Slider } from "@/components/ui/slider"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 
 import { LuPencil, LuSave, LuMapPin } from "react-icons/lu"
 
 import DOBPicker from "./dob-picker";
-import IndustryPreferences from "@/components/industry-preferences"
 
 import type { Tables, TablesInsert } from "@/types/supabase";
 
+import type { UserMetaData } from "@/types/types";
+
 const FormSchema = z.object({
-    DOB: z.date().max(new Date(), { message: "Please select a valid DOB" }),
     country: z.string().nullable(),
     employment: z.string().nullable(),
     salary: z.coerce.number().nullable(),
@@ -47,17 +46,14 @@ const FormSchema = z.object({
     risk_tolerance_q2: z.coerce.number().nullable(),
     risk_tolerance_q3: z.coerce.number().nullable(),
     risk_tolerance_q4: z.coerce.number().nullable(),
-    international: z.number().array().transform((val) => val[0]).nullable(),
-    passive: z.number().array().transform((val) => val[0]).nullable(),
-    preferences: z.object({}).nullable(),
 })
 
 interface ProfileFormProps {
     data: Tables<'profiles'>
-    userName: string
+    metaData: UserMetaData
 }
 
-export default function ProfileForm({ data, userName } : ProfileFormProps) {
+export default function ProfileForm({ data, metaData } : ProfileFormProps) {
     const [isEdit, setIsEdit] = useState<boolean>(false)
 
     const form = useForm<z.infer<typeof FormSchema>>({
@@ -72,9 +68,6 @@ export default function ProfileForm({ data, userName } : ProfileFormProps) {
             risk_tolerance_q2: data.risk_tolerance_q2 || 3,
             risk_tolerance_q3: data.risk_tolerance_q3 || 3,
             risk_tolerance_q4: data.risk_tolerance_q4 || 3,
-            international: data.international || 50, // slider values must take array
-            passive: data.passive || 50, // slider values must take array
-            preferences: data.preferences || {},
         },
     })
 
@@ -100,33 +93,22 @@ export default function ProfileForm({ data, userName } : ProfileFormProps) {
     async function onSubmit(values: z.infer<typeof FormSchema>) {
         commitProfile({
             ...values,
-            DOB: values.DOB.toISOString(),
         })
     }
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-8">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-12">
                 <div className='grid grid-cols-4 items-center justify-items-center'>
                     <div className="text-lg font-medium text-slate-800 mb-2">
-                        {userName || 'Name'}
+                        {metaData.name || 'Name'}
                     </div>
                     <div className="flex items-center gap-2">
                         <LuMapPin size={16} className='text-blue-800'/>
-                        <div className="text-slate-800">Los Angeles, CA</div>
+                        <div className="text-slate-800">Melbourne, Australia</div>
                     </div>
                     <div className="flex align-center gap-2">
-                        <FormField  
-                            control={form.control}
-                            name="DOB"
-                            render={({field}) => (
-                                <FormItem>
-                                    <FormControl>
-                                        <DOBPicker value={field.value} onChange={field.onChange} />
-                                    </FormControl>
-                                </FormItem>
-                            )}
-                        />
+                        <DOBPicker value={metaData.DOB || ''} />
                     </div>
                     {isEdit ? (
                     <Button type="submit" onClick={() => console.log(form.formState.errors)}>
@@ -484,74 +466,6 @@ export default function ProfileForm({ data, userName } : ProfileFormProps) {
                                                 <FormLabel className="font-normal">&gt;50%</FormLabel>
                                             </FormItem>
                                         </RadioGroup>
-                                    </FormControl>
-                                </FormItem>
-                            )}
-                        />
-                    </Card>
-                </div>
-                <div>
-                    <h4 className="mb-6">Preferences</h4>
-                    <Card className="flex flex-col gap-12 items-center p-16">
-                        <div className="flex flex-col gap-12 items-center">
-                        <div className="text-lg text-slate-800">
-                            What proportion of your portfolio do you wish to invest in
-                            international stocks?
-                        </div>
-                        <FormField 
-                            control={form.control}
-                            name="international"
-                            render={({field}) => (
-                                <FormItem className="flex gap-4 justify-stretch">
-                                    <span>0</span>
-                                    <FormControl>
-                                        <Slider 
-                                            min={0} 
-                                            max={100} 
-                                            step={1} 
-                                            defaultValue={[field.value || 50]}
-                                            onValueChange={field.onChange}
-                                            className="w-[240px] cursor-pointer"
-                                        />
-                                    </FormControl>
-                                    <span>100</span>
-                                </FormItem>
-                            )}
-                        />
-                        <div className="text-lg text-slate-800">
-                            What proportion of your portfolio do you wish to invest in ETFs?
-                        </div>
-                        <FormField 
-                                control={form.control}
-                                name="passive"
-                                render={({field}) => (
-                                    <FormItem className="flex gap-4 justify-stretch">
-                                        <span>0</span>
-                                        <FormControl>
-                                            <Slider 
-                                                min={0} 
-                                                max={100} 
-                                                step={1} 
-                                                defaultValue={[field.value || 50]}
-                                                onValueChange={field.onChange}
-                                                className="w-[240px] cursor-pointer"
-                                            />
-                                        </FormControl>
-                                        <span>100</span>
-                                    </FormItem>
-                                )}
-                        />
-                        </div>
-                        <div className="text-lg text-slate-800">
-                            Do you have any industry preferences?
-                        </div>
-                        <FormField
-                            control={form.control}
-                            name="preferences"
-                            render={({field}) => (
-                                <FormItem>
-                                    <FormControl>
-                                        <IndustryPreferences handleChange={field.onChange} value={field.value} />
                                     </FormControl>
                                 </FormItem>
                             )}

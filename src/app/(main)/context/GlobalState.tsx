@@ -31,6 +31,14 @@ export type GlobalState = {
   portfolioData: PortfolioData[]
   watchlist: string[]
   notifications: Notification[]
+  dispatch: React.Dispatch<{
+    type: string,
+    payload: {
+      id: string,
+      data?: any
+      totalValue?: number
+    },
+  }>
   updatePortfolio: (id: string, data: PopulatedHolding[]) => void
   setAdvice: (id: string, data: AdviceData) => void
   toggleFavourite: (id: string) => Promise<void>
@@ -181,6 +189,7 @@ export const GlobalProvider = ({
         portfolioData,
         watchlist,
         notifications,
+        dispatch,
         updatePortfolio,
         toggleFavourite,
         updatePortfolioSettings,
