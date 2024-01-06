@@ -78,8 +78,10 @@ const Objective = ({ name, iconSrc, text, timeHorizon, selected, handleChange }:
             <Image
               loading="lazy"
               src={iconSrc}
+              width={36}
+              height={36}
               alt=""
-              className="icon medium mg-right-12px"
+              className="mr-3"
             />
             <h6 className="text-center">{name}</h6>
           </div>

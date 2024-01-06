@@ -79,10 +79,10 @@ export const NewUserForm = () => {
         </div>
         <Separator className="my-8" />
         {activeTab !== 2 && (
-            <NewProfileForm onSuccess={onProfileSubmit} />
+        <NewProfileForm onSuccess={onProfileSubmit} />
         )}
         {activeTab === 2 && (
-            <NewPortfolioForm onSuccess={onPortfolioSubmit} navigateBack={() => setActiveTab(1)}/>
+        <NewPortfolioForm onSuccess={onPortfolioSubmit} navigateBack={() => setActiveTab(1)}/>
         )}
         </>
     );

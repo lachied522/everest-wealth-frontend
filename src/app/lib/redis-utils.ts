@@ -19,13 +19,26 @@ export async function fetchStockDataFromServer(holdings: Tables<'holdings'>[]) {
                 value: 0,
                 totalProfit: 0
             }
+
             const price = data.last_price;
             const value = (price * holding.units);
             
             const totalCost = holding.cost? (holding.cost * holding.units): 0;
             const totalProfit = ((holding.cost? (price - holding.cost): price) * holding.units);
+
+            const totalDiv = data.div? data.div * holding.units: 0;
+
+            const EPSgrowth = data.forward_EPS && data.trailing_EPS ? data.forward_EPS > 0 && data.trailing_EPS > 0 ? data.forward_EPS / data.trailing_EPS - 1: 'NM': NaN;
     
-            return { ...data, ...holding, value, totalCost, totalProfit };
+            return { 
+                ...data,
+                ...holding,
+                value,
+                totalCost,
+                totalProfit,
+                totalDiv,
+                EPSgrowth
+            };
 
         } catch (e) {
             return holding;

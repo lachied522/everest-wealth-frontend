@@ -3,12 +3,17 @@ import { cookies } from 'next/headers';
 
 import { plaidClient } from "@/lib/plaid-client";
 
-export async function POST(req) {
+type RequestBody = {
+    portfolio_id: string
+    public_token: string
+}
+
+export async function POST(req: Request) {
     // exchanges client's public token for access token and stores in DB
     const cookieStore = cookies();
     const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
 
-    const body = await req.json();
+    const body = await req.json() as RequestBody;
 
     const {
         data: { session },

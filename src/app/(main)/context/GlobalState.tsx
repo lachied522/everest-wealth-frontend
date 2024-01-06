@@ -25,8 +25,6 @@ type Notification = {
   msg: string
 }
 
-type PortfolioUpdate = TablesUpdate<'portfolios'>
-
 export type GlobalState = {
   portfolioData: PortfolioData[]
   watchlist: string[]
@@ -40,10 +38,10 @@ export type GlobalState = {
     },
   }>
   updatePortfolio: (id: string, data: PopulatedHolding[]) => void
+  updatePortfolioSettings: (id: string, data: TablesUpdate<'portfolios'>) => void
   setAdvice: (id: string, data: AdviceData) => void
   toggleFavourite: (id: string) => Promise<void>
   toggleWatchlist: (symbol: string) => Promise<void>
-  updatePortfolioSettings: (id: string, data: PortfolioUpdate) => Promise<boolean>
   onPortfolioDelete: (id: string) => Promise<boolean>
 }
 
@@ -125,30 +123,16 @@ export const GlobalProvider = ({
       })
   }, []);
 
-  const updatePortfolioSettings = useCallback(async (
-    id: string, data: PortfolioUpdate
-  ) => {
-    const { error } = await supabase
-      .from("portfolios")
-      .update(data)
-      .eq("id", id)
-      .select();
-
-    if (!error) {
-        dispatch({
-            type: "UPDATE_SETTINGS",
-            payload: {
-              id,
-              data,
-            },
-          });
-    } else {
-        console.log(error);
-        return false;
-    };
-
-    return true;
-  }, [supabase, dispatch]);
+  const updatePortfolioSettings = useCallback(
+    (id: string, data: TablesUpdate<'portfolios'>) => {
+      dispatch({
+        type: "UPDATE_SETTINGS",
+        payload: {
+          id,
+          data,
+        }
+      });
+  }, [dispatch]);
 
   const onPortfolioDelete = useCallback(async (id: string) => {
     // delete record from DB

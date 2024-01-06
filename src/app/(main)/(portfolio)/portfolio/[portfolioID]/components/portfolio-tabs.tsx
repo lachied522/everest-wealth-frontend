@@ -23,20 +23,36 @@ const TABS = [
             "symbol",
             "name",
             "units",
-            "totalCost",
+            "last_price",
             "value",
-            "totalProfit"
+            "totalCost",
+            "totalProfit",
+            "weight"
+        ]
+    },
+    {
+        tabName: "Earnings",
+        visibleColumns: [
+            "symbol",
+            "units",
+            "PE",
+            "trailing_EPS",
+            "forward_EPS",
+            "EPSgrowth",
+            "sector",
+            "weight"
         ]
     },
     {
         tabName: "Income",
         visibleColumns: [
             "symbol",
-            "name",
-            "totalCost",
-            "value",
-            "totalProfit",
+            "units",
+            "last_price",
+            "div",
             "div_yield",
+            "totalDiv",
+            "weight"
         ]
     }
 ]

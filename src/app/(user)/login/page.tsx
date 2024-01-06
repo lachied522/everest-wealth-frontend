@@ -140,7 +140,7 @@ export default function Page() {
                   <div className="text-sm font-medium">Sign in with Facebook</div>
               </Button>
             </div>
-            <div className="flex flex-wrap">
+            <div className="flex flex-wrap gap-2">
               <div className="text-sm font-medium text-slate-800">
                 Don’t have an account? 
               </div>
@@ -150,16 +150,7 @@ export default function Page() {
             </div>
         </Card>
       </div>
-      <div className="dashboard-footer-wrapper">
-        <div className="container-default w-container">
-          <div className="dashboard-footer-inner-wrapper">
-            <div>
-              Copyright © Dashly X | Designed by
-              <a href="https://brixtemplates.com/">BRIX Templates</a> - Powered
-              by <a href="https://webflow.com/">Webflow</a>
-            </div>
-          </div>
-        </div>
+      <div className="h-10 col-span-2 bg-slate-300/30 mt-6">
       </div>
     </div>
   );

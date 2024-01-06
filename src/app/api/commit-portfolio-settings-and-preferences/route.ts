@@ -2,13 +2,10 @@ import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
-import type { Database } from '@/types/supabase';
-import type { PortfolioData } from '@/types/types';
-
-type Data = Pick<PortfolioData, 'name'|'objective'|'flat_brokerage'|'active'|'international'|'preferences'>
+import type { Database, TablesUpdate } from '@/types/supabase';
 
 type RequestBody = {
-  data: Data
+  data: TablesUpdate<'portfolios'>
   portfolio_id: string
 }
 
@@ -38,7 +35,6 @@ export async function POST(req: Request) {
             console.log(error);
             throw new Error(`Error committing data: ${error}`);
         }
-
 
         return Response.json({
           success: true,

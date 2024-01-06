@@ -15,6 +15,9 @@ export type StockInfo = {
     beta: number | null
     market_cap: number | null
     PE: number | null
+    trailing_EPS: number | null
+    forward_EPS: number | null
+    EPSgrowth: number | null
     last_price: number
     change: number
     domestic: boolean
@@ -27,7 +30,8 @@ export type PopulatedHolding = (
         weight: number
         value: number
         totalCost: number
-        totalProfit: number
+        totalProfit: number // value - totalCost
+        totalDiv: number // units x dividend
     }
 )
 export type Transaction = {

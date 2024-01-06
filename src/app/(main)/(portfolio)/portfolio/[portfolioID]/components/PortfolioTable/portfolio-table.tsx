@@ -112,7 +112,7 @@ export default function PortfolioTable<TData, TValue>({
                                 <Star selected={Boolean(row.original['locked' as keyof TData])} onClick={() => toggleFavourite(row.original['id' as keyof TData] as PopulatedHolding['id'])}/>
                             </TableCell>
                             {row.getVisibleCells().map((cell) => (
-                            <TableCell key={cell.id} className="items-center">
+                            <TableCell key={cell.id} className="text-center">
                                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
                             </TableCell>
                             ))}

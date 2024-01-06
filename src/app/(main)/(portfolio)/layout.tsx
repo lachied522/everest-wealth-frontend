@@ -3,7 +3,7 @@ import { PortfolioProvider } from "./context/PortfolioState";
 import PortfolioSettingsPopup from "./modals/portfolio-settings-popup";
 import EditPortfolioPopup from "./modals/edit-portfolio-popup";
 import NewAdvicePopup from "./modals/new-advice-popup";
-import PlaidLinkButton from "./modals/PlaidLinkButton";
+import BrokerPopup from "./modals/broker-popup";
 import PortfolioStatBar from "./portfolio-stat-bar";
 
 export default function PortfolioLayout({ children } : { children: React.ReactNode }) {
@@ -14,7 +14,7 @@ export default function PortfolioLayout({ children } : { children: React.ReactNo
                 <div className="flex items-center justify-between mb-8">
                     <PortfolioSettingsPopup />
                     <div className="flex gap-4">
-                        <PlaidLinkButton />
+                        <BrokerPopup />
                         <EditPortfolioPopup />
                         <NewAdvicePopup />
                     </div>

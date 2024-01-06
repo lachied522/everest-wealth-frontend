@@ -18,10 +18,10 @@ import { LuPencil, LuSearch, LuTrash } from "react-icons/lu";
 
 import debounce from "lodash.debounce";
 
-import { useGlobalContext } from "@/context/GlobalState";
-import { PortfolioState, usePortfolioContext } from "../context/PortfolioState";
+import { useGlobalContext, GlobalState } from "@/context/GlobalState";
+import { usePortfolioContext, PortfolioState } from "@/context/portfolio/PortfolioState";
 
-import { PopulatedHolding, StockInfo } from "@/types/types";
+import type { PopulatedHolding, StockInfo } from "@/types/types";
 
 // contains minimum information required for functionality
 interface PartialHolding extends Partial<PopulatedHolding> {
@@ -165,7 +165,7 @@ const HoldingRow = ({ holding, update } : {
 };
 
 export default function EditPortfolioPopup() {
-  const { updatePortfolio } = useGlobalContext();
+  const { updatePortfolio } = useGlobalContext() as GlobalState;
   const { currentPortfolio } = usePortfolioContext() as PortfolioState;
   const [searchString, setSearchString] = useState('');
   const [searchHits, setSearchHits] = useState<StockInfo[]>([]);
@@ -220,11 +220,10 @@ export default function EditPortfolioPopup() {
   }
 
   const updateHolding = useCallback((holding: PartialHolding) => {
-    const newArray = [...allHoldingData]; // create copy of all holdings
-    const index = allHoldingData.findIndex((obj) => obj.symbol === holding.symbol); // get index of holding
-    newArray[index] = holding;
-    setAllHoldingData(newArray);
-  }, [allHoldingData]);
+    setAllHoldingData((prevArray) => (
+      prevArray.map((obj) => obj.symbol === holding.symbol? holding: obj)
+    ));
+  }, [setAllHoldingData]);
 
   const confirmHoldings = () => {
     // check for equality of allHoldingData
@@ -314,39 +313,28 @@ export default function EditPortfolioPopup() {
               )}
               <div>
                 <div className="grid grid-rows-[auto] gap-0 grid-cols-[0.5fr_0.75fr_1fr_1fr_20px] auto-cols-[1fr] items-center justify-items-center p-1.5 bg-[#e9eaf3]">
-                  <div>
-                    SYMBOL
-                  </div>
-                  <div>
-                    UNITS
-                  </div>
-                  <div>
-                    VALUE ($)
-                  </div>
-                  <div>
-                    COST ($)
-                  </div>
+                  <div>SYMBOL</div>
+                  <div>UNITS</div>
+                  <div>VALUE ($)</div>
+                  <div>COST ($)</div>
                 </div>
                 {allHoldingData?.length === 0 && (
                   <div className="flex p-8 items-center justify-center">
-                    <div>
                       Search stocks to add to your portfolio
-                    </div>
                   </div>
                 )}
                 <ScrollArea className="h-[400px]">
-                {allHoldingData.map((holding, index) => {
-                  // zero unit holdings are filtered out
-                  if (holding.units > 0) {
-                    return (
+                {allHoldingData.map((holding, index) => (
+                  <>
+                    {holding.units > 0 && (
                       <HoldingRow 
-                        key={index}
-                        holding={holding}
-                        update={updateHolding}
-                    />
-                    )
-                  }
-                })}
+                          key={index}
+                          holding={holding}
+                          update={updateHolding}
+                      />
+                    )}
+                    </>
+                  ))}
                 </ScrollArea>
               </div>
             </div>

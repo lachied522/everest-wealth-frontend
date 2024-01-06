@@ -11,27 +11,48 @@ import {
   FormControl,
   FormField,
   FormItem,
-} from "@/components/ui/form"
+} from "@/components/ui/form";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
 
 import { LuCircle } from "react-icons/lu"
 import { cn } from "@/components/lib/utils"
 
-import { Tables } from "@/types/supabase";
+import PortfolioEditor from "./portfolio-editor";
 import ObjectiveSelector from "@/components/objective-selector"
 
 export const FormSchema = z.object({
-    name: z.string().default(''),
-    value: z.coerce.number().min(0).optional(),
+    name: z.string().default('My Portfolio'),
+    entity: z.string().default('individual'),
     objective: z.string({
         required_error: "Please select an objective for this portfolio"
     }),
+    holdings: z.object({
+        symbol: z.string(),
+        units: z.number(),
+        cost: z.number(),
+    }).array().default([]),
+    value: z.coerce.number().min(0).optional(),
 })
+
+type Holding = {
+    symbol: string
+    units: number
+    cost: number
+}
 
 type Data = {
     name: string
+    entity: string
     objective: string
+    holdings?: Holding[]
     value?: number
 }
 
@@ -61,12 +82,12 @@ export const NewPortfolioForm = ({ onSuccess, navigateBack }: NewPortfolioFormPr
                     <div className="flex flex-col justify-center mb-4">
                         <h2>Create your first portfolio</h2>
                         <p className="text-lg text-slate-800 w-[660px]">
-                        You may add an existing portfolio or we can recommend one for
-                        you.
+                            You may add an existing portfolio or we can recommend one for
+                            you.
                         </p>
                     </div>
-                    <Card className="flex flex-col gap-12 items-center p-16 m-4">
-                        <div className="text-lg text-slate-800">Portfolio name</div>
+                    <Card className="flex flex-col gap-16 items-center p-16 m-4">
+                        <div className="text-lg text-slate-800">Portfolio Name</div>
                         <FormField 
                             control={form.control}
                             name="name"
@@ -80,6 +101,32 @@ export const NewPortfolioForm = ({ onSuccess, navigateBack }: NewPortfolioFormPr
                                             onChange={field.onChange}
                                         />
                                     </FormControl>
+                                </FormItem>
+                            )}
+                        />
+                        <div className="text-base text-slate-800">Investment Entity</div>
+                        <FormField
+                            control={form.control}
+                            name="entity"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <Select
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value}
+                                    >
+                                        <FormControl>
+                                            <SelectTrigger className="w-[240px] text-slate-700">
+                                                <SelectValue placeholder="Select one..." />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="individual">Individual</SelectItem>
+                                            <SelectItem value="joint">Joint</SelectItem>
+                                            <SelectItem value="company">Company</SelectItem>
+                                            <SelectItem value="trust">Trust</SelectItem>
+                                            <SelectItem value="Super">Super Fund</SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                 </FormItem>
                             )}
                         />
@@ -124,7 +171,15 @@ export const NewPortfolioForm = ({ onSuccess, navigateBack }: NewPortfolioFormPr
                                 No, I have an existing portfolio
                             </Button>
                         </div>
-                        {!isExistingPortfolio && (
+                        {isExistingPortfolio ? (
+                        <FormField 
+                            control={form.control}
+                            name="holdings"
+                            render={({field}) => (
+                                <PortfolioEditor onChange={field.onChange} />
+                            )}
+                        />
+                        ) : (
                         <>
                             <div className="text-lg text-slate-800">
                                 What is the intended value of this portfolio?

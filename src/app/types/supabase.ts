@@ -102,6 +102,7 @@ export interface Database {
         Row: {
           active: number | null
           created_at: string
+          entity: string | null
           flat_brokerage: number
           id: string
           international: number | null
@@ -114,6 +115,7 @@ export interface Database {
         Insert: {
           active?: number | null
           created_at?: string
+          entity?: string | null
           flat_brokerage?: number
           id?: string
           international?: number | null
@@ -126,6 +128,7 @@ export interface Database {
         Update: {
           active?: number | null
           created_at?: string
+          entity?: string | null
           flat_brokerage?: number
           id?: string
           international?: number | null

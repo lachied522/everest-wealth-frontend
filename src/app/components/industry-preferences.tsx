@@ -76,7 +76,7 @@ const SectorPrefence = ({ sector, value, togglePreference }: SectorPrefenceProps
 }
 
 interface IndustryPreferencesProps {
-  value:  Preferences
+  value: Preferences
   handleChange: (event: any) => void
 }
 
@@ -89,7 +89,7 @@ export default function IndustryPreferences({ value, handleChange }: IndustryPre
       return;
     }
 
-    const newValue = {...value}; // clone preferences
+    const newValue = { ...value }; // clone preferences
 
     switch (value[sector.key]) {
       case 'like': 
@@ -101,7 +101,7 @@ export default function IndustryPreferences({ value, handleChange }: IndustryPre
       default:
         newValue[sector.key] = 'like';
     }
-
+    
     handleChange(newValue);
   }
 
