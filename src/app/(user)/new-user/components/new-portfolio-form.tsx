@@ -38,7 +38,7 @@ export const FormSchema = z.object({
         symbol: z.string(),
         units: z.number(),
         cost: z.number(),
-    }).array().default([]),
+    }).array().default([]).optional(),
     value: z.coerce.number().min(0).optional(),
 })
 

@@ -17,7 +17,9 @@ const TABS = ["Sign up", "Profile", "Create your first portfolio"]
 
 interface FormData {
     profile: Partial<Tables<'profiles'>>
-    portfolio: Partial<Tables<'portfolios'>>
+    portfolio: Partial<Tables<'portfolios'>> & {
+        value?: number
+    }
 }
 
 export const NewUserForm = () => {
