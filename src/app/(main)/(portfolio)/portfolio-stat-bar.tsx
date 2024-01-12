@@ -15,7 +15,7 @@ import {
 
 import { Skeleton } from "@/components/ui/skeleton";
 
-import { PortfolioState, usePortfolioContext } from "@/context/portfolio/PortfolioState";
+import { PortfolioState, usePortfolioContext } from "@/context/PortfolioState";
 
 import type { PortfolioData } from "@/types/types";
 

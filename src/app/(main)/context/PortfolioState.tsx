@@ -22,12 +22,12 @@ export const PortfolioProvider = ({ children }: { children: ReactNode }) => {
     const [loadingNewAdvice, setLoadingNewAdvice] = useState(false);
     const params = useParams();
 
-    // get current portfolio from params
+    // get current portfolio from params, if any
     const currentPortfolio = useMemo(() => {
         if (!portfolioData) return;
 
-        const portfolioID = params["portfolioID"];
-        if (portfolioID && portfolioData) {
+        const portfolioID = params.portfolioID;
+        if (portfolioID) {
             let index = portfolioData.findIndex((obj) => obj.id === portfolioID);
             if (index > 0) {
                 return portfolioData[index];
@@ -38,7 +38,7 @@ export const PortfolioProvider = ({ children }: { children: ReactNode }) => {
         }
 
         return;
-    }, [params, portfolioData]);
+    }, [params.portfolioID, portfolioData]);
 
     return (
         <PortfolioContext.Provider value={{ 

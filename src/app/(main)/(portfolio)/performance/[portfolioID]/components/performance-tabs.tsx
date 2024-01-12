@@ -6,7 +6,7 @@ import { cn } from "@/components/lib/utils";
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from "@/components/ui/button";
 
-import { usePortfolioContext, PortfolioState } from "@/context/portfolio/PortfolioState";
+import { usePortfolioContext, PortfolioState } from "@/context/PortfolioState";
 
 import PerformanceChart from "./performance-chart";
 import DividendChart from "./dividend-chart";

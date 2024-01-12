@@ -9,7 +9,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { usePortfolioContext, PortfolioState } from "@/context/portfolio/PortfolioState";
+import { usePortfolioContext, PortfolioState } from "@/context/PortfolioState";
 
 import type { TimeSeriesDataPoint } from "@/types/types";
 

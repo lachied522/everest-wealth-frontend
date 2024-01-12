@@ -17,7 +17,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { LuArrowUpRight, LuLink, LuLink2, LuLink2Off } from 'react-icons/lu';
 
-import { usePortfolioContext, PortfolioState } from "@/context/portfolio/PortfolioState";
+import { usePortfolioContext, PortfolioState } from "@/context/PortfolioState";
 import { useGlobalContext, GlobalState } from '@/context/GlobalState';
 
 import type { Institution } from 'plaid';

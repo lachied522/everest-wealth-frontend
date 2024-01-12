@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import { PieChart, Pie, Sector, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 
-import { PortfolioState, usePortfolioContext } from '@/context/portfolio/PortfolioState';
+import { PortfolioState, usePortfolioContext } from '@/context/PortfolioState';
 
 type Total = {
     name: string

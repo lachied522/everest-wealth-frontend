@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 
 import { cn } from "@/components/lib/utils";
 
-import { usePortfolioContext, PortfolioState } from "@/context/portfolio/PortfolioState";
+import { usePortfolioContext, PortfolioState } from "@/context/PortfolioState";
 import PortfolioTable from "./PortfolioTable/portfolio-table";
 import { columns as portfolioColumns } from "./PortfolioTable/portfolio-table-columns";
 import RecommendationsTable from "./RecommendationsTable/recommendations-table";

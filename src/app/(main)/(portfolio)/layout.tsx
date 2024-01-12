@@ -1,4 +1,3 @@
-import { PortfolioProvider } from "./context/PortfolioState";
 
 import PortfolioSettingsPopup from "./modals/portfolio-settings-popup";
 import EditPortfolioPopup from "./modals/edit-portfolio-popup";
@@ -9,7 +8,7 @@ import PortfolioStatBar from "./portfolio-stat-bar";
 export default function PortfolioLayout({ children } : { children: React.ReactNode }) {
 
     return (
-        <PortfolioProvider>
+        <>
             <div className="mb-8">
                 <div className="flex items-center justify-between mb-8">
                     <PortfolioSettingsPopup />
@@ -22,6 +21,6 @@ export default function PortfolioLayout({ children } : { children: React.ReactNo
                 <PortfolioStatBar />
             </div>
             {children}
-        </PortfolioProvider>
+        </>
     )
 }

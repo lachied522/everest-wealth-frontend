@@ -1,13 +1,12 @@
 "use client";
-import Link from "next/link";
-import { LuMenu, LuBell, LuLogOut } from "react-icons/lu";
+import { LuMenu, LuLogOut } from "react-icons/lu";
 
 import { cn } from "@/components/lib/utils";
 
+import { useSidebarContext } from "@/context/SidebarState";
+
 import SymbolSearch from "./symbol-search";
 import NotificiationMenu from "./notification-menu";
-
-import { useSidebarContext } from "@/context/SidebarState";
 
 export default function Header({ userName }: { userName: string }) {
   const { 

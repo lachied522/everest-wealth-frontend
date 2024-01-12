@@ -29,7 +29,7 @@ import { cn } from "@/components/lib/utils";
 import { LuStar } from "react-icons/lu";
 
 import { useGlobalContext, GlobalState } from "@/context/GlobalState";
-import { usePortfolioContext, PortfolioState } from "@/context/portfolio/PortfolioState";
+import { usePortfolioContext, PortfolioState } from "@/context/PortfolioState";
 
 import type { PopulatedHolding } from "@/types/types";
 

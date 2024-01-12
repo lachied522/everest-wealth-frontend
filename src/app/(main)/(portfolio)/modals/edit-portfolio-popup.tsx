@@ -19,7 +19,7 @@ import { LuPencil, LuSearch, LuTrash } from "react-icons/lu";
 import debounce from "lodash.debounce";
 
 import { useGlobalContext, GlobalState } from "@/context/GlobalState";
-import { usePortfolioContext, PortfolioState } from "@/context/portfolio/PortfolioState";
+import { usePortfolioContext, PortfolioState } from "@/context/PortfolioState";
 
 import type { PopulatedHolding, StockInfo } from "@/types/types";
 
