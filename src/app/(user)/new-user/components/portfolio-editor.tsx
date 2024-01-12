@@ -162,7 +162,7 @@ export default function PortfolioEditor({ onChange }: EditPortfolioProps) {
     useEffect(() => {
         // pass changed back to parent
         onChange(holdings);
-    }, [holdings]);
+    }, [holdings, onChange]);
 
     const debouncedSearch = debounce(async (q) => {
         try {

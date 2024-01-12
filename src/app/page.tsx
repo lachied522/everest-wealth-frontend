@@ -59,7 +59,7 @@ export default async function Home() {
       <div className="h-[50vh] md:h-[75vh] relative bg-gradient-to-b from-transparent from-70% to-white">
         <div className="bg-[url('/hero-background-image.jpg')] bg-cover bg-center absolute inset-0 opacity-80 -z-10 lg:bg-[center_top_25%]" />
         <div className="flex flex-col items-center justify-center gap-3 p-12 sm:6 lg:p-36">
-          <h1 className="text-white drop-shadow-md">Investment Advice Shouldn't Break the Bank</h1>
+          <h1 className="text-white drop-shadow-md">Investment Advice Shouldn&apos;t Break the Bank</h1>
           <p className="text-white text-lg font-medium drop-shadow-md">
             Get personalised and objective investment advice and build wealth without the associated cost
           </p>

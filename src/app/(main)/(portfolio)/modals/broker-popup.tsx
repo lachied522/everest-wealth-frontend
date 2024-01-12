@@ -30,9 +30,7 @@ export default function BrokerPopup() {
     const [isLoadingUnlink, setIsLoadingUnlink] = useState<boolean>(false);
 
     const isLinked: boolean = useMemo(() => {
-        if (!currentPortfolio) return false;
-
-        return currentPortfolio.item_access_token;
+        return currentPortfolio?.item_access_token || false;
     }, [currentPortfolio.item_access_token]);
 
     const onSuccess = useCallback(async (publicToken: string) => {
