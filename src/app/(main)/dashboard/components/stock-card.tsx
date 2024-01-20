@@ -27,8 +27,10 @@ export default function StockCard({ symbol }: { symbol: string | null }) {
 
     return (
         <Link href={`/symbol/${symbol}`} className="no-underline">
-            <Card className="w-64 h-full">
-                <CardHeader>{data?.['name']}</CardHeader>
+            <Card className="w-48 h-full">
+                <CardHeader>
+                    <div className="max-w-[180px] truncate">{data?.['name']}</div>
+                </CardHeader>
                 <CardContent>
                     <div className="">${data?.['last_price']}</div>
                 </CardContent>

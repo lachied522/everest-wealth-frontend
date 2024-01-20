@@ -117,6 +117,8 @@ const HoldingRow = ({ holding, update } : {
       });
     }, [holding, update]);
 
+    if (!(holding.units > 0)) return null;
+
     return (
         <div className="grid grid-rows-[auto] gap-0 grid-cols-[0.5fr_0.75fr_1fr_1fr_20px] auto-cols-[1fr] items-center justify-items-center p-1.5">
             <div className="">
@@ -325,15 +327,11 @@ export default function EditPortfolioPopup() {
                 )}
                 <ScrollArea className="h-[400px]">
                 {allHoldingData.map((holding, index) => (
-                  <>
-                    {holding.units > 0 && (
-                      <HoldingRow 
-                          key={index}
-                          holding={holding}
-                          update={updateHolding}
-                      />
-                    )}
-                    </>
+                    <HoldingRow 
+                        key={index}
+                        holding={holding}
+                        update={updateHolding}
+                    />
                   ))}
                 </ScrollArea>
               </div>

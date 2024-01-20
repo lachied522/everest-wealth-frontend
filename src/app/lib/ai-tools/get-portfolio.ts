@@ -38,7 +38,10 @@ function formatResults(result: ResolvedPromise<ReturnType<typeof fetchData>>) {
 }
 
 // it is necessary to define return type as any since the recursiveAICall doesn't know which function it is calling
-export async function getPortfolio(portfolioID: string, ...args: any[]): Promise<any> {
+export async function getPortfolio(portfolioID?: string, ...args: any[]): Promise<any> {
+    if (!portfolioID) {
+        return "There was an error calling the function"
+    }
     const cookieStore = cookies();
     const supabase = createRouteHandlerClient<Database>({ cookies: () => cookieStore });
 

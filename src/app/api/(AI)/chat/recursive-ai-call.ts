@@ -3,6 +3,8 @@ import OpenAI from "openai";
 import { searchWeb, webSearchToolSchema } from '@/lib/ai-tools/search-web';
 import { getProfile, getProfileToolSchema } from "@/lib/ai-tools/get-profile";
 import { getPortfolio, getPortfolioToolSchema } from "@/lib/ai-tools/get-portfolio";
+import { getSingleAdvice, getSingleAdviceToolSchema } from "@/lib/ai-tools/get-single-advice";
+import { getAnalystResearch, getAnalystResearchToolSchema } from "@/lib/ai-tools/get-analyst-research";
 
 
 const openai = new OpenAI({
@@ -13,12 +15,16 @@ const AVAILABLE_TOOLS = {
     searchWeb,
     getProfile,
     getPortfolio,
+    getSingleAdvice,
+    getAnalystResearch,
 }
 
 const TOOL_SCHEMAS = [
     webSearchToolSchema,
     getProfileToolSchema,
-    getPortfolioToolSchema
+    getPortfolioToolSchema,
+    getSingleAdviceToolSchema,
+    getAnalystResearchToolSchema,
 ];
 
 async function callTool(
@@ -35,7 +41,7 @@ async function callTool(
         const functionArgsArr = Object.values(functionArgs);
 
         // parameter portfolio_id is necessary for some functions - add it programatically
-        if (portfolioID) functionArgsArr.push(portfolioID);
+        functionArgsArr.push(portfolioID);
     
         const result = await functionToCall.apply(null, functionArgsArr);
         return JSON.stringify(result);

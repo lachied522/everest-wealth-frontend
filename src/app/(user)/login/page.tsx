@@ -37,7 +37,8 @@ export default function Page() {
 
   return (
     <div className="h-[100vh] grid grid-cols-1 content-between justify-stretch">
-      <div className="flex items-center justify-center py-8">
+      <div className="h-full flex flex-col justify-center justify-items-center items-center">
+        <div className="flex items-center justify-center py-8">
             <Link
               href="/"
               className="max-w-[160px] transform transition duration-300 relative hover:scale-110"
@@ -49,8 +50,7 @@ export default function Page() {
                 height={48}
               />
             </Link>
-      </div>
-      <div className="h-full flex flex-col justify-center justify-items-center items-center">
+        </div>
         <Card className='max-w-lg p-16'>
             <div className="flex justify-center mb-4">
               <Image

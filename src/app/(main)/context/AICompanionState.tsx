@@ -2,6 +2,7 @@
 import { createContext, useContext, useState, useEffect, useRef, useCallback } from "react";
 
 import { usePathname } from "next/navigation";
+import { usePortfolioContext, PortfolioState } from "@/context/PortfolioState";
 
 const AICompanionContext = createContext<any>(null);
 
@@ -20,16 +21,20 @@ export type AICompanionState = {
     isSilent: boolean
     message: string | null
     samplePrompts: string[] | null
+    portfolioID?: string
     toggleIsSilent: () => void
     setMessage: React.Dispatch<React.SetStateAction<string | null | undefined>>
     setSamplePrompts: React.Dispatch<React.SetStateAction<string[] | null | undefined>>
+    setPortfolioID: React.Dispatch<React.SetStateAction<string | null | undefined>>
 }
 
 export const AICompanionProvider = ({ children }: { children: React.ReactNode }) => {
+    const { currentPortfolio } = usePortfolioContext() as PortfolioState;
     const pathname = usePathname();
     const [isSilent, setIsSilent] = useState<boolean>(false);
     const [message, setMessage] = useState<string | null>();
     const [samplePrompts, setSamplePrompts] = useState<string[] | null>(SAMPLE_PROMPTS_ARRAY);
+    const [portfolioID, setPortfolioID] = useState<string | undefined>(); // id of portfolio that conversation relates to
     const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     useEffect(() => {
@@ -50,11 +55,14 @@ export const AICompanionProvider = ({ children }: { children: React.ReactNode })
             setMessage(m);
             // remove message after three seconds
             timerRef.current = setTimeout(() => {
-                console.log('three seconds');
                 setMessage(null);
             }, 3000);
         }
     }, [pathname, setMessage]);
+
+    useEffect(() => {
+        if (currentPortfolio) setPortfolioID(currentPortfolio.id);
+    }, [currentPortfolio]);
 
     const toggleIsSilent = useCallback(() => {
         setIsSilent((prevState) => {
@@ -68,9 +76,11 @@ export const AICompanionProvider = ({ children }: { children: React.ReactNode })
             isSilent,
             message,
             samplePrompts,
+            portfolioID,
             toggleIsSilent,
             setMessage,
-            setSamplePrompts
+            setSamplePrompts,
+            setPortfolioID
         }}>
             {children}
         </AICompanionContext.Provider>

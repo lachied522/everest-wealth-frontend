@@ -97,7 +97,6 @@ export default function UserPortfolioList() {
     
     return (
         <>
-            <div className="mb-8">
             <div className="flex items-center justify-between">
                 <div className="text-xl font-medium text-slate-800 mb-0">
                     My Portfolios
@@ -110,7 +109,6 @@ export default function UserPortfolioList() {
                         New Portfolio
                     </Button>
                 </NewPortfolioPopup>
-            </div>
             </div>
             <div className="grid md:grid-cols-1 gap-8 px-8">
                 {portfolioData.map((portfolio, index) => (
