@@ -1,14 +1,21 @@
 "use client";
+import { useState, useCallback } from "react";
+
 import { LuMessageCircle, LuBell, LuBellMinus } from "react-icons/lu";
 
-import { useAICompanionContext, AICompanionState } from "@/context/AICompanionState";
-
-import AICompanionPopup from "@/components/modals/ai-companion-popup";
+import { useAICompanionContext, AICompanionState } from "@/components/ai-companion/AICompanionState";
 
 import { cn } from "@/components/lib/utils";
 
-export default function AICompanion() {
-    const { message, isSilent, toggleIsSilent } = useAICompanionContext() as AICompanionState;
+import AICompanionPopup from "@/components/ai-companion/ai-companion-popup";
+
+export default function AICompanionTrigger() {
+    const { toast } = useAICompanionContext() as AICompanionState;
+    const [isSilent, setIsSilent] = useState<boolean>(false);
+
+    const toggleIsSilent = useCallback(() => {
+        setIsSilent((prevState) => !prevState);
+    }, [setIsSilent]);
 
     return (
         <div className="bg-slate-50 shadow-lg rounded-full fixed bottom-16 right-24 p-4 cursor-pointer hover:rounded-2xl group">
@@ -17,12 +24,12 @@ export default function AICompanion() {
             </div>
             <AICompanionPopup>
                 <div className={cn(
-                    message && "flex items-center gap-2"
+                    toast && "flex items-center gap-2"
                 )}>
                     <div className={cn(
                         "text-lg text-slate-800 font-medium -translate-x-full transition-transform duration-300 ease-in-out",
-                        message && "translate-x-0"
-                    )}>{message}</div>
+                        toast && "translate-x-0"
+                    )}>{toast}</div>
                     <LuMessageCircle size={36} className="text-slate-800"/>
                 </div>
             </AICompanionPopup>

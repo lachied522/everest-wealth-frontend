@@ -3,6 +3,7 @@ import { createRouteHandlerClient, Session } from "@supabase/auth-helpers-nextjs
 
 import type { ChatCompletionTool } from "openai/resources";
 import type { Database } from "@/types/supabase";
+import { PortfolioIDUndefinedError } from "./custom-errors";
 
 export const getSingleAdviceToolSchema: ChatCompletionTool = {
     type: "function",
@@ -60,7 +61,7 @@ function formatResults(result: ResolvedPromise<ReturnType<typeof fetchData>>) {
 // it is necessary to define return type as any since the recursiveAICall doesn't know which function it is calling
 export async function getSingleAdvice(symbol: string, amount: number, portfolioID?: string, ...args: any[]): Promise<any> {
     if (!portfolioID) {
-        return "There was an error calling the function"
+        throw new PortfolioIDUndefinedError();
     }
 
     if (amount===0) {

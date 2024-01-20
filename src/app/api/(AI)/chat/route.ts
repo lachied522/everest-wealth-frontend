@@ -8,12 +8,9 @@ import recursiveAICall from './recursive-ai-call';
 
 import type { Database } from '@/types/supabase';
 
-export const runtime = 'edge'; // https://nextjs.org/docs/app/building-your-application/routing/route-handlers#streaming
+import { Message } from '@/types/ai';
 
-interface Message {
-    content: string;
-    role: 'system' | 'user' | 'assistant' | 'function' | 'data' | 'tool';
-}
+export const runtime = 'edge'; // https://nextjs.org/docs/app/building-your-application/routing/route-handlers#streaming
 
 function formatMessages({ messages, userName } : {
     messages: Message[],
@@ -57,8 +54,6 @@ export async function POST(req: Request) {
         // console.log(session.user.user_metadata['name']);
         const formattedMessages = formatMessages({ messages, userName: session.user.user_metadata['name']});
 
-        console.log(formattedMessages);
-
         const response = recursiveAICall({
             model: 'gpt-3.5-turbo',
             messages: formattedMessages,
@@ -85,7 +80,8 @@ export async function POST(req: Request) {
             status: 200
         });
     } catch (e) {
-        console.log(`Error ${e}`)
+        console.log(`Error ${e}`);
+
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
     }
 }

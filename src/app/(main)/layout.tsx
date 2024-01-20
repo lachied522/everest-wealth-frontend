@@ -7,13 +7,12 @@ import { fetchStockDataFromServer } from '@/lib/redis-utils';
 import { GlobalProvider } from "@/context/GlobalState";
 import { SidebarProvider } from "@/context/SidebarState";
 import { PortfolioProvider } from "@/context/PortfolioState";
-import { AICompanionProvider } from '@/context/AICompanionState';
 
 import Sidebar from "./sidebar";
 import Header from "./header";
 import Container from './container';
 import Footer from './footer';
-import AICompanion from './ai-companion';
+import AICompanion from '@/components/ai-companion/ai-companion';
 
 import type { Database, Tables } from '@/types/supabase';
 
@@ -122,21 +121,19 @@ export default async function RootLayout({ children } : { children: React.ReactN
         <GlobalProvider session={session} portfolioJSON={JSON.stringify(populatedPortfolioData)} userData={userData} >
             <SidebarProvider>
                 <PortfolioProvider>
-                    <AICompanionProvider>
-                        <div className="flex items-start">
-                            <Sidebar />
-                            <div className="flex-1">
-                                <Header userName={session.user.user_metadata['name'] || 'Name'} />
-                                <div className="h-full min-h-[calc(100vh-152px)] bg-white px-8 py-16">
-                                    <Container>
-                                        {children}
-                                    </Container>
-                                </div>
-                                <Footer />
+                    <div className="flex items-start">
+                        <Sidebar />
+                        <div className="flex-1">
+                            <Header userName={session.user.user_metadata['name'] || 'Name'} />
+                            <div className="h-full min-h-[calc(100vh-152px)] bg-white px-8 py-16">
+                                <Container>
+                                    {children}
+                                </Container>
                             </div>
+                            <Footer />
                         </div>
-                        <AICompanion />
-                    </AICompanionProvider>
+                    </div>
+                    <AICompanion />
                 </PortfolioProvider>
             </SidebarProvider>
         </GlobalProvider>

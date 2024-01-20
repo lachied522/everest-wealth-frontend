@@ -3,6 +3,7 @@ import { createRouteHandlerClient, SupabaseClient } from "@supabase/auth-helpers
 
 import type { ChatCompletionTool } from "openai/resources";
 import type { Database } from "@/types/supabase";
+import { PortfolioIDUndefinedError } from "./custom-errors";
 
 export const getPortfolioToolSchema: ChatCompletionTool = {
     type: "function",
@@ -40,8 +41,9 @@ function formatResults(result: ResolvedPromise<ReturnType<typeof fetchData>>) {
 // it is necessary to define return type as any since the recursiveAICall doesn't know which function it is calling
 export async function getPortfolio(portfolioID?: string, ...args: any[]): Promise<any> {
     if (!portfolioID) {
-        return "There was an error calling the function"
+        throw new PortfolioIDUndefinedError();
     }
+
     const cookieStore = cookies();
     const supabase = createRouteHandlerClient<Database>({ cookies: () => cookieStore });
 
