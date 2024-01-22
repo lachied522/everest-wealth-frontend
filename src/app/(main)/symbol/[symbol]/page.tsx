@@ -57,23 +57,20 @@ export default async function Page({ params }: PageProps) {
         )
     }
 
-    console.log(data);
-
     return (
         <>
             <div className="mb-16">
                 <div className="flex justify-between">
                     <div className="flex items-center gap-4">
-                        <div className="text-slate-900 font-bold text-3xl">
-                            {data.name}
-                            <span className="ml-2 text-xl">({data.symbol})</span>
+                        <div className="text-slate-900 font-bold text-2xl">
+                            {`${data.name} (${data.symbol})`}
                         </div>
                         {data.domestic ? <GiAustralia size={21} color="black"/> : <LuGlobe2 size={21} color="black"/>}
                     </div>
                     <div className="flex gap-4">
                         <Button variant="secondary" size="sm">
-                            <LuFileText className="mr-2"/>
-                            <span className="text-xs">View Analyst Research</span>
+                            <LuFileText size={18} className="mr-2"/>
+                            <span className="text-xs">Analyst Research</span>
                         </Button>
                         <WatchlistButton symbol={data.symbol} />
                     </div>

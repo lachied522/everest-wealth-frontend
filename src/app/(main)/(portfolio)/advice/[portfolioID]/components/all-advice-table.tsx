@@ -64,7 +64,7 @@ const TableSubRow = ({ data }: { data: AdviceData }) => {
             {isOpen && (
             <TableRow className='bg-white transition-none hover:bg-white p-0'>
                 <TableCell colSpan={5} className='p-0'>
-                    <AdviceTable transactions={data.transactions} />
+                    <AdviceTable transactions={data.recom_transactions} />
                 </TableCell>
             </TableRow>
             )}
@@ -77,49 +77,67 @@ interface AllAdviceTableProps {
 }
 
 export default function AllAdviceTable({ data }: AllAdviceTableProps) {
-    const [visibleRows, setVisibleRows] = useState<number>(5)
+    const [visibleRows, setVisibleRows] = useState<number>(5);
 
-    const dataLength = useMemo(() => data? data.length: 0, [data])
+    const dataLength = useMemo(() => data? data.length: 0, [data]);
 
     return (
         <>
-            <div className="rounded-md bg-white border mb-6">
-                <Table>
-                    <TableHeader className='bg-slate-100/50 transition-none'>
-                        <TableRow>
-                            <TableHead className='text-center'>Document</TableHead>
-                            <TableHead className='text-center'>Date</TableHead>
-                            <TableHead className='text-center'>Type</TableHead>
-                            <TableHead className='text-center'>Value</TableHead>
-                            <TableHead className='text-center'>Expand</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {data?.filter((advice) => advice.transactions.length > 0).slice(0, visibleRows).map((advice) => (
-                            <TableSubRow
-                                key={advice.id}
-                                data={advice}
-                            />
-                        ))}
-                </TableBody>
-                </Table>
+            {data? (
+            <>
+                <div className="rounded-md bg-white border mb-6">
+                    <Table>
+                        <TableHeader className='bg-slate-100/50 transition-none'>
+                            <TableRow>
+                                <TableHead className='text-center'>Document</TableHead>
+                                <TableHead className='text-center'>Date</TableHead>
+                                <TableHead className='text-center'>Type</TableHead>
+                                <TableHead className='text-center'>Value</TableHead>
+                                <TableHead className='text-center'>Expand</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {dataLength > 0 ? (
+                            <>
+                                {data.filter((advice) => advice.recom_transactions.length > 0).slice(0, visibleRows).map((advice) => (
+                                <TableSubRow
+                                    key={advice.id}
+                                    data={advice}
+                                />
+                                ))}
+                            </>
+                            ) : (
+                            <TableCell colSpan={5} className="h-24 text-center">
+                                <div className="w-full flex items-center justify-center">
+                                    Nothing here yet. Try "Get Advice".
+                                </div>
+                            </TableCell>
+                            )}
+                    </TableBody>
+                    </Table>
+                </div>
+                <div className="w-full flex items-center justify-center p-6">
+                    <Button
+                        variant='ghost'
+                        disabled={visibleRows >= dataLength}
+                        onClick={() => setVisibleRows((prevState) => Math.min(prevState + 5, dataLength))}
+                    >
+                        View More
+                    </Button>
+                    <Button
+                        variant='ghost'
+                        disabled={visibleRows - 5 <= 0}
+                        onClick={() => setVisibleRows((prevState) => Math.max(prevState - 5, 5))}
+                    >
+                        View Less
+                    </Button>
+                </div>
+            </>
+            ) : (
+            <div>
+                Nothing here yet.
             </div>
-            <div className="w-full flex items-center justify-center p-6">
-                <Button
-                    variant='ghost'
-                    disabled={data? visibleRows >= dataLength: true}
-                    onClick={() => setVisibleRows((prevState) => Math.min(prevState + 5, dataLength))}
-                >
-                    View More
-                </Button>
-                <Button
-                    variant='ghost'
-                    disabled={visibleRows - 5 <= 0}
-                    onClick={() => setVisibleRows((prevState) => Math.max(prevState - 5, 5))}
-                >
-                    View Less
-                </Button>
-            </div>
+            )}
         </>
     )
 }

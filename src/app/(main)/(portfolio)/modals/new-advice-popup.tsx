@@ -126,7 +126,7 @@ export default function NewAdvicePopup() {
                 }
             );
         };
-    }, [readyState, sendJsonMessage]);
+    }, [currentPortfolio.id, currentPortfolio.advice, readyState, sendJsonMessage, setAdvice]);
 
     const onSubmit = () => {
         handleMessage({

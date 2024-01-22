@@ -31,9 +31,7 @@ export default function BrokerPopup() {
 
     if (!currentPortfolio) throw new Error('currentPortfolio undefined');
 
-    const isLinked: boolean = useMemo(() => {
-        return currentPortfolio?.item_access_token || false;
-    }, [currentPortfolio.item_access_token]);
+    const isLinked: boolean = useMemo(() => currentPortfolio.item_access_token || false, [currentPortfolio.item_access_token]);
 
     const onSuccess = useCallback(async (publicToken: string) => {
         const response = await fetch('/api/exchange-public-token', {
@@ -83,9 +81,12 @@ export default function BrokerPopup() {
         setLinkToken(res.link_token);
     }, [setLinkToken]);
 
-    const fetchInstitution = useCallback(async (id: string): Promise<Institution> => {
-        return await fetch(`/api/get-institution?for=${id}`).then(res => res.json());
-    }, []);
+    const fetchInstitution = useCallback(
+        async (): Promise<Institution> => {
+            return await fetch(`/api/get-institution?for=${currentPortfolio.id}`).then(res => res.json());
+        }, 
+        [currentPortfolio.id]
+    );
 
     useEffect(() => {
         let mounted = true;
@@ -98,11 +99,11 @@ export default function BrokerPopup() {
         async function getInstitution() {
             if (!isLinked) return;
 
-            const data = await fetchInstitution(currentPortfolio!.id);
+            const data = await fetchInstitution();
 
             if (mounted) setInstitutionData(data);
         }
-    }, [isLinked, currentPortfolio.id, setInstitutionData, fetchInstitution]);
+    }, [isLinked, setInstitutionData, fetchInstitution]);
 
     const onUnlink = useCallback(() => {
         setIsLoadingUnlink(true);

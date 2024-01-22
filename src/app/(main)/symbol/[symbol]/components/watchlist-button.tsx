@@ -21,9 +21,9 @@ export default function WatchlistButton({ symbol } : { symbol: string }) {
             {inWatchlist ? (
             <Button
                 onClick={() => toggleWatchlist(symbol)}
+                variant="secondary"
                 size="sm"
             >
-                <LuMinus className="mr-2"/>
                 <span className="text-xs">Remove from Watchlist</span>
             </Button>
             ) : (
@@ -31,7 +31,7 @@ export default function WatchlistButton({ symbol } : { symbol: string }) {
                 onClick={() => toggleWatchlist(symbol)}
                 size="sm"
             >
-                <LuPlus className="mr-2"/>
+                <LuPlus size={18} className="mr-2"/>
                 <span className="text-xs">Add to Watchlist</span>
             </Button>
             )}

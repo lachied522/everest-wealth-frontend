@@ -97,11 +97,12 @@ export default function RecommendationsTable<TData>() {
         },
     });
 
-    const getSelectedData = useCallback(() => {
-        const selectedData = table.getFilteredSelectedRowModel().rows.map((row) => row.original);
-        if (selectedData.length) return selectedData;
+    const selectedData = useMemo(() => {
+        const data = table.getFilteredSelectedRowModel().rows.map((row) => row.original);
+        // if none selected, return every row
+        if (data.length) return data;
         return table.getRowModel().rows.map((row) => row.original);
-    }, [table]);
+    }, [table, rowSelection]); // this doesn't seem to work unless rowSelection is a dependency
 
     const updatePortfolio = useCallback((data: PopulatedHolding[]) => {
         // api route only returns updated holdings, combine updated and existing holdings for new portfolio
@@ -118,9 +119,19 @@ export default function RecommendationsTable<TData>() {
         router.push(`/portfolio/${currentPortfolio.id}?tab=Overview`);
     }, [router, currentPortfolio.id]);
 
+    const setAdviceStatus = useCallback((status: string) => {
+        setAdvice(
+            currentPortfolio.id,
+            {
+                ...currentPortfolio.advice[0],
+                status,
+            }
+        )
+    }, [currentPortfolio.id, currentPortfolio.advice, setAdvice]);
+
     const onAdviceAction = useCallback((action: 'confirm'|'dismiss') => {
         if (!populatedData) return;
-        const data = action==='confirm'? getSelectedData(): [];
+        const data = action==='confirm'? selectedData: [];
         
         fetch('/api/action-advice', {
             method: "POST",
@@ -138,28 +149,20 @@ export default function RecommendationsTable<TData>() {
 
             navigateToOverview();
             // update advice status
-            setAdvice(
-                currentPortfolio.id,
-                {
-                    ...currentPortfolio.advice[0],
-                    status: 'actioned',
-                }
-            );
+            setAdviceStatus('actioned');
         })
         .catch(err => console.log(err));
-    }, [populatedData, getSelectedData, updatePortfolio, navigateToOverview, setAdvice]);
+    }, [populatedData, selectedData, updatePortfolio, navigateToOverview, setAdviceStatus]);
 
-    const gross = useMemo(() => {
-        const data = getSelectedData();
-        if (!data.length) return 0;
-        return data.reduce((acc, obj) => acc + (Number(obj["units" as keyof typeof obj] || 0) * Number(obj["price" as keyof typeof obj] || 0)), 0)
-    }, [getSelectedData, rowSelection]);
+    const gross = useMemo(() => {;
+        if (!selectedData.length) return 0;
+        return selectedData.reduce((acc, obj) => acc + (Number(obj["units" as keyof typeof obj] || 0) * Number(obj["price" as keyof typeof obj] || 0)), 0)
+    }, [selectedData]);
     
     const brokerage = useMemo(() => {
-        const data = getSelectedData();
-        if (!data.length) return 0;
-        return data.reduce((acc, obj) => acc + Number(obj["brokerage" as keyof typeof obj] || 0), 0)
-    }, [getSelectedData, rowSelection]);
+        if (!selectedData.length) return 0;
+        return selectedData.reduce((acc, obj) => acc + Number(obj["brokerage" as keyof typeof obj] || 0), 0)
+    }, [selectedData]);
 
     return (
         <>
