@@ -11,18 +11,15 @@ export interface Database {
     Tables: {
       advice: {
         Row: {
-          actioned: boolean
           created_at: string
           id: string
           portfolio_id: string | null
           status: string
-          transactions: Json[] | null
+          transactions: Json[]
           type: string
           url: string | null
-          user_id: string | null
         }
         Insert: {
-          actioned?: boolean
           created_at?: string
           id?: string
           portfolio_id?: string | null
@@ -30,10 +27,8 @@ export interface Database {
           transactions?: Json[] | null
           type?: string
           url?: string | null
-          user_id?: string | null
         }
         Update: {
-          actioned?: boolean
           created_at?: string
           id?: string
           portfolio_id?: string | null
@@ -41,7 +36,6 @@ export interface Database {
           transactions?: Json[] | null
           type?: string
           url?: string | null
-          user_id?: string | null
         }
         Relationships: [
           {

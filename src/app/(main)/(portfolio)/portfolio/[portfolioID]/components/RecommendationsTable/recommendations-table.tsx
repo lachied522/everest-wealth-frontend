@@ -4,6 +4,7 @@
 */
 import { useMemo, useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 import {
     ColumnDef,
@@ -22,17 +23,18 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-
+import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 
 import { LuFileText, LuLoader2 } from "react-icons/lu";
 
-import { GlobalState, useGlobalContext } from "@/context/GlobalState";
+import { useGlobalContext, GlobalState } from "@/context/GlobalState";
 import { usePortfolioContext, PortfolioState } from "@/context/PortfolioState";
+
 import { columns } from "./recommendations-table-columns";
-import { Tables } from "@/types/supabase";
-import { AdviceData, PopulatedHolding, Transaction } from "@/types/types";
-import Link from "next/link";
+
+import type { Tables } from "@/types/supabase";
+import type { PopulatedHolding, Transaction } from "@/types/types";
 
 const USDollar = new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -57,234 +59,218 @@ function populateTransactionsColumns(transactions: Transaction[]) {
     return populatedTransactions;
 }
 
-interface RecommendationsTableProps {
-    setAdviceNotification: (value: number) => void
-}
-
-export default function RecommendationsTable<TData>({
-    setAdviceNotification,
-}:  RecommendationsTableProps) {
-    const { updatePortfolio, setAdvice } = useGlobalContext() as GlobalState;
-    const { currentPortfolio, loadingNewAdvice } = usePortfolioContext() as PortfolioState;
-    const [data, setData] = useState<AdviceData | null>(null);
+export default function RecommendationsTable<TData>() {
+    const { setPortfolio, setAdvice } = useGlobalContext() as GlobalState;
+    const { currentPortfolio, isLoadingNewAdvice } = usePortfolioContext() as PortfolioState;
     const [sorting, setSorting] = useState<SortingState>([]);
+    const [rowSelection, setRowSelection] = useState({})
     const router = useRouter();
 
-    useEffect(() => {
+    const adviceData = useMemo(() => {
         if (currentPortfolio)  {
             const advice = currentPortfolio.advice[0];
-
             if (advice && advice.transactions && !(advice.status==="actioned")) {
-                const transactions = populateTransactionsColumns(advice.transactions);
-                setData({
+                return {
                     ...advice,
-                    transactions,
-                });
-                setAdviceNotification(transactions.length);
-            } else {
-                setData(null);
-                // remove advice notification
-                setAdviceNotification(0);
+                    transactions: populateTransactionsColumns(advice.transactions),
+                }
             }
         }
-    }, [currentPortfolio, setAdviceNotification]);
-
-    const gross = useMemo(() => {
-        if (!data) return 0;
-        return data.transactions?.reduce((acc, obj) => acc + (Number(obj["units" as keyof typeof obj] || 0) * Number(obj["price" as keyof typeof obj] || 0)), 0)
-    }, [data]);
-    
-    const brokerage = useMemo(() => {
-        if (!data) return 0;
-        return data.transactions?.reduce((acc, obj) => acc + Number(obj["brokerage" as keyof typeof obj] || 0), 0)
-    }, [data]);
+        return;
+    }, [currentPortfolio]);
 
     const table = useReactTable({
-        data: data?.transactions || [],
+        data: adviceData?.transactions || [],
         columns: columns as ColumnDef<TData | any>[],
         getCoreRowModel: getCoreRowModel(),
         onSortingChange: setSorting,
         getSortedRowModel: getSortedRowModel(),
+        onRowSelectionChange: setRowSelection,
         state: {
           sorting,
+          rowSelection,
         },
-    })
+    });
 
-    const onAdviceAction = useCallback((action: string) => {
-        if (!['confirm', 'dismiss'].includes(action)) return;
+    const getSelectedData = useCallback(() => {
+        const selectedData = table.getFilteredSelectedRowModel().rows.map((row) => row.original);
+        if (selectedData.length) return selectedData;
+        return table.getRowModel().rows.map((row) => row.original);
+    }, [table]);
 
+    const updatePortfolio = useCallback((data: PopulatedHolding[]) => {
+        // api route only returns updated holdings, combine updated and existing holdings for new portfolio
+        const updatedSymbols = Array.from(data, (obj) => obj.symbol);
+        const newHoldings = [
+            ...currentPortfolio.holdings.filter((holding: Tables<'holdings'>) => !updatedSymbols.includes(holding.symbol)),
+            ...data,
+        ];
+        setPortfolio(currentPortfolio.id, newHoldings);
+    }, [currentPortfolio, setPortfolio]);
+
+    const navigateToOverview = useCallback(() => {
+        // switch to 'Overview' tab
+        router.push(`/portfolio/${currentPortfolio.id}?tab=Overview`);
+    }, [router, currentPortfolio.id]);
+
+    const onAdviceAction = useCallback((action: 'confirm'|'dismiss') => {
+        if (!adviceData) return;
+        const data = action==='confirm'? getSelectedData(): [];
+        
         fetch('/api/action-advice', {
             method: "POST",
             body: JSON.stringify({
-                advice: currentPortfolio.advice[0],
-                action,
+                data,
+                advice_id: adviceData.id,
             }),
             headers: {
                 "Content-Type": "application/json",
             }
         })
-        .then(res => res.json())
-        .then(({ success, data }: { success: boolean, data: PopulatedHolding[] }) => {
-            if (!success) throw new Error('Api error');
+        .then((res) => res.json())
+        .then(({ data }: { data: PopulatedHolding[] }) => {
+            if (data.length > 0) updatePortfolio(data);
 
-            if (data.length > 0) {
-                const updatedSymbols = Array.from(data, (obj) => obj.symbol);
-
-                // api route only returns updated holdings, combine updated and existing holdings for new portfolio
-                const newHoldings = [
-                        ...currentPortfolio.holdings.filter((holding: Tables<'holdings'>) => !updatedSymbols.includes(holding.symbol)),
-                        ...data,
-                    ];
-
-                updatePortfolio(currentPortfolio.id, newHoldings);
-            }
-
-            // switch to 'Overview' tab
-            router.push(`/portfolio/${currentPortfolio.id}?tab=Overview`);
-
+            navigateToOverview();
             // update advice status
             setAdvice(
-                currentPortfolio.id,
+                adviceData.portfolio_id!,
                 {
-                    ...currentPortfolio.advice[0],
-                    status: action==='confirm'? 'actioned': 'dismissed',
+                    ...adviceData,
+                    status: 'actioned',
                 }
             );
         })
         .catch(err => console.log(err));
-    }, [currentPortfolio, updatePortfolio, setAdvice, router]);
+    }, [adviceData, getSelectedData, updatePortfolio, navigateToOverview, setAdvice]);
 
-
-    // define loading state
-    if (loadingNewAdvice) {
-        return (
-            <div className="rounded-md bg-white border">
-                <Table>
-                    <TableHeader className="bg-slate-100/50 transition-none">
-                    {table?.getHeaderGroups().map((headerGroup) => (
-                        <TableRow key={headerGroup.id}>
-                        {headerGroup.headers.map((header) => {
-                            return (
-                            <TableHead key={header.id}>
-                                {header.isPlaceholder
-                                ? null
-                                : flexRender(
-                                    header.column.columnDef.header,
-                                    header.getContext()
-                                    )}
-                            </TableHead>
-                            )
-                        })}
-                        </TableRow>
-                    ))}
-                    </TableHeader>
-                    <TableBody>
-                        <TableRow>
-                            <TableCell colSpan={columns.length} className="h-48 text-center">
-                                <div className="w-full flex items-center justify-center">
-                                    <LuLoader2 className="animate-spin" size={50}/>
-                                </div>
-                            </TableCell>
-                        </TableRow>
-                    </TableBody>
-                </Table>
-            </div>
-        )
-    }
+    const gross = useMemo(() => {
+        const data = getSelectedData();
+        if (!data.length) return 0;
+        return data.reduce((acc, obj) => acc + (Number(obj["units" as keyof typeof obj] || 0) * Number(obj["price" as keyof typeof obj] || 0)), 0)
+    }, [getSelectedData, rowSelection]);
+    
+    const brokerage = useMemo(() => {
+        const data = getSelectedData();
+        if (!data.length) return 0;
+        return data.reduce((acc, obj) => acc + Number(obj["brokerage" as keyof typeof obj] || 0), 0)
+    }, [getSelectedData, rowSelection]);
 
     return (
-        <div className="rounded-md bg-white border">
-            <Table>
-                <TableHeader className="bg-slate-100/50 transition-none">
-                {table?.getHeaderGroups().map((headerGroup) => (
-                    <TableRow key={headerGroup.id}>
-                    {headerGroup.headers.map((header) => {
-                        return (
-                        <TableHead key={header.id}>
-                            {header.isPlaceholder
-                            ? null
-                            : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext()
-                                )}
-                        </TableHead>
-                        )
-                    })}
-                    </TableRow>
-                ))}
-                </TableHeader>
-                <TableBody>
-                {data && table.getRowModel().rows?.length ? (
-                    <>
-                        {table.getRowModel().rows.map((row) => (
-                        <TableRow
-                            key={row.id}
-                            data-state={row.getIsSelected() && "selected"}
-                        >
-                            {row.getVisibleCells().map((cell) => (
-                            <TableCell key={cell.id} className="items-center">
-                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                            </TableCell>
-                            ))}
-                        </TableRow>
-                        ))}
-                        <TableRow>
-                            <TableCell colSpan={columns.length} className="p-6 bg-slate-200/50 transition-none hover:bg-slate-200/50">
-                                <div className="flex justify-end items-end">             
-                                    <div className="flex flex-col items-end gap-6">
-                                        <div className="grid gap-4 auto-rows-auto grid-cols-[1fr_0.75fr] items-center justify-items-stretch border-b-slate-300 border-b border-solid pb-4 my-6">
-                                            <div>
-                                                Est. Brokerage
-                                            </div>
-                                            <div className="text-right">
-                                                {USDollar.format(brokerage)}
-                                            </div>
-                                            <div>
-                                                Gross
-                                            </div>
-                                            <div className="text-right">
-                                                {USDollar.format(gross)}
-                                            </div>
-                                            <div>
-                                                Net
-                                            </div>
-                                            <div className="text-right">
-                                                {USDollar.format(gross - brokerage)}
-                                            </div>
-                                        </div>
-                                        <div className="flex items-start gap-6">  
-                                            {data.status==='generating' ? (
-                                            <Button variant="ghost" disabled className="flex items-center gap-2">
-                                                <LuLoader2 className="animate-spin" size={25}/>
-                                                Generating statement...
-                                            </Button>
-                                            ) : (
-                                            <a href={data.url || ""} target="_blank" className='h-10 px-4 py-2 flex items-center gap-2 no-underline font-medium text-slate-700 group-hover:text-blue-600 relative'>
-                                                <LuFileText size={30} className="absolute left-[-36px]"/>
-                                                View Document
-                                            </a>
-                                            )}
-                                            <Button variant="secondary" onClick={() => onAdviceAction('dismiss')}>
-                                                Dismiss Changes
-                                            </Button>
-                                            <Button onClick={() => onAdviceAction('confirm')}>
-                                                Make These Changes
-                                            </Button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </TableCell>
-                        </TableRow>
-                    </>
-                ) : (
-                    <TableRow>
-                        <TableCell colSpan={columns.length} className="h-24 text-center">
-                            No current recommendations. <Link href={`/advice/${currentPortfolio.id}`}>View previous Advice.</Link>
-                        </TableCell>
-                    </TableRow>
+        <>
+            {adviceData ? (
+            <>
+                {isLoadingNewAdvice!==currentPortfolio.id && (
+                <div className="flex items-center mb-2">
+                    {adviceData.status==='generating' ? (
+                    <Button variant="ghost" disabled className="flex items-center gap-2">
+                        <LuLoader2 className="animate-spin" size={25}/>
+                        Generating statement...
+                    </Button>
+                    ) : (
+                    <a href={adviceData.url || ""} target="_blank" className="h-10 px-4 py-2 flex items-center no-underline font-medium text-slate-700 group-hover:text-blue-600">
+                        <LuFileText size={30} className="mr-2" />
+                        Statement of Advice
+                    </a>
+                    )}
+                </div>
                 )}
-                </TableBody>
-            </Table>
-        </div>
+                <div className="rounded-md bg-white border">
+                    <Table>
+                        <TableHeader className="bg-slate-100/50 transition-none">
+                        {table.getHeaderGroups().map((headerGroup) => (
+                            <TableRow key={headerGroup.id}>
+                            {headerGroup.headers.map((header) => {
+                                return (
+                                <TableHead key={header.id}>
+                                    {header.isPlaceholder
+                                    ? null
+                                    : flexRender(
+                                        header.column.columnDef.header,
+                                        header.getContext()
+                                        )}
+                                </TableHead>
+                                )
+                            })}
+                            </TableRow>
+                        ))}
+                        </TableHeader>
+                        <TableBody>
+                            {isLoadingNewAdvice!==currentPortfolio.id ? (
+                            <>
+                                {table.getRowModel().rows.map((row) => (
+                                <TableRow
+                                    key={row.id}
+                                    data-state={row.getIsSelected() && "selected"}
+                                >
+                                    {row.getVisibleCells().map((cell) => (
+                                    <TableCell key={cell.id} className="text-center">
+                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                    </TableCell>
+                                    ))}
+                                </TableRow>
+                                ))}
+                                <TableRow>
+                                    <TableCell colSpan={columns.length} className="p-6 bg-slate-200/50 transition-none hover:bg-slate-200/50">
+                                        <div className="flex justify-end items-end">             
+                                            <div className="flex flex-col items-end gap-6">
+                                                <div className="grid gap-4 auto-rows-auto grid-cols-[1fr_0.75fr] items-center justify-items-stretch border-b-slate-300 border-b border-solid pb-4 my-6">
+                                                    <div>
+                                                        Est. Brokerage
+                                                    </div>
+                                                    <div className="text-right">
+                                                        {USDollar.format(brokerage)}
+                                                    </div>
+                                                    <div>
+                                                        Gross
+                                                    </div>
+                                                    <div className="text-right">
+                                                        {USDollar.format(gross)}
+                                                    </div>
+                                                    <div>
+                                                        Net
+                                                    </div>
+                                                    <div className="text-right">
+                                                        {USDollar.format(gross - brokerage)}
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-start gap-6">
+                                                    <Button variant="secondary" onClick={() => onAdviceAction('dismiss')}>
+                                                        Dismiss Changes
+                                                    </Button>
+                                                    {table.getFilteredSelectedRowModel().rows.length > 0 ? (
+                                                    <Button onClick={() => onAdviceAction('confirm')}>
+                                                        Make {table.getFilteredSelectedRowModel().rows.length} Changes
+                                                    </Button>
+                                                    ) : (
+                                                    <Button onClick={() => onAdviceAction('confirm')}>
+                                                        Make All Changes
+                                                    </Button>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            </>
+                            ) : (
+                            <TableRow>
+                                <TableCell colSpan={columns.length} className="h-48 text-center">
+                                    <div className="w-full flex items-center justify-center">
+                                        <LuLoader2 className="animate-spin" size={50}/>
+                                    </div>
+                                </TableCell>
+                            </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
+            </>
+            ) : (
+            <div className="ml-2">
+                No current recommendations. <Link href={`/advice/${currentPortfolio.id}`}>View previous Advice.</Link>
+            </div>
+            )}
+        </>
     );
 }

@@ -37,7 +37,7 @@ export type GlobalState = {
       totalValue?: number
     },
   }>
-  updatePortfolio: (id: string, data: PopulatedHolding[]) => void
+  setPortfolio: (id: string, data: PopulatedHolding[]) => void
   updatePortfolioSettings: (id: string, data: TablesUpdate<'portfolios'>) => void
   setAdvice: (id: string, data: AdviceData) => void
   toggleFavourite: (id: string) => Promise<void>
@@ -74,7 +74,7 @@ export const GlobalProvider = ({
   const [watchlist, setWatchlist] = useState<string[]>(userData.watchlist);
   const [notifications, setNotifications] = useState<string[]>(userData.notifications);
 
-  const updatePortfolio = useCallback(async (id: string, data: PopulatedHolding[]) => {
+  const setPortfolio = useCallback(async (id: string, data: PopulatedHolding[]) => {
     if (!data || !session) return;
     // remove zero unit holdings
     const filteredData = data.filter((obj) => obj.units !== 0) || [];
@@ -174,7 +174,7 @@ export const GlobalProvider = ({
         watchlist,
         notifications,
         dispatch,
-        updatePortfolio,
+        setPortfolio,
         toggleFavourite,
         updatePortfolioSettings,
         setAdvice,

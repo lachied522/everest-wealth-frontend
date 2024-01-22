@@ -131,7 +131,6 @@ export const AICompanionProvider = ({ children }: { children: React.ReactNode })
                 // check for errors matching !error:ErrorName
                 const error = text.match(/^!error:(\w+)$/);
                 if (error) {
-                    console.log(error[1]);
                     switch (error[1]) {
                         case ("PortfolioIDUndefinedError"): {
                             choosePortfolio(messages);
@@ -152,7 +151,7 @@ export const AICompanionProvider = ({ children }: { children: React.ReactNode })
         } finally {
             setIsLoading(false);
         }
-    }, [portfolioID, setMessages, setIsLoading]);
+    }, [portfolioID, setMessages, setIsLoading, choosePortfolio]);
 
     return (
         <AICompanionContext.Provider value={{

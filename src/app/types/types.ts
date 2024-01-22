@@ -40,11 +40,11 @@ export type Transaction = {
     units: number
     price: number
     brokerage: number
+    status?: string
 }
 
 export type AdviceData = (
-    Omit<Tables<'advice'>, 'transactions'|'portfolio_id'> & {
-        portfolio_id: string
+    Omit<Tables<'advice'>, 'transactions'> & {
         transactions: Transaction[]
         value: number
         gross: number

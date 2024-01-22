@@ -7,8 +7,8 @@ import type { PortfolioData } from "@/types/types";
 
 export type PortfolioState = {
     currentPortfolio: PortfolioData
-    loadingNewAdvice: boolean
-    setLoadingNewAdvice: (v: boolean) => void
+    isLoadingNewAdvice: string | null
+    setIsLoadingNewAdvice: React.Dispatch<React.SetStateAction<string | null | undefined>>
 }
 
 const PortfolioContext = createContext<any>(null);
@@ -19,7 +19,7 @@ export const usePortfolioContext = () => {
 
 export const PortfolioProvider = ({ children }: { children: ReactNode }) => {
     const { portfolioData } = useGlobalContext() as GlobalState;
-    const [loadingNewAdvice, setLoadingNewAdvice] = useState(false);
+    const [isLoadingNewAdvice, setIsLoadingNewAdvice] = useState<string | null>(null);
     const params = useParams();
 
     // get current portfolio from params, if any
@@ -43,8 +43,8 @@ export const PortfolioProvider = ({ children }: { children: ReactNode }) => {
     return (
         <PortfolioContext.Provider value={{ 
             currentPortfolio,
-            loadingNewAdvice,
-            setLoadingNewAdvice
+            isLoadingNewAdvice,
+            setIsLoadingNewAdvice
         }}>
             {children}
         </PortfolioContext.Provider>

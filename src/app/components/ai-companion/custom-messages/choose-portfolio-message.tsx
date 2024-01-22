@@ -33,7 +33,7 @@ export default function ChoosePortfolioMessage({ index, content } : ChoosePortfo
         // initiate new request with updated portfolioID
         handleRequest(newMessages, input);
         setIsDisabled(false);
-    }, [messages, setPortfolioID, setIsDisabled, handleRequest]);
+    }, [index, messages, setMessages, setPortfolioID, setIsDisabled, handleRequest]);
 
     const selectedPortfolioID = useMemo(() => {
         const match = content.match(/^!choosePortfolio:(.+)$/);

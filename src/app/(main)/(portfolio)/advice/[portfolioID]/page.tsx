@@ -7,7 +7,6 @@ import type { Database } from '@/types/supabase';
 import type { AdviceData, Transaction } from '@/types/types';
 
 function populateTransactionsColumns(transactions: Transaction[]) {
-  // populate columns
   if (!(transactions.length > 0)) return [];
 
   const populatedTransactions = transactions.map((obj) => {

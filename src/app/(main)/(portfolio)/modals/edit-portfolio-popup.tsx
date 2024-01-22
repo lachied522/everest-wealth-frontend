@@ -167,7 +167,7 @@ const HoldingRow = ({ holding, update } : {
 };
 
 export default function EditPortfolioPopup() {
-  const { updatePortfolio } = useGlobalContext() as GlobalState;
+  const { setPortfolio } = useGlobalContext() as GlobalState;
   const { currentPortfolio } = usePortfolioContext() as PortfolioState;
   const [searchString, setSearchString] = useState('');
   const [searchHits, setSearchHits] = useState<StockInfo[]>([]);
@@ -249,14 +249,14 @@ export default function EditPortfolioPopup() {
       })
       .then(res => res.json())
       .then(({ success, data }) => {
-        // api route only returns updated holdings, combine updated and existing holdings for new portfolio
-        const newPortfolioState = [
-          ...allHoldingData.filter((holding) => !updatedHoldings.includes(holding)),
-          ...data,
-        ];
-
         if (success) {
-          updatePortfolio(
+          // api route only returns updated holdings, combine updated and existing holdings for new portfolio
+          const newPortfolioState = [
+            ...allHoldingData.filter((holding) => !updatedHoldings.includes(holding)),
+            ...data,
+          ];
+          
+          setPortfolio(
             currentPortfolio.id,
             newPortfolioState,
           );

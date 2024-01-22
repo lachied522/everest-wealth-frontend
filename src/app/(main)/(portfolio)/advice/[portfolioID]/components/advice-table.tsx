@@ -2,11 +2,9 @@
 /* 
  *  docs: https://ui.shadcn.com/docs/components/data-table 
 */
-import { useState } from "react";
 
 import {
     ColumnDef,
-    SortingState,
     flexRender,
     getCoreRowModel,
     getSortedRowModel,
@@ -24,26 +22,20 @@ import {
 
 import { columns } from "./advice-table-columns";
 
-import type { AdviceData } from "@/types/types";
+import type { Transaction } from "@/types/types";
 
 interface AdviceTableProps {
-    data: AdviceData
+    transactions: Transaction[]
 }
 
 export default function AdviceTable<TData>({
-    data,
+    transactions,
 }:  AdviceTableProps) {
-    const [sorting, setSorting] = useState<SortingState>([])
-
     const table = useReactTable({
-        data: data?.transactions || [],
+        data: transactions,
         columns: columns as ColumnDef<TData | any>[],
         getCoreRowModel: getCoreRowModel(),
-        onSortingChange: setSorting,
         getSortedRowModel: getSortedRowModel(),
-        state: {
-          sorting,
-        },
     })
 
     return (
@@ -74,7 +66,7 @@ export default function AdviceTable<TData>({
                         data-state={row.getIsSelected() && "selected"}
                     >
                         {row.getVisibleCells().map((cell) => (
-                        <TableCell key={cell.id} className="items-center">
+                        <TableCell key={cell.id} className="text-center">
                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                         </TableCell>
                         ))}

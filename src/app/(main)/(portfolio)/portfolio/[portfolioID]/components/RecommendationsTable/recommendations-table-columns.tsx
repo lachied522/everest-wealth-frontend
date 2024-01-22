@@ -11,6 +11,7 @@ import {
 } from "react-icons/lu";
 
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox";
 
 export type Transaction = {
     symbol: string;
@@ -150,4 +151,17 @@ export const columns: ColumnDef<Transaction, any>[] = [
         USDollar.format(row.getValue('net'))
       )
     },
+    {
+        id: "accept",
+        header: ({ table }) => (
+          <div>Accept?</div>
+        ),
+        cell: ({ row }) => (
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => row.toggleSelected(!!value)}
+            aria-label="Select row"
+          />
+        ),
+    }
 ]

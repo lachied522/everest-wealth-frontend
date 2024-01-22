@@ -34,7 +34,7 @@ export default function AICompanionPopup({ children } : {
     const inputRef = useRef<HTMLTextAreaElement | null>(null);
     const closeRef = useRef<HTMLButtonElement | null>(null);
 
-    const onOpen = () => {
+    const onOpen = useCallback(() => {
         if (toast) {
             // set input to message
             setInput(toast);
@@ -42,7 +42,7 @@ export default function AICompanionPopup({ children } : {
 
         // this doesn't seem to work
         if(inputRef.current) inputRef.current.focus();
-    }
+    }, [toast, inputRef, setInput]);
 
     const onClose = useCallback(() => {
         // reset
@@ -51,7 +51,7 @@ export default function AICompanionPopup({ children } : {
         setInput("");
         // make sure isDisabled is false
         setIsDisabled(false);
-    }, [setMessages, setInput]);
+    }, [setMessages, setInput, setIsDisabled]);
 
     const onMessageSubmit = useCallback(async (content: string) => {
         if (isLoading || isDisabled) return;
@@ -65,7 +65,7 @@ export default function AICompanionPopup({ children } : {
         setInput("");
         // handle request then set loading to false
         handleRequest(newMessages);
-    }, [isLoading, isDisabled, messages, setMessages, setInput]);
+    }, [isLoading, isDisabled, messages, setMessages, setInput, handleRequest]);
 
     const onSubmit = (e: React.FormEvent) => {
         e.preventDefault();

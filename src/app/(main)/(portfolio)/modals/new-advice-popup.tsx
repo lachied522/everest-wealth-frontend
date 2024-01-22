@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback, useRef } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 import {
     Dialog,
@@ -19,8 +19,8 @@ import { LuTrendingUp } from "react-icons/lu";
 
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 
-import { useGlobalContext } from "@/context/GlobalState";
-import { PortfolioState, usePortfolioContext } from "@/context/PortfolioState";
+import { useGlobalContext, GlobalState } from "@/context/GlobalState";
+import { usePortfolioContext, PortfolioState } from "@/context/PortfolioState";
 
 const WEB_SOCKET_URL = process.env.NEXT_PUBLIC_WEBSOCKET_URL|| "";
 
@@ -30,23 +30,21 @@ const USDollar = new Intl.NumberFormat("en-US", {
 });
 
 export default function NewAdvicePopup() {
-    const { session, setAdvice } = useGlobalContext();
-    const { currentPortfolio, setLoadingNewAdvice } = usePortfolioContext() as PortfolioState;
+    const { setAdvice } = useGlobalContext() as GlobalState;
+    const { currentPortfolio, setIsLoadingNewAdvice } = usePortfolioContext() as PortfolioState;
     const router = useRouter();
-    const searchParams = useSearchParams();
     const [socketUrl, setSocketUrl] = useState<string | null>(null); // set url to null until called
-    const [adviceType, setAdviceType] = useState<string>('review'); // deposit, withdraw, or review
-    const [amount, setAmount] = useState<number>(0);    
-    const [currentValue, setCurrentValue] = useState(0) // current value of portfolio
-    const [proposedValue, setProposedValue] = useState(0);
+    const [adviceType, setAdviceType] = useState<'deposit'|'withdraw'|'review'>('review'); // deposit, withdraw, or review
+    const [amount, setAmount] = useState<number>(0);
+    const [currentValue, setCurrentValue] = useState(0); // current value of portfolio
+    const [proposedValue, setProposedValue] = useState(0); // value after proposed transaction
     const closeRef = useRef<HTMLButtonElement | null>(null);
     
-    const { sendMessage } = useWebSocket(socketUrl, {
+    const { readyState, sendJsonMessage } = useWebSocket(socketUrl, {
         onOpen: () => console.log('opened'),
         onMessage: (event) => {
-            console.log(event.data);
             // remove loading state
-            setLoadingNewAdvice(false);
+            setIsLoadingNewAdvice(null);
             // update advice in global state
             setAdvice(currentPortfolio.id, JSON.parse(event.data));
         },
@@ -66,7 +64,7 @@ export default function NewAdvicePopup() {
             setProposedValue(currentPortfolio.totalValue);
             setAmount(0);
         }
-    }, [currentPortfolio]);
+    }, [currentPortfolio, setCurrentValue, setProposedValue, setAmount]);
 
     useEffect(() => {
         if (adviceType === 'deposit') {
@@ -85,29 +83,31 @@ export default function NewAdvicePopup() {
         }
     }, [setAmount]);
 
-    const onCancel = () => {
+    const onOpen = useCallback(() => {
+        // establish websocket connection
+        setSocketUrl(`${WEB_SOCKET_URL}/ws/${currentPortfolio.id}`);
+    }, [setSocketUrl, currentPortfolio.id]);
+
+    const onCancel = useCallback(() => {
         // reset state
         setAdviceType('review');
         setAmount(0);
-        // close websocket
-        setSocketUrl(null);
-    }
+    }, [setAdviceType, setAmount]);
+
+    const handleMessage = useCallback((body: any) => {
+        if (readyState===ReadyState.OPEN) sendJsonMessage(body);
+    }, [readyState, sendJsonMessage]);
 
     const onSubmit = () => {
-        setLoadingNewAdvice(true);
-        // establish websocket connection
-        setSocketUrl(`${WEB_SOCKET_URL}/ws/${session.user.id}`);
-        sendMessage(
-            JSON.stringify({
-                portfolio_id: currentPortfolio.id, 
-                reason: adviceType,
-                amount: adviceType==='withdraw'? -amount: amount,
-            })
-        );
+        setIsLoadingNewAdvice(currentPortfolio.id);
+        handleMessage({
+            reason: adviceType,
+            amount: adviceType==='withdraw'? -amount: amount,
+        });
+        // navigate to Recommendations tab
+        router.push(`/portfolio/${currentPortfolio.id}?tab=Recommendations`);
         // close modal
         if (closeRef.current) closeRef.current.click();
-        // navigate to Recommendations tab
-        if (searchParams.get("tab")!=="Recommendations") router.push(`/portfolio/${currentPortfolio.id}?tab=Recommendations`);
     } 
 
     return (
@@ -115,6 +115,7 @@ export default function NewAdvicePopup() {
             <DialogTrigger asChild>
                 <Button
                     disabled={!currentPortfolio}
+                    onClick={onOpen}
                 >
                     <LuTrendingUp className="mr-2" />
                     Get Advice

@@ -64,7 +64,7 @@ const TableSubRow = ({ data }: { data: AdviceData }) => {
             {isOpen && (
             <TableRow className='bg-white transition-none hover:bg-white p-0'>
                 <TableCell colSpan={5} className='p-0'>
-                    <AdviceTable data={data} />
+                    <AdviceTable transactions={data.transactions} />
                 </TableCell>
             </TableRow>
             )}

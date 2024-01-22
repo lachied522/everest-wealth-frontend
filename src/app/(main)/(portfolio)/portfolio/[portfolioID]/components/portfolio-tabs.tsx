@@ -1,6 +1,6 @@
 "use client";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 
@@ -74,7 +74,6 @@ export default function PortfolioTabs() {
     const [currentTab, setCurrentTab] = useState<typeof TABS[number]>(TABS[1]); // keeps track of current tab, defaults to 'overview'
     // @ts-ignore: issue with ColumnDef type https://github.com/TanStack/table/issues/4241
     const [visibleColumns, setVisibleColumns] = useState(portfolioColumns.filter((column) => currentTab.visibleColumns.includes(column.accessorKey))); 
-    const [adviceNotification, setAdviceNotification] = useState<number>(0); // shows user whether the advice tab is non-empty
 
     useEffect(() => {
         // get current tab
@@ -86,6 +85,16 @@ export default function PortfolioTabs() {
             router.push(`/portfolio/${currentPortfolio.id}?tab=${TABS[1].tabName}`);
         }
     }, [searchParams, router, currentPortfolio.id]);
+
+    const hasTransactions = useMemo(() => {
+        if (currentPortfolio) {
+            const advice = currentPortfolio.advice[0];
+            if (advice) {
+                if (advice.transactions && !(advice.status==="actioned")) return advice.transactions.length;
+            };
+        }
+        return 0;
+    }, [currentPortfolio]);
 
     useEffect(() => {
         // update visible columns on tab change
@@ -103,10 +112,10 @@ export default function PortfolioTabs() {
     return (
         <>
             <div className="flex gap-3 mb-4 px-3">
-            {TABS.map((tab, index) => (
+                {TABS.map((tab, index) => (
                 <div key={`button-${tab.tabName}-tab`} className="relative">
                     {index===0 && (
-                    <AdviceNotification value={adviceNotification}/>
+                    <AdviceNotification value={hasTransactions} />
                     )}
                     <Button
                         key={tab.tabName}
@@ -120,10 +129,10 @@ export default function PortfolioTabs() {
                         {tab.tabName}
                     </Button>
                 </div>
-            ))}
+                ))}
             </div>
             {currentTab === TABS[0] ? (
-            <RecommendationsTable setAdviceNotification={setAdviceNotification} />
+            <RecommendationsTable />
             ) : (
             <PortfolioTable columns={visibleColumns} />
             )}

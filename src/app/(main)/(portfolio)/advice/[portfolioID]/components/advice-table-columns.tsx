@@ -1,16 +1,13 @@
-import { ColumnDef, Column } from "@tanstack/react-table";
+import { ColumnDef } from "@tanstack/react-table";
 
 import Link from "next/link";
 
 import { cn } from "@/components/lib/utils";
 
 import { 
-  LuChevronsUpDown, 
-  LuChevronUp, 
-  LuChevronDown,
+  LuCheck,
+  LuX,
 } from "react-icons/lu";
-
-import { Button } from "@/components/ui/button"
 
 export type Transaction = {
     symbol: string;
@@ -43,44 +40,41 @@ const Badge = ({ type }: {
 }
 
 
-interface DataTableColumnHeaderProps<TData, TValue>
+interface DataTableColumnHeaderProps
   extends React.HTMLAttributes<HTMLDivElement> {
-  column: Column<TData, TValue>
   title: string
 }
 
-function AdviceTableColumnHeader<TData, TValue> ({
-    column,
+function AdviceTableColumnHeader ({
     title,
     className,
-  }: DataTableColumnHeaderProps<TData, TValue>) {
-    if (!column.getCanSort()) {
-      return <div className={cn(className)}>{title}</div>
-    }
+}: DataTableColumnHeaderProps) {
 
     return (
-      <Button
-        variant="ghost"
-        className={cn("flex items-center space-x-2 text-sm -ml-3 h-8 data-[state=open]:bg-accent", className)}
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
+      <div className={cn("flex items-center justify-center text-sm h-8 data-[state=open]:bg-accent", className)} >
         {title}
-        {column.getIsSorted() === "desc" ? (
-          <LuChevronDown className="ml-2 h-4 w-4" />
-        ) : column.getIsSorted() === "asc" ? (
-          <LuChevronUp className="ml-2 h-4 w-4" />
-        ) : (
-          <LuChevronsUpDown className="ml-2 h-4 w-4" />
-        )}
-      </Button>
+      </div>
     )
-  }
+}
+
+const IsActionedIndicator = ({ status }: { status?: string }) => {
+
+  return (
+    <div className="flex items-center justify-center">
+        {status? (
+        <LuCheck size={20} />
+        ) : (
+        <LuX size={20} />
+        )}
+    </div>
+  )
+}
 
 export const columns: ColumnDef<Transaction>[] = [
     {
       accessorKey: 'transaction',
       header: ({ column }) => (
-        <div className="ml-8" >Transaction</div>
+        <AdviceTableColumnHeader title='Transaction' />
       ),
       cell: ({ row }) => (
           <div className="ml-8">
@@ -91,7 +85,7 @@ export const columns: ColumnDef<Transaction>[] = [
     {
         accessorKey: 'symbol',
         header: ({ column }) => (
-          <div>Symbol</div>
+          <AdviceTableColumnHeader title='Symbol' />
         ),
         cell: ({ row }) => (
           <div className="flex items-center gap-2">
@@ -104,19 +98,19 @@ export const columns: ColumnDef<Transaction>[] = [
     {
         accessorKey: 'name',
         header: ({ column }) => (
-          <div>Name</div>
+          <AdviceTableColumnHeader title='Name' />
         ),
     },
     {
         accessorKey: 'units',
         header: ({ column }) => (
-          <div>Units</div>
+          <AdviceTableColumnHeader title='Units' />
         )
     },
     {
       accessorKey: 'price',
       header: ({ column }) => (
-        <div>Price</div>
+        <AdviceTableColumnHeader title='Price' />
       ),
       cell: ({ row }) => (
         USDollar.format(row.getValue('price'))
@@ -125,7 +119,7 @@ export const columns: ColumnDef<Transaction>[] = [
     {
         accessorKey: 'value',
         header: ({ column }) => (
-          <div>Value</div>
+          <AdviceTableColumnHeader title='Value' />
         ),
         cell: ({ row }) => (
           USDollar.format(row.getValue('value'))
@@ -134,7 +128,7 @@ export const columns: ColumnDef<Transaction>[] = [
     {
       accessorKey: 'brokerage',
       header: ({ column }) => (
-        <div>Brokerage</div>
+        <AdviceTableColumnHeader title='Brokerage' />
       ),
       cell: ({ row }) => (
         USDollar.format(row.getValue('brokerage') || 0)
@@ -143,10 +137,19 @@ export const columns: ColumnDef<Transaction>[] = [
     {
       accessorKey: 'net',
       header: ({ column }) => (
-        <div>Net</div>
+        <AdviceTableColumnHeader title='Net' />
       ),
       cell: ({ row }) => (
         USDollar.format(row.getValue('net'))
+      )
+    },
+    {
+      accessorKey: 'status',
+      header: ({ column }) => (
+        <AdviceTableColumnHeader title='Actioned?' />
+      ),
+      cell: ({ row }) => (
+        <IsActionedIndicator status={row.getValue('status')} />
       )
     },
 ]

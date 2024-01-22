@@ -1,4 +1,4 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { createRouteHandlerClient, SupabaseClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
@@ -26,9 +26,34 @@ function getNewHoldings({ currentHoldings, transactions } : {
     );
 }
 
+async function updateAdviceRecord(
+  adviceRecord: Pick<AdviceData, "id"|"portfolio_id"|"transactions">,
+  newData: Transaction[],
+  supabase: SupabaseClient
+) {
+  const symbols = Array.from(newData, (obj) => obj.symbol);
+
+  const updatedTransactions = adviceRecord.transactions.map(
+    (transaction) => (symbols.includes(transaction.symbol) ? {
+      ...transaction,
+      status: 'actioned',
+    }: transaction)
+  );
+
+  const { error } = await supabase
+    .from('advice')
+    .update({ 
+      transactions: updatedTransactions
+    })
+    .eq('id', adviceRecord.id)
+    .select();
+
+  if (error) throw new Error(`Erroring updating advice record: ${error}`);
+}
+
 type RequestBody = {
-    advice: AdviceData
-    action: 'confirm'|'dismiss'
+    data: Transaction[]
+    advice_id: string
 }
 
 export async function POST(req: Request) {
@@ -44,73 +69,74 @@ export async function POST(req: Request) {
       return NextResponse.redirect(new URL('/login', req.url));
     }
 
-    const body = await req.json() as RequestBody;
+    const { data, advice_id } = await req.json() as RequestBody;
 
     let updatedHoldings: Tables<'holdings'>[] = [];
 
     try {
-      if (body.action==='confirm') {
-        // get all holdings matching symbols
-        const symbols = Array.from(body.advice.transactions, (obj) => obj.symbol);
+      // Step 1: retrieve advice record
+      const { data: advice, error: adviceError } = await supabase
+      .from("advice")
+      .select("id, portfolio_id, transactions")
+      .eq("id", advice_id);
+
+      if (!advice || adviceError) throw new Error(`Error fetching advice: ${adviceError}`);
+
+      if (data.length) {
+        // Step 2: get all existing holdings matching symbols
+        const symbols = Array.from(data, (obj) => obj.symbol);
   
         const { data: currentHoldings, error: holdingsError } = await supabase
         .from("holdings")
         .select("*")
-        .eq("portfolio_id", body.advice.portfolio_id)
+        .eq("portfolio_id", advice[0].portfolio_id!)
         .in("symbol", symbols);
   
-        if (holdingsError) console.log(holdingsError); //should change status of api response
+        if (holdingsError) throw new Error(`Error fetching holdings: ${holdingsError}`);
   
         const newHoldingRecords = getNewHoldings({
             currentHoldings,
-            transactions: body.advice.transactions,
+            transactions: data,
         }).map(holding => ({
             ...holding,
-            portfolio_id: body.advice.portfolio_id,
+            portfolio_id: advice[0].portfolio_id!,
         }));
-  
-        const { data, error: commitError } = await supabase
+        
+        // Step 3: upsert new holdings to DB
+        const { data: updatedHoldings, error: commitError } = await supabase
           .from('holdings')
           .upsert(newHoldingRecords, { onConflict: 'id', ignoreDuplicates: false, defaultToNull: false })
           .select();
         
         if (commitError) throw new Error(`Error committing changes: ${commitError}`);
 
-        updatedHoldings = data;
+        // Step 4: add transaction to transactions table
+        const { error: transactionsError } = await supabase
+          .from('transactions')
+          .insert(
+            data.map((transaction) => ({
+              ...transaction,
+              reason: 'advice',
+              portfolio_id: advice[0].portfolio_id!,
+            })
+          ));
       }
 
-      // update status of advice record
-      const status = body.action==='confirm'? 'actioned': 'dismissed';
-      const { error: adviceError } = await supabase
-        .from('advice')
-        .update({ status })
-        .eq('id', body.advice.id)
-        .select();
-
-      // add transaction to transactions table
-      const { error: transactionsError } = await supabase
-        .from('transactions')
-        .insert(body.advice.transactions.map((transaction) => ({
-          ...transaction,
-          reason: 'advice',
-          portfolio_id: body.advice.portfolio_id,
-        })));
+      // Step 5: update advice record
+      await updateAdviceRecord({
+        ...advice[0],
+        transactions: advice[0].transactions as Transaction[],
+      }, data, supabase);
 
       // populate new holdings with stock data prior to returning to client
       const populatedHoldings = await fetchStockDataFromServer(updatedHoldings);
     
-      return Response.json({
-        data: populatedHoldings,
-        success: true,
-      });
+      return NextResponse.json({ data: populatedHoldings }, { status: 200 });
 
     } catch (e) {
 
       console.log(e);
 
-      return Response.json({
-        data: [],
-        success: false,
-      });
+      return NextResponse.json({ data: [] }, { status: 500 });
     }
 }
