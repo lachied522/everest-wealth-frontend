@@ -27,13 +27,13 @@ function getNewHoldings({ currentHoldings, transactions } : {
 }
 
 async function updateAdviceRecord(
-  adviceRecord: Pick<AdviceData, "id"|"portfolio_id"|"transactions">,
+  adviceRecord: Pick<AdviceData, "id"|"portfolio_id"|"recom_transactions">,
   newData: Transaction[],
   supabase: SupabaseClient
 ) {
   const symbols = Array.from(newData, (obj) => obj.symbol);
 
-  const updatedTransactions = adviceRecord.transactions.map(
+  const updatedTransactions = adviceRecord.recom_transactions.map(
     (transaction) => (symbols.includes(transaction.symbol) ? {
       ...transaction,
       status: 'actioned',
@@ -77,7 +77,7 @@ export async function POST(req: Request) {
       // Step 1: retrieve advice record
       const { data: advice, error: adviceError } = await supabase
       .from("advice")
-      .select("id, portfolio_id, transactions")
+      .select("id, portfolio_id, recom_transactions(*)")
       .eq("id", advice_id);
 
       if (!advice || adviceError) throw new Error(`Error fetching advice: ${adviceError}`);
@@ -125,7 +125,7 @@ export async function POST(req: Request) {
       // Step 5: update advice record
       await updateAdviceRecord({
         ...advice[0],
-        transactions: advice[0].transactions as Transaction[],
+        recom_transactions: advice[0].recom_transactions,
       }, data, supabase);
 
       // populate new holdings with stock data prior to returning to client
