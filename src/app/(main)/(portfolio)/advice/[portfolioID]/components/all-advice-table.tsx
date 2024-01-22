@@ -109,7 +109,7 @@ export default function AllAdviceTable({ data }: AllAdviceTableProps) {
                             ) : (
                             <TableCell colSpan={5} className="h-24 text-center">
                                 <div className="w-full flex items-center justify-center">
-                                    Nothing here yet. Try "Get Advice".
+                                    Nothing here yet.
                                 </div>
                             </TableCell>
                             )}
