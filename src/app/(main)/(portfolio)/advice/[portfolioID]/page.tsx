@@ -41,13 +41,13 @@ export default async function Page({ params }: PageProps) {
 
     const { data, error } = await supabase
       .from("advice")
-      .select("*")
+      .select("*, recom_transactions(*)")
       .eq("portfolio_id", portfolioID)
       .order('created_at', { ascending: false });
 
     // populate advice data
     const populatedData = data?.map((advice) => {
-      const transactions = populateTransactionsColumns(advice.transactions as Transaction[]);
+      const transactions = populateTransactionsColumns(advice.recom_transactions as Transaction[]);
 
       const value = transactions.reduce((acc, obj) => acc + parseFloat(obj.value), 0);
       const gross = transactions.reduce((acc, obj) => acc + obj.units * obj.price, 0);

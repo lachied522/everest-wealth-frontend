@@ -27,8 +27,11 @@ export default function PerformanceSummaryTable({ performance, dividends }: Perf
     const { currentPortfolio } = usePortfolioContext() as PortfolioState;
 
     const totalCapitalGain = useMemo(() => {
-        const totalCost = currentPortfolio.holdings.reduce((acc, obj) => acc + (obj?.cost || 0), 0);
-        return currentPortfolio.totalValue - totalCost;
+        if (currentPortfolio) {
+            const totalCost = currentPortfolio.holdings.reduce((acc, obj) => acc + (obj?.cost || 0), 0);
+            return currentPortfolio.totalValue - totalCost;
+        }
+        return 0;
     }, [currentPortfolio]);
 
     const totalDividends = useMemo(() => {

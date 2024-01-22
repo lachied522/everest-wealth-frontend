@@ -108,6 +108,9 @@ export const columns: ColumnDef<Transaction, any>[] = [
         header: ({ column }) => (
           <div>Name</div>
         ),
+        cell: ({ row }) => (
+          <div className="flex justify-start">{row.getValue('name')}</div>
+        )
     },
     {
         accessorKey: 'units',

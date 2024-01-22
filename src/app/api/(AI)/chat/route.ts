@@ -8,7 +8,7 @@ import recursiveAICall from './recursive-ai-call';
 
 import type { Database } from '@/types/supabase';
 
-import { Message } from '@/types/ai';
+import type { Message } from '@/types/ai';
 
 export const runtime = 'edge'; // https://nextjs.org/docs/app/building-your-application/routing/route-handlers#streaming
 

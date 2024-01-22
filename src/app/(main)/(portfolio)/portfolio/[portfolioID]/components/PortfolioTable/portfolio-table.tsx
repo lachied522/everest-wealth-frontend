@@ -2,7 +2,7 @@
 /* 
  *  docs: https://ui.shadcn.com/docs/components/data-table 
 */
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 
 import {
     ColumnDef,
@@ -55,19 +55,14 @@ export default function PortfolioTable<TData, TValue>({
 }: PortfolioTableProps<TData, TValue>) {
     const { toggleFavourite } = useGlobalContext() as GlobalState;
     const { currentPortfolio } = usePortfolioContext() as PortfolioState;
-    const [data, setData] = useState<TData[] | null>(null);
-    const [sorting, setSorting] = useState<SortingState>([])
+    const [sorting, setSorting] = useState<SortingState>([]);
 
-    useEffect(() => {
-        if (currentPortfolio)  {
-            setData(currentPortfolio.holdings as TData[]);
-        } else {
-            setData(null);
-        }
-    }, [currentPortfolio]);
+    if (!currentPortfolio) throw new Error('currentPortfolio undefined');
+
+    const data = useMemo(() => currentPortfolio.holdings, [currentPortfolio.holdings]);
 
     const table = useReactTable({
-        data: data || [],
+        data: data as TData[],
         columns,
         getCoreRowModel: getCoreRowModel(),
         onSortingChange: setSorting,

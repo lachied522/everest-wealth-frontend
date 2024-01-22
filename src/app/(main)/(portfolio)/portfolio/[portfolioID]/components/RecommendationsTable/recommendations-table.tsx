@@ -41,7 +41,7 @@ const USDollar = new Intl.NumberFormat("en-US", {
     currency: "USD",
 });
 
-function populateTransactionsColumns(transactions: Transaction[]) {
+function populateTransactionsData(transactions: Transaction[]) {
     // populate columns
     if (!(transactions?.length > 0)) return [];
 
@@ -61,26 +61,31 @@ function populateTransactionsColumns(transactions: Transaction[]) {
 
 export default function RecommendationsTable<TData>() {
     const { setPortfolio, setAdvice } = useGlobalContext() as GlobalState;
-    const { currentPortfolio, isLoadingNewAdvice } = usePortfolioContext() as PortfolioState;
+    const { currentPortfolio } = usePortfolioContext() as PortfolioState;
     const [sorting, setSorting] = useState<SortingState>([]);
     const [rowSelection, setRowSelection] = useState({})
     const router = useRouter();
 
-    const adviceData = useMemo(() => {
-        if (currentPortfolio)  {
-            const advice = currentPortfolio.advice[0];
-            if (advice && advice.transactions && !(advice.status==="actioned")) {
-                return {
-                    ...advice,
-                    transactions: populateTransactionsColumns(advice.transactions),
-                }
+    if (!currentPortfolio) throw new Error('currentPortfolio undefined');
+
+    const populatedData = useMemo(() => {
+        const advice = currentPortfolio.advice[0];
+        if (advice && advice.recom_transactions && !(advice.status==="actioned")) {
+            return {
+                ...advice,
+                recom_transactions: populateTransactionsData(advice.recom_transactions),
             }
         }
         return;
-    }, [currentPortfolio]);
+    }, [currentPortfolio.advice]);
+
+    useEffect(() => {
+        // reset row selection on change in data
+        setRowSelection({});
+    }, [populatedData]);
 
     const table = useReactTable({
-        data: adviceData?.transactions || [],
+        data: populatedData?.recom_transactions || [],
         columns: columns as ColumnDef<TData | any>[],
         getCoreRowModel: getCoreRowModel(),
         onSortingChange: setSorting,
@@ -114,14 +119,14 @@ export default function RecommendationsTable<TData>() {
     }, [router, currentPortfolio.id]);
 
     const onAdviceAction = useCallback((action: 'confirm'|'dismiss') => {
-        if (!adviceData) return;
+        if (!populatedData) return;
         const data = action==='confirm'? getSelectedData(): [];
         
         fetch('/api/action-advice', {
             method: "POST",
             body: JSON.stringify({
                 data,
-                advice_id: adviceData.id,
+                advice_id: populatedData.id,
             }),
             headers: {
                 "Content-Type": "application/json",
@@ -134,15 +139,15 @@ export default function RecommendationsTable<TData>() {
             navigateToOverview();
             // update advice status
             setAdvice(
-                adviceData.portfolio_id!,
+                currentPortfolio.id,
                 {
-                    ...adviceData,
+                    ...currentPortfolio.advice[0],
                     status: 'actioned',
                 }
             );
         })
         .catch(err => console.log(err));
-    }, [adviceData, getSelectedData, updatePortfolio, navigateToOverview, setAdvice]);
+    }, [populatedData, getSelectedData, updatePortfolio, navigateToOverview, setAdvice]);
 
     const gross = useMemo(() => {
         const data = getSelectedData();
@@ -158,23 +163,35 @@ export default function RecommendationsTable<TData>() {
 
     return (
         <>
-            {adviceData ? (
+            {populatedData ? (
             <>
-                {isLoadingNewAdvice!==currentPortfolio.id && (
-                <div className="flex items-center mb-2">
-                    {adviceData.status==='generating' ? (
+                <div className="flex justify-between mb-3">
+                    {populatedData.status==='generating' ? (
                     <Button variant="ghost" disabled className="flex items-center gap-2">
                         <LuLoader2 className="animate-spin" size={25}/>
-                        Generating statement...
+                        Generating advice...
                     </Button>
                     ) : (
-                    <a href={adviceData.url || ""} target="_blank" className="h-10 px-4 py-2 flex items-center no-underline font-medium text-slate-700 group-hover:text-blue-600">
+                    <a href={populatedData.url || ""} target="_blank" className="h-10 px-4 py-2 flex items-center no-underline font-medium text-slate-700 group-hover:text-blue-600">
                         <LuFileText size={30} className="mr-2" />
                         Statement of Advice
                     </a>
                     )}
+                    <div className="flex items-start gap-6">
+                        <Button variant="secondary" onClick={() => onAdviceAction('dismiss')}>
+                            Dismiss Changes
+                        </Button>
+                        {table.getFilteredSelectedRowModel().rows.length > 0 ? (
+                        <Button onClick={() => onAdviceAction('confirm')}>
+                            Make {table.getFilteredSelectedRowModel().rows.length} Changes
+                        </Button>
+                        ) : (
+                        <Button onClick={() => onAdviceAction('confirm')}>
+                            Make All Changes
+                        </Button>
+                        )}
+                    </div>
                 </div>
-                )}
                 <div className="rounded-md bg-white border">
                     <Table>
                         <TableHeader className="bg-slate-100/50 transition-none">
@@ -182,7 +199,7 @@ export default function RecommendationsTable<TData>() {
                             <TableRow key={headerGroup.id}>
                             {headerGroup.headers.map((header) => {
                                 return (
-                                <TableHead key={header.id}>
+                                <TableHead key={header.id} className="text-center">
                                     {header.isPlaceholder
                                     ? null
                                     : flexRender(
@@ -196,7 +213,7 @@ export default function RecommendationsTable<TData>() {
                         ))}
                         </TableHeader>
                         <TableBody>
-                            {isLoadingNewAdvice!==currentPortfolio.id ? (
+                            {populatedData.recom_transactions.length > 0 ? (
                             <>
                                 {table.getRowModel().rows.map((row) => (
                                 <TableRow
@@ -214,39 +231,25 @@ export default function RecommendationsTable<TData>() {
                                     <TableCell colSpan={columns.length} className="p-6 bg-slate-200/50 transition-none hover:bg-slate-200/50">
                                         <div className="flex justify-end items-end">             
                                             <div className="flex flex-col items-end gap-6">
-                                                <div className="grid gap-4 auto-rows-auto grid-cols-[1fr_0.75fr] items-center justify-items-stretch border-b-slate-300 border-b border-solid pb-4 my-6">
+                                                <div className="grid gap-4 auto-rows-auto grid-cols-[1fr_0.75fr] items-center justify-items-stretch my-6">
                                                     <div>
                                                         Est. Brokerage
                                                     </div>
-                                                    <div className="text-right">
+                                                    <div className="text-slate-800 text-right">
                                                         {USDollar.format(brokerage)}
                                                     </div>
                                                     <div>
                                                         Gross
                                                     </div>
-                                                    <div className="text-right">
+                                                    <div className="text-slate-800 text-right">
                                                         {USDollar.format(gross)}
                                                     </div>
                                                     <div>
                                                         Net
                                                     </div>
-                                                    <div className="text-right">
+                                                    <div className="text-slate-800 text-right">
                                                         {USDollar.format(gross - brokerage)}
                                                     </div>
-                                                </div>
-                                                <div className="flex items-start gap-6">
-                                                    <Button variant="secondary" onClick={() => onAdviceAction('dismiss')}>
-                                                        Dismiss Changes
-                                                    </Button>
-                                                    {table.getFilteredSelectedRowModel().rows.length > 0 ? (
-                                                    <Button onClick={() => onAdviceAction('confirm')}>
-                                                        Make {table.getFilteredSelectedRowModel().rows.length} Changes
-                                                    </Button>
-                                                    ) : (
-                                                    <Button onClick={() => onAdviceAction('confirm')}>
-                                                        Make All Changes
-                                                    </Button>
-                                                    )}
                                                 </div>
                                             </div>
                                         </div>

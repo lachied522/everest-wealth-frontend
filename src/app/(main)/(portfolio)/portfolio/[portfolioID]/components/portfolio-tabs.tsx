@@ -75,6 +75,8 @@ export default function PortfolioTabs() {
     // @ts-ignore: issue with ColumnDef type https://github.com/TanStack/table/issues/4241
     const [visibleColumns, setVisibleColumns] = useState(portfolioColumns.filter((column) => currentTab.visibleColumns.includes(column.accessorKey))); 
 
+    if (!currentPortfolio) throw new Error ('currentPortfolio undefined');
+
     useEffect(() => {
         // get current tab
         const tab = TABS.find((tab) => tab.tabName===searchParams.get("tab"));
@@ -87,11 +89,9 @@ export default function PortfolioTabs() {
     }, [searchParams, router, currentPortfolio.id]);
 
     const hasTransactions = useMemo(() => {
-        if (currentPortfolio) {
-            const advice = currentPortfolio.advice[0];
-            if (advice) {
-                if (advice.transactions && !(advice.status==="actioned")) return advice.transactions.length;
-            };
+        const advice = currentPortfolio.advice[0];
+        if (advice) {
+            if (advice.recom_transactions && !(advice.status==="actioned")) return advice.recom_transactions.length;
         }
         return 0;
     }, [currentPortfolio]);

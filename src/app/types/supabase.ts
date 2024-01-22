@@ -13,27 +13,24 @@ export interface Database {
         Row: {
           created_at: string
           id: string
-          portfolio_id: string | null
+          portfolio_id: string
           status: string
-          transactions: Json[]
           type: string
           url: string | null
         }
         Insert: {
           created_at?: string
           id?: string
-          portfolio_id?: string | null
+          portfolio_id: string
           status?: string
-          transactions?: Json[] | null
           type?: string
           url?: string | null
         }
         Update: {
           created_at?: string
           id?: string
-          portfolio_id?: string | null
+          portfolio_id?: string
           status?: string
-          transactions?: Json[] | null
           type?: string
           url?: string | null
         }
@@ -43,13 +40,6 @@ export interface Database {
             columns: ["portfolio_id"]
             isOneToOne: false
             referencedRelation: "portfolios"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "advice_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
             referencedColumns: ["id"]
           }
         ]
@@ -206,6 +196,50 @@ export interface Database {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      recom_transactions: {
+        Row: {
+          actioned: boolean
+          advice_id: string
+          brokerage: number
+          created_at: string
+          id: number
+          name: string | null
+          price: number
+          symbol: string
+          units: number
+        }
+        Insert: {
+          actioned?: boolean
+          advice_id: string
+          brokerage: number
+          created_at?: string
+          id?: number
+          name?: string | null
+          price: number
+          symbol: string
+          units: number
+        }
+        Update: {
+          actioned?: boolean
+          advice_id?: string
+          brokerage?: number
+          created_at?: string
+          id?: number
+          name?: string | null
+          price?: number
+          symbol?: string
+          units?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recom_transactions_advice_id_fkey"
+            columns: ["advice_id"]
+            isOneToOne: false
+            referencedRelation: "advice"
             referencedColumns: ["id"]
           }
         ]

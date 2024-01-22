@@ -173,11 +173,11 @@ export default function EditPortfolioPopup() {
   const [searchHits, setSearchHits] = useState<StockInfo[]>([]);
   const [allHoldingData, setAllHoldingData] = useState<PartialHolding[]>([]); // contains all existing holdings and new holdings
 
+  if (!currentPortfolio) throw new Error('currentPortfolio undefined');
+
   useEffect(() => {
-    if (currentPortfolio) {
-      const sortedData = currentPortfolio.holdings.sort((a, b) => a.symbol.localeCompare(b.symbol)); // sort data alphabetically 
-      setAllHoldingData(sortedData);
-    }
+    const sortedData = currentPortfolio.holdings.sort((a, b) => a.symbol.localeCompare(b.symbol)); // sort data alphabetically 
+    setAllHoldingData(sortedData);
   }, [currentPortfolio]);
 
   const debouncedSearch = debounce(async (q) => {

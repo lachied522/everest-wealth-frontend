@@ -31,7 +31,7 @@ const USDollar = new Intl.NumberFormat("en-US", {
 
 export default function NewAdvicePopup() {
     const { setAdvice } = useGlobalContext() as GlobalState;
-    const { currentPortfolio, setIsLoadingNewAdvice } = usePortfolioContext() as PortfolioState;
+    const { currentPortfolio } = usePortfolioContext() as PortfolioState;
     const router = useRouter();
     const [socketUrl, setSocketUrl] = useState<string | null>(null); // set url to null until called
     const [adviceType, setAdviceType] = useState<'deposit'|'withdraw'|'review'>('review'); // deposit, withdraw, or review
@@ -39,14 +39,33 @@ export default function NewAdvicePopup() {
     const [currentValue, setCurrentValue] = useState(0); // current value of portfolio
     const [proposedValue, setProposedValue] = useState(0); // value after proposed transaction
     const closeRef = useRef<HTMLButtonElement | null>(null);
+
+    if (!currentPortfolio) throw new Error('currentPortfolio undefined');
     
     const { readyState, sendJsonMessage } = useWebSocket(socketUrl, {
         onOpen: () => console.log('opened'),
         onMessage: (event) => {
-            // remove loading state
-            setIsLoadingNewAdvice(null);
+            const data =  JSON.parse(event.data);
             // update advice in global state
-            setAdvice(currentPortfolio.id, JSON.parse(event.data));
+            if ('transactions' in data) {
+                console.log(data.transactions);
+                setAdvice(
+                    currentPortfolio.id, 
+                    {
+                        ...currentPortfolio.advice[0],
+                        recom_transactions: data.transactions,
+                    }
+                );
+            } else if ('url' in data) {
+                setAdvice(
+                    currentPortfolio.id, 
+                    {
+                        ...currentPortfolio.advice[0],
+                        url: data.url,
+                        status: 'finished',
+                    }
+                );
+            }
         },
         onClose: (event) => {
             console.log('WebSocket closed:', event);
@@ -95,11 +114,21 @@ export default function NewAdvicePopup() {
     }, [setAdviceType, setAmount]);
 
     const handleMessage = useCallback((body: any) => {
-        if (readyState===ReadyState.OPEN) sendJsonMessage(body);
+        if (readyState===ReadyState.OPEN) {
+            // send message
+            sendJsonMessage(body);
+            // update advice state for portfolio
+            setAdvice(
+                currentPortfolio.id, 
+                {
+                    ...currentPortfolio.advice[0],
+                    status: 'generating',
+                }
+            );
+        };
     }, [readyState, sendJsonMessage]);
 
     const onSubmit = () => {
-        setIsLoadingNewAdvice(currentPortfolio.id);
         handleMessage({
             reason: adviceType,
             amount: adviceType==='withdraw'? -amount: amount,

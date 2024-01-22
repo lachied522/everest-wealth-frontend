@@ -72,6 +72,8 @@ export default function PortfolioSettingsPopup() {
     const [confirmDelete, setConfirmDelete] = useState(false);
     const closeRef = useRef<HTMLButtonElement | null>(null);
 
+  if (!currentPortfolio) throw new Error('currentPortfolio undefined');
+
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {},
@@ -101,7 +103,7 @@ export default function PortfolioSettingsPopup() {
 
             return success;
         },
-        [currentPortfolio]
+        [currentPortfolio.id]
     );
 
     async function onSubmit(values: z.infer<typeof FormSchema>) {
@@ -123,7 +125,7 @@ export default function PortfolioSettingsPopup() {
         );
 
         // handle brokerage logic
-        if (brokerageType==="$" && values.flatBrokerage!==currentPortfolio.flat_brokerage) {
+        if (brokerageType==="$" && values.flatBrokerage!==currentPortfolio!.flat_brokerage) {
             newValues['flat_brokerage'] = values.flatBrokerage!;
         } else if (brokerageType==="%") {
             // not implemented
@@ -136,7 +138,7 @@ export default function PortfolioSettingsPopup() {
             success = await commitChanges(newValues);
 
             if (success) {
-                updatePortfolioSettings(currentPortfolio.id, newValues);
+                updatePortfolioSettings(currentPortfolio!.id, newValues);
             }
         } else {
             console.log("no changes");

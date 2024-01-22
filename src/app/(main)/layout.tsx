@@ -47,7 +47,7 @@ const fetchData = async (
     try {
         const { data: portfolioData, error: portfolioError } = await supabase
         .from("portfolios")
-        .select("*, holdings(*), advice(*)")
+        .select("*, holdings(*), advice(*, recom_transactions(*))")
         .eq("user_id", session.user.id)
         .order("created_at", { referencedTable: "advice", ascending: false })
         .limit(1, { referencedTable: "advice" });

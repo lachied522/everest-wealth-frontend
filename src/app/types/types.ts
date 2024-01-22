@@ -36,7 +36,7 @@ export type PopulatedHolding = (
 )
 export type Transaction = {
     symbol: string
-    name: string
+    name: string | null
     units: number
     price: number
     brokerage: number
@@ -44,8 +44,8 @@ export type Transaction = {
 }
 
 export type AdviceData = (
-    Omit<Tables<'advice'>, 'transactions'> & {
-        transactions: Transaction[]
+    Tables<'advice'> & {
+        recom_transactions: Tables<'recom_transactions'>[]
         value: number
         gross: number
         brokerage: number
@@ -58,11 +58,11 @@ export type Preferences = {
 
 export type PortfolioData = (
     Omit<Tables<'portfolios'>, 'item_access_token'|'preferences'> & {
-    totalValue: number
-    holdings: PopulatedHolding[]
-    advice: AdviceData[]
-    item_access_token: boolean
-    preferences: Preferences
+        totalValue: number
+        holdings: PopulatedHolding[]
+        advice: AdviceData[]
+        item_access_token: boolean
+        preferences: Preferences
 })
 
 export type TimeSeriesDataPoint = {

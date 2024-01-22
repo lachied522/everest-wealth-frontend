@@ -40,6 +40,8 @@ export default function PerformanceTabs({
     const { currentPortfolio } = usePortfolioContext() as PortfolioState;
     const [currentTab, setCurrentTab] = useState<typeof TABS[number]>(TABS[0]);
 
+    if (!currentPortfolio) throw new Error('currentPortfolio undefined');
+
     useEffect(() => {
         // get current tab
         const tab = TABS.find((tab) => tab.tabName===searchParams.get("tab"));

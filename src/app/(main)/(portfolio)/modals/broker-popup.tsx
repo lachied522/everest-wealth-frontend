@@ -29,6 +29,8 @@ export default function BrokerPopup() {
     const [LinkToken, setLinkToken] = useState<string | null>(null);
     const [isLoadingUnlink, setIsLoadingUnlink] = useState<boolean>(false);
 
+    if (!currentPortfolio) throw new Error('currentPortfolio undefined');
+
     const isLinked: boolean = useMemo(() => {
         return currentPortfolio?.item_access_token || false;
     }, [currentPortfolio.item_access_token]);
@@ -94,9 +96,9 @@ export default function BrokerPopup() {
         }
 
         async function getInstitution() {
-            if (!isLinked) return
+            if (!isLinked) return;
 
-            const data = await fetchInstitution(currentPortfolio.id);
+            const data = await fetchInstitution(currentPortfolio!.id);
 
             if (mounted) setInstitutionData(data);
         }

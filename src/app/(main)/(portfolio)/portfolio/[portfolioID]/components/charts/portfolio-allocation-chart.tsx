@@ -41,8 +41,10 @@ export default function PortfolioAllocationChart({ accessor }: {
 }) {
     const { currentPortfolio } = usePortfolioContext() as PortfolioState;
 
-    const data = useMemo(() => {
-        return currentPortfolio.holdings.reduce(
+    if (!currentPortfolio) throw new Error ('currentPortfolio undefined');
+
+    const data = useMemo(() => (
+        currentPortfolio.holdings.reduce(
             (totals: Total[], holding) => {
                 if (holding[accessor] !== (null || undefined)) {
                     let name = '';
@@ -78,7 +80,7 @@ export default function PortfolioAllocationChart({ accessor }: {
             },
             []
         )
-    }, [currentPortfolio.holdings, accessor]);
+    ), [currentPortfolio.holdings, accessor]);
 
     return (
         <PieChart width={100} height={100}>
