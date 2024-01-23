@@ -126,14 +126,13 @@ export default function RecommendationsTable<TData>() {
     }, [currentPortfolio.id, currentPortfolio.advice, setAdvice]);
 
     const onAdviceAction = useCallback((action: 'confirm'|'dismiss') => {
-        if (!adviceData) return;
         const data = action==='confirm'? selectedData: [];
         
         fetch('/api/action-advice', {
             method: "POST",
             body: JSON.stringify({
                 data,
-                advice_id: adviceData.id,
+                advice_id: adviceData!.id,
             }),
             headers: {
                 "Content-Type": "application/json",

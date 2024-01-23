@@ -67,7 +67,7 @@ export default async function Page({ params }: PageProps) {
         <div className="text-lg text-slate-700 mb-8">
             View your Statements of Advice
         </div>
-        <AllAdviceTable data={populatedData as AdviceData[]} />
+        <AllAdviceTable data={populatedData} />
       </>
     );
 }

@@ -19,12 +19,18 @@ import { Button } from '@/components/ui/button';
 import AdviceTable from "./advice-table"
 import type { AdviceData } from '@/types/types';
 
+type PopulatedAdviceData = AdviceData & {
+    value: number
+    gross: number
+    brokerage: number
+}
+
 const USDollar = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
 });
 
-const TableSubRow = ({ data }: { data: AdviceData }) => {
+const TableSubRow = ({ data }: { data: PopulatedAdviceData }) => {
     const [isOpen, setIsOpen] = useState(false);
 
     const toggleOpen = () => {
@@ -73,7 +79,7 @@ const TableSubRow = ({ data }: { data: AdviceData }) => {
 }
 
 interface AllAdviceTableProps {
-    data?: AdviceData[]
+    data?: PopulatedAdviceData[]
 }
 
 export default function AllAdviceTable({ data }: AllAdviceTableProps) {
