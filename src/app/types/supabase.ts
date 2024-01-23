@@ -206,7 +206,7 @@ export interface Database {
           advice_id: string
           brokerage: number
           created_at: string
-          id: number
+          id: string
           name: string | null
           price: number
           symbol: string
@@ -217,7 +217,7 @@ export interface Database {
           advice_id: string
           brokerage: number
           created_at?: string
-          id?: number
+          id?: string
           name?: string | null
           price: number
           symbol: string
@@ -228,7 +228,7 @@ export interface Database {
           advice_id?: string
           brokerage?: number
           created_at?: string
-          id?: number
+          id?: string
           name?: string | null
           price?: number
           symbol?: string

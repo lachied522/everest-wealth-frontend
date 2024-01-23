@@ -5,7 +5,7 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
-  title: 'Palladian',
+  title: 'Everest Wealth',
   description: 'Investing app',
 }
 
@@ -13,11 +13,6 @@ export default async function RootLayout({ children } : { children: React.ReactN
   return (
     <html lang="en">
       <head>
-        <link
-          href="https://uploads-ssl.webflow.com/64afbac816bb17eb2fdc3f03/css/everest-wealth.webflow.16b3dffc1.css"
-          rel="stylesheet"
-          type="text/css"
-        />
       </head>
       <body className={inter.className}>
           {children}

@@ -61,7 +61,7 @@ const AdviceNotification = ({ value }: { value: number }) => {
     if (!(value > 0)) return null;
 
     return (
-        <div className="absolute flex top-0 right-0 items-center justify-center rounded-full h-4 w-4 text-xs bg-red-300 text-white">
+        <div className="absolute flex top-0 right-0 items-center justify-center rounded-full h-4 w-4 text-xs bg-red-400 text-white">
             {value}
         </div>
     )

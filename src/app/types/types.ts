@@ -46,9 +46,6 @@ export type Transaction = {
 export type AdviceData = (
     Tables<'advice'> & {
         recom_transactions: Tables<'recom_transactions'>[]
-        value: number
-        gross: number
-        brokerage: number
     }
 )
 

@@ -4,9 +4,10 @@ import Link from 'next/link';
 
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
-import { LuCandlestickChart, LuFileLineChart, LuLink, LuUser2 } from 'react-icons/lu';
+import { LuCandlestickChart, LuFileLineChart, LuGlobe, LuLink, LuUser2 } from 'react-icons/lu';
 
 import Logo from '@/components/logo';
 
@@ -24,7 +25,7 @@ export default async function Home() {
     <main className="h-full">
       <div className="flex items-center justify-between px-12 py-6">
           <Logo withText={true} />
-          <div className="flex gap-5">
+          <div className="flex gap-8">
               <Link href='/' className="text-base text-slate-700 no-underline">
                 Features
               </Link>
@@ -42,7 +43,7 @@ export default async function Home() {
             </Button>
           </Link>
           ) : (
-          <div className="flex gap-2">
+          <div className="flex gap-4">
             <Link href='/login'>
               <Button variant="secondary">
                 Login
@@ -56,62 +57,103 @@ export default async function Home() {
           </div>
           )}
       </div>
-      <div className="h-[50vh] md:h-[75vh] relative bg-gradient-to-b from-transparent from-70% to-white">
-        <div className="bg-[url('/hero-background-image.jpg')] bg-cover bg-center absolute inset-0 opacity-80 -z-10 lg:bg-[center_top_25%]" />
-        <div className="flex flex-col items-center justify-center gap-3 p-12 sm:6 lg:p-36">
-          <h1 className="text-white drop-shadow-md">Investment Advice Shouldn&apos;t Break the Bank</h1>
-          <p className="text-white text-lg font-medium drop-shadow-md">
-            Get personalised and objective investment advice and build wealth without the associated cost
-          </p>
-          <div className="flex gap-2 p-6">
-            {session ? (
-            <Link href='/dashboard'>
-              <Button variant="secondary">
-                Dashboard
-              </Button>
-            </Link>
-            ) : (
-            <>
-              <Link href='/login'>
+      <div className="h-[50vh] md:h-[90vh] relative bg-gradient-to-b from-transparent from-70% to-white">
+        <div className="bg-[url('/hero-background-image.jpg')] bg-cover bg-center opacity-5 absolute inset-0 -z-10 lg:bg-[center_top_25%]" />
+        <div className="flex items-center justify-between gap-6 p-12 sm:6 lg:p-36 inset-y-0 absolute">
+          <h1 className="basis-3/4 text-7xl font-semibold text-slate-900 drop-shadow-md">Investment Advice Shouldn&apos;t Break the Bank</h1>
+          <div className="basis-1/2 flex flex-col gap-4">
+            <p className="text-lg font-medium drop-shadow-md">
+              Get personalised and objective investment advice and build wealth without the associated cost
+            </p>
+            <div className="flex items-center justify-center gap-4">
+              {session ? (
+              <Link href='/dashboard'>
                 <Button variant="secondary">
-                  Login
+                  Dashboard
                 </Button>
               </Link>
-              <Link href='/signup'>
-                <Button>
-                  Signup
-                </Button>
-              </Link>
-            </>
-            )}
-          </div>
-          <div className="hidden bg-white rounded-md p-8 absolute -bottom-[20%] md:block">
-            <div className="w-[38vw] min-w-[540px] h-[calc(38vw*0.55)] min-h-[calc(540px*0.55)] relative">
-              <Image alt="Hero Image" src="/hero-section-image.jpg" fill />
+              ) : (
+              <>
+                <Link href='/login'>
+                  <Button variant="secondary">
+                    Login
+                  </Button>
+                </Link>
+                <Link href='/signup'>
+                  <Button>
+                    Signup
+                  </Button>
+                </Link>
+              </>
+              )}
             </div>
           </div>
         </div>
       </div>
-      <div className="flex items-center justify-center bg-white p-36 lg:p-48">
-        <div className="flex items-center justify-center p-16">
-            <div className="w-[50%] flex flex-wrap gap-6">
-                <div className="flex items-center text-base text-slate-800 font-semibold">
-                  <LuUser2 size={32} className="mr-2" />
-                  Personalised Investment Advice
-                </div>
-                <div className="flex items-center text-base text-slate-800 font-semibold">
+      <div className="flex items-center justify-center bg-blue-300 p-36 lg:p-48">
+        <div className="grid grid-cols-2 place-items-center p-16">
+            <div className="flex flex-col items-start gap-4">
+              <div className="flex items-center">
                   <LuLink size={32} className="mr-2" />
-                  Link Your Existing Broker
-                </div>
-                <div className="flex items-center text-base text-slate-800 font-semibold">
-                  <LuCandlestickChart size={32} className="mr-2" />
-                  International Equities and ETFs
-                </div>
-                <div className="flex items-center text-base text-slate-800 font-semibold">
-                  <LuFileLineChart size={32} className="mr-2" />
-                  Performance and Income Reporting
-                </div>
+                  <h3 className="text-2xl">Link Your Existing Broker</h3>
+              </div>
+              <p>Easily integrate with your existing broker account, and start receiving advice.</p>
+              <Button className="mt-4">
+                <a href="" className="no-underline">View Available Brokers</a>
+              </Button>
             </div>
+            <Image 
+              src=""
+              alt="iPhone"
+              width={180}
+              height={180}
+            />
+        </div>
+      </div>
+      <div className="grid grid-cols-3 items-center justify-center bg-white p-24">
+          <div className="flex flex-col items-center gap-4">
+            <div className="flex items-center">
+                <LuGlobe size={56} className="mr-2" />
+                <h3 className="text-2xl">Global Markets</h3>
+            </div>
+          </div>
+          <div className="flex flex-col items-center gap-4">
+            <div className="flex items-center">
+                <LuGlobe size={56} className="mr-2" />
+                <h3 className="text-2xl">Stocks & ETFs</h3>
+            </div>
+          </div>
+          <div className="flex flex-col items-center gap-4">
+            <div className="flex items-center">
+                <LuGlobe size={56} className="mr-2" />
+                <h3 className="text-2xl">Stocks & ETFs</h3>
+            </div>
+          </div>
+      </div>
+      <div className="flex flex-col items-center justify-center bg-white p-36 lg:p-48">
+        <h2 className="text-3xl mb-4">Pricing</h2>
+        <div className="grid grid-cols-3 items-center justify-center gap-6 p-16">
+          <Card>
+            <CardHeader>
+              <div className="text-xl text-center font-medium">Plan 1</div>
+            </CardHeader>
+            <CardContent className="w-[360px] h-[540px] flex flex-col items-start gap-4">
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <div className="text-xl text-center font-medium">Plan 2</div>
+            </CardHeader>
+            <CardContent className="w-[360px] h-[540px] flex flex-col items-start gap-4">
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <div className="text-xl text-center font-medium">Plan 3</div>
+            </CardHeader>
+            <CardContent className="w-[360px] h-[540px] flex flex-col items-start gap-4">
+            </CardContent>
+          </Card>
         </div>
       </div>
     </main>

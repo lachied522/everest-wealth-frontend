@@ -1,9 +1,9 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-
 import Link from "next/link";
 import Image from "next/image";
+
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -38,7 +38,7 @@ export default function SignupPage() {
         
         if (error) throw new Error(`Error signing up: ${error}`);
         
-        router.refresh(); // middleware will redirect user
+        router.push('/new-user');
     } catch (e) {
         console.log(e);
     }
@@ -71,7 +71,7 @@ export default function SignupPage() {
                     height={48}
                   />
                 </div>
-                <h3 className="mb-2">Create an Account</h3>
+                <h3 className="text-lg font-medium mb-2">Create an Account</h3>
                 <p className="mb-6">
                   Lorem ipsum dolor sit amet consectetur adipiscing elit sedol do
                   eiusmod tempor consectur.
@@ -171,11 +171,11 @@ export default function SignupPage() {
                     <div className="text-sm font-medium">Sign up with Facebook</div>
                   </Button>
                 </div>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap justify-center gap-1">
                   <div className="text-sm font-medium text-slate-800">
                     Already have an account?
                   </div>
-                  <Link href="/login" className="text-sm">
+                  <Link href="/login" className="text-blue-600 text-sm font-medium underline">
                     Login
                   </Link>
                 </div>

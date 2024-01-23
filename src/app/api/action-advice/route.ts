@@ -5,11 +5,11 @@ import { NextResponse } from 'next/server';
 import { fetchStockDataFromServer } from '@/lib/redis-utils';
 
 import type { Database, Tables } from '@/types/supabase';
-import type { AdviceData, Transaction } from '@/types/types';
+import type { AdviceData, } from '@/types/types';
 
 function getNewHoldings({ currentHoldings, transactions } : { 
   currentHoldings: Tables<'holdings'>[] | null
-  transactions: Transaction[]
+  transactions: Tables<'recom_transactions'>[]
 }) {
     return transactions.map(
       (transaction) => {
@@ -28,31 +28,39 @@ function getNewHoldings({ currentHoldings, transactions } : {
 
 async function updateAdviceRecord(
   adviceRecord: Pick<AdviceData, "id"|"portfolio_id"|"recom_transactions">,
-  newData: Transaction[],
+  newData: Tables<'recom_transactions'>[],
   supabase: SupabaseClient
 ) {
   const symbols = Array.from(newData, (obj) => obj.symbol);
 
-  const updatedTransactions = adviceRecord.recom_transactions.map(
-    (transaction) => (symbols.includes(transaction.symbol) ? {
+  const updatedTransactions = adviceRecord.recom_transactions.filter(
+    (transaction) => symbols.includes(transaction.symbol)).map(
+    (transaction) => ({
       ...transaction,
-      status: 'actioned',
-    }: transaction)
+      actioned: true,
+    })
   );
+  
+  const { error: transactionsError } = await supabase
+    .from('recom_transactions')
+    .upsert(updatedTransactions, { onConflict: 'id', ignoreDuplicates: false, defaultToNull: true })
+    .select();
 
-  const { error } = await supabase
+  if (transactionsError) throw new Error(`Erroring updating recommended transaction records: ${transactionsError}`);
+
+  const { error: adviceError } = await supabase
     .from('advice')
     .update({ 
-      transactions: updatedTransactions
+      status: 'actioned'
     })
     .eq('id', adviceRecord.id)
     .select();
 
-  if (error) throw new Error(`Erroring updating advice record: ${error}`);
+  if (adviceError) throw new Error(`Erroring updating advice record: ${adviceError}`);
 }
 
 type RequestBody = {
-    data: Transaction[]
+    data: Tables<'recom_transactions'>[]
     advice_id: string
 }
 
@@ -123,10 +131,7 @@ export async function POST(req: Request) {
       }
 
       // Step 5: update advice record
-      await updateAdviceRecord({
-        ...advice[0],
-        recom_transactions: advice[0].recom_transactions,
-      }, data, supabase);
+      await updateAdviceRecord(advice[0], data, supabase);
 
       // populate new holdings with stock data prior to returning to client
       const populatedHoldings = await fetchStockDataFromServer(updatedHoldings);

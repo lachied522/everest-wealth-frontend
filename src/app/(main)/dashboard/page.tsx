@@ -6,7 +6,7 @@ export default function DashboardPage() {
 
   return (
     <>
-      <h2 className="mb-8">
+      <h2 className="text-2xl font-medium mb-8">
           Welcome Name
       </h2>
       <div className="flex flex-col gap-6">

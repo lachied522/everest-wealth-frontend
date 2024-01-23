@@ -1,16 +1,15 @@
 'use client';
 import { useRouter } from 'next/navigation';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-
 import Link from "next/link";
 import Image from "next/image";
+
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 
-import { Database } from '@/types/supabase';
+import type { Database } from '@/types/supabase';
 
 export default function Page() {
   const router = useRouter();
@@ -54,14 +53,14 @@ export default function Page() {
         <Card className='max-w-lg p-16'>
             <div className="flex justify-center mb-4">
               <Image
-                src="https://uploads-ssl.webflow.com/64afbac816bb17eb2fdc3f03/64afbac916bb17eb2fdc40c5_log-in-icon-dashboardly-webflow-template.svg"
+                src="/login-icon.svg"
                 loading="eager"
                 alt=""
-                width={48}
-                height={48}
+                width={92}
+                height={92}
               />
             </div>
-            <h3 className="mb-2">Welcome back</h3>
+            <h3 className="text-2xl font-semibold mb-2">Welcome back</h3>
             <p className="mb-6">
               Lorem ipsum dolor sit amet consectetur adipiscing elit sedol do
               eiusmod tempor consectur.
@@ -96,14 +95,6 @@ export default function Page() {
             </div>
             <div className="mb-6">
               <div className="grid grid-cols-2 sm:grid-cols-1">
-                <div className="flex items-center text-left">
-                  <div className="mb-0 mr-2">
-                    <Checkbox id="remember" />
-                  </div>
-                  <label htmlFor='remember' className="text-sm font-medium text-slate-700">
-                    Remember account
-                  </label>
-                </div>
                 <Link
                   href=""
                   className="no-underline"
@@ -140,11 +131,11 @@ export default function Page() {
                   <div className="text-sm font-medium">Sign in with Facebook</div>
               </Button>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap justify-center gap-1">
               <div className="text-sm font-medium text-slate-800">
                 Don’t have an account? 
               </div>
-              <a href="/signup" className="text-sm">
+              <a href="/signup" className="text-blue-600 text-sm font-medium underline">
                 Create an account
               </a>
             </div>

@@ -39,7 +39,7 @@ export type GlobalState = {
   }>
   setPortfolio: (id: string, data: PopulatedHolding[]) => void
   updatePortfolioSettings: (id: string, data: TablesUpdate<'portfolios'>) => void
-  setAdvice: (id: string, data: AdviceData) => void
+  setAdvice: (id: string, data: Partial<AdviceData>) => void
   toggleFavourite: (id: string) => Promise<void>
   toggleWatchlist: (symbol: string) => Promise<void>
   onPortfolioDelete: (id: string) => Promise<boolean>
@@ -113,7 +113,7 @@ export const GlobalProvider = ({
   }, [supabase, session, dispatch]);
 
   const setAdvice = useCallback(
-    (id: string, data: AdviceData) => {
+    (id: string, data: Partial<AdviceData>) => {
       dispatch({
         type: "SET_ADVICE",
         payload: {

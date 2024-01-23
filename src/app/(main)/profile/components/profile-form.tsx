@@ -127,7 +127,7 @@ export default function ProfileForm({ data, metaData } : ProfileFormProps) {
                     )}
                 </div>
                 <div>
-                    <h4 className="mb-6">Finances</h4>
+                    <h4 className="text-lg font-medium mb-6">Finances</h4>
                     <Card className="grid grid-cols-2 items-center justify-items-center gap-12 p-16">
                         <div className="w-full text-left text-lg text-slate-800">Employment type</div>
                         <FormField
@@ -238,7 +238,7 @@ export default function ProfileForm({ data, metaData } : ProfileFormProps) {
                     </Card>
                 </div>
                 <div>
-                    <h4 className="mb-6">Experience</h4>
+                    <h4 className="text-lg font-medium mb-6">Experience</h4>
                     <Card className="grid grid-cols-2 items-center justify-items-center gap-12 p-16">
                         <div className="text-lg text-slate-800">
                             How many years&#x27; experience do you have investing in stocks?
@@ -269,7 +269,7 @@ export default function ProfileForm({ data, metaData } : ProfileFormProps) {
                     </Card>
                 </div>
                 <div>
-                    <h4 className="mb-6">Risk Tolerance</h4>
+                    <h4 className="text-lg font-medium mb-6">Risk Tolerance</h4>
                     <Card className="grid grid-cols-1 items-center justify-items-stretch gap-12 p-16">
                         <div className="text-lg text-slate-800">
                             Which of the following best describes your association with

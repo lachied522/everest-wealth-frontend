@@ -15,6 +15,8 @@ import {
 
 import { Skeleton } from "@/components/ui/skeleton";
 
+import { cn } from "@/components/lib/utils";
+
 import { PortfolioState, usePortfolioContext } from "@/context/PortfolioState";
 
 import type { PortfolioData } from "@/types/types";
@@ -33,15 +35,20 @@ const DayReturn = ({ portfolio }: { portfolio: PortfolioData }) => {
     const change = 100*(dollarChange / portfolio.totalValue);
 
     return (
-        <div className="flex items-end">
+        <div className="flex items-center">
             <div className="text-lg text-slate-800 font-bold mr-1">{USDollar.format(dollarChange)}</div>
             <div className="text-100 medium mg-bottom-4px">
-                <div className="flex">
-                    <div className={change > 0? "text-green-600": "text-red-400"}>{change.toFixed(2)}%</div>
+                <div className="flex items-center">
+                    <div className={cn(
+                        "text-sm text-green-600",
+                        change < 0 && "text-red-400"
+                    )}>
+                        {change.toFixed(2)}%
+                    </div>
                     {change > 0 ? (
-                        <LuArrowUpRight className="text-green-600"/>
+                    <LuArrowUpRight className="text-green-600"/>
                     ) : (
-                        <LuArrowDownRight className="text-red-400"/>
+                    <LuArrowDownRight className="text-red-400"/>
                     )}
                 </div>
             </div>
@@ -58,11 +65,14 @@ const TotalReturn = ({ portfolio }: { portfolio: PortfolioData }) => {
     const change = ((portfolio.totalValue / totalCost) - 1);
 
     return (
-        <div className="flex items-end">
+        <div className="flex items-center">
             <div className="text-lg text-slate-800 font-bold mr-1">{USDollar.format(portfolio.totalValue - totalCost)}</div>
             <div className="text-100 medium mg-bottom-4px">
-                <div className="flex">
-                    <div className={change > 0? "text-green-600": "text-red-400"}>{change.toFixed(2)}%</div>
+                <div className="flex items-center">
+                    <div className={cn(
+                        "text-sm text-green-600",
+                        change < 0 && "text-red-400"
+                    )}>{change.toFixed(2)}%</div>
                     {change > 0 ? (
                         <LuArrowUpRight className="text-green-600"/>
                     ) : (

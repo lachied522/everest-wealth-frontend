@@ -25,12 +25,13 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Slider } from "@/components/ui/slider"
 import { Card } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
 
-import { Tables } from "@/types/supabase";
+import { LuUser2 } from "react-icons/lu"
 
 import IndustryPreferences from "@/components/industry-preferences"
+
+import type { Tables } from "@/types/supabase";
 
 export const FormSchema = z.object({
     country: z.string().nullable(),
@@ -64,19 +65,21 @@ export const NewProfileForm = ({ onSuccess } : NewProfileFormProps) => {
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                <div className="max-w-6xl p-6">
-                <div className="flex flex-col justify-center mb-4">
-                    <h2>Your Profile</h2>
-                    <p className="text-lg text-slate-800 w-[660px]">
-                        Your profile helps us make recommendations that are
-                        appropriate for you. It is important to make sure your profile
-                        is update to date.
-                    </p>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="max-w-6xl flex flex-col gap-6 p-6 space-y-8">
+                <div className="flex items-center gap-4 mb-4">
+                    <LuUser2 size={48} />
+                    <div className="flex flex-col justify-center gap-2">
+                        <h3 className="text-xl font-medium">Your Profile</h3>
+                        <p className="text-slate-800 w-[660px]">
+                            Your profile helps us make recommendations that are
+                            appropriate for you. It is important to make sure your profile
+                            is update to date.
+                        </p>
+                    </div>
                 </div>
                 {/* profile form copied from (main)/profile/components/profile-form */}
                 <div>
-                    <h4 className="mb-6">Finances</h4>
+                    <h4 className="text-lg font-medium mb-6">Finances</h4>
                     <Card className="grid grid-cols-2 items-center justify-items-center gap-12 p-16 m-4">
                     <div className="w-full text-left text-lg text-slate-800">
                         Employment type
@@ -199,9 +202,8 @@ export const NewProfileForm = ({ onSuccess } : NewProfileFormProps) => {
                     />
                     </Card>
                 </div>
-                <Separator className="my-8" />
                 <div>
-                    <h4 className="mb-6">Experience</h4>
+                    <h4 className="text-lg font-medium mb-6">Experience</h4>
                     <Card className="grid grid-cols-2 items-center justify-items-center gap-12 p-16 m-4">
                     <div className="text-lg text-slate-800">
                         How many years&#x27; experience do you have investing in
@@ -235,9 +237,8 @@ export const NewProfileForm = ({ onSuccess } : NewProfileFormProps) => {
                     />
                     </Card>
                 </div>
-                <Separator className="my-8" />
                 <div>
-                    <h4 className="mb-6">Risk Tolerance</h4>
+                    <h4 className="text-lg font-medium mb-6">Risk Tolerance</h4>
                     <Card className="grid grid-cols-1 items-center justify-items-stretch gap-12 p-16 m-4">
                     <div className="text-lg text-slate-800">
                         Which of the following best describes your association with
@@ -472,9 +473,8 @@ export const NewProfileForm = ({ onSuccess } : NewProfileFormProps) => {
                     />
                     </Card>
                 </div>
-                <Separator className="my-8" />
                 <div>
-                    <h4 className="mb-6">Preferences</h4>
+                    <h4 className="text-lg font-medium mb-6">Preferences</h4>
                     <Card className="flex flex-col gap-12 items-center p-16 m-4">
                     <div className="flex flex-col gap-12 items-center">
                         <div className="text-lg text-slate-800">
@@ -482,48 +482,48 @@ export const NewProfileForm = ({ onSuccess } : NewProfileFormProps) => {
                             international stocks?
                         </div>
                         <FormField
-                        control={form.control}
-                        name="international"
-                        render={({ field }) => (
-                            <FormItem className="flex gap-4 justify-stretch">
-                            <span>0</span>
-                            <FormControl>
-                                <Slider
-                                min={0}
-                                max={100}
-                                step={1}
-                                defaultValue={[field.value || 50]}
-                                onValueChange={field.onChange}
-                                className="w-[240px] cursor-pointer"
-                                />
-                            </FormControl>
-                            <span>100</span>
-                            </FormItem>
-                        )}
+                            control={form.control}
+                            name="international"
+                            render={({ field }) => (
+                                <FormItem className="flex gap-4 justify-stretch">
+                                <span>0</span>
+                                <FormControl>
+                                    <Slider
+                                    min={0}
+                                    max={100}
+                                    step={1}
+                                    defaultValue={[field.value || 50]}
+                                    onValueChange={field.onChange}
+                                    className="w-[240px] cursor-pointer"
+                                    />
+                                </FormControl>
+                                <span>100</span>
+                                </FormItem>
+                            )}
                         />
                         <div className="text-lg text-slate-800">
-                        What proportion of your portfolio do you wish to invest in
-                        ETFs?
+                            What proportion of your portfolio do you wish to invest in
+                            ETFs?
                         </div>
                         <FormField
-                        control={form.control}
-                        name="passive"
-                        render={({ field }) => (
-                            <FormItem className="flex gap-4 justify-stretch">
-                            <span>0</span>
-                            <FormControl>
-                                <Slider
-                                min={0}
-                                max={100}
-                                step={1}
-                                defaultValue={[field.value || 50]}
-                                onValueChange={field.onChange}
-                                className="w-[240px] cursor-pointer"
-                                />
-                            </FormControl>
-                            <span>100</span>
-                            </FormItem>
-                        )}
+                            control={form.control}
+                            name="passive"
+                            render={({ field }) => (
+                                <FormItem className="flex gap-4 justify-stretch">
+                                <span>0</span>
+                                <FormControl>
+                                    <Slider
+                                    min={0}
+                                    max={100}
+                                    step={1}
+                                    defaultValue={[field.value || 50]}
+                                    onValueChange={field.onChange}
+                                    className="w-[240px] cursor-pointer"
+                                    />
+                                </FormControl>
+                                <span>100</span>
+                                </FormItem>
+                            )}
                         />
                     </div>
                     <div className="text-lg text-slate-800">
@@ -552,7 +552,6 @@ export const NewProfileForm = ({ onSuccess } : NewProfileFormProps) => {
                     >
                         Next
                     </Button>
-                </div>
                 </div>
             </form>
         </Form>

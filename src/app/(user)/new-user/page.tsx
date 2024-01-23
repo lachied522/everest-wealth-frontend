@@ -32,7 +32,7 @@ export default async function NewUserPage() {
                 </Link>
             </div>
             <div className="h-full flex flex-col justify-center justify-items-center items-center px-12">
-                <h1 className='mb-4'>Welcome {session?.user.user_metadata['name'] || 'Name'}</h1>
+                <h1 className='text-lg font-medium mb-4'>Welcome {session?.user.user_metadata['name'] || 'Name'}</h1>
                 <NewUserForm />
             </div>
         </div>

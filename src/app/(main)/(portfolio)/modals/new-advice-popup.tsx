@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-import { LuTrendingUp } from "react-icons/lu";
+import { LuPiggyBank, LuRefreshCw, LuTrendingUp } from "react-icons/lu";
 
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 
@@ -56,13 +56,23 @@ export default function NewAdvicePopup() {
                         recom_transactions: data.transactions,
                     }
                 );
-            } else if ('url' in data) {
+            }
+            if ('url' in data) {
                 setAdvice(
                     currentPortfolio.id, 
                     {
                         ...currentPortfolio.advice[0],
                         url: data.url,
                         status: 'finished',
+                    }
+                );
+            }
+            if ('id' in data) {
+                setAdvice(
+                    currentPortfolio.id, 
+                    {
+                        ...currentPortfolio.advice[0],
+                        id: data.id,
                     }
                 );
             }
@@ -117,16 +127,16 @@ export default function NewAdvicePopup() {
         if (readyState===ReadyState.OPEN) {
             // send message
             sendJsonMessage(body);
-            // update advice state for portfolio
+            // reset advice data in global state
             setAdvice(
                 currentPortfolio.id, 
                 {
-                    ...currentPortfolio.advice[0],
                     status: 'generating',
+                    recom_transactions: [],
                 }
             );
-        };
-    }, [currentPortfolio.id, currentPortfolio.advice, readyState, sendJsonMessage, setAdvice]);
+        }
+    }, [currentPortfolio.id, readyState, sendJsonMessage, setAdvice]);
 
     const onSubmit = () => {
         handleMessage({
@@ -164,25 +174,31 @@ export default function NewAdvicePopup() {
                             type="button"
                             variant={adviceType==='review' ? 'default': 'secondary'}
                             onClick={() => {setAdviceType('review')}}
+                            className="p-2"
                         >
+                            <LuRefreshCw size={18} className="mr-2" />
                             Review portfolio
-                        </Button>
-                        <Button
-                            type="button"
-                            variant={adviceType==='withdraw' ? 'default': 'secondary'}
-                            onClick={() => {setAdviceType('withdraw')}}
-                        >
-                            Make a withdrawal
                         </Button>
                         <Button
                             type="button"
                             variant={adviceType==='deposit' ? 'default': 'secondary'}
                             onClick={() => {setAdviceType('deposit')}}
+                            className="p-2"
                         >
+                            <LuTrendingUp size={24} className="mr-2" />
                             Invest some money
                         </Button>
+                        <Button
+                            type="button"
+                            variant={adviceType==='withdraw' ? 'default': 'secondary'}
+                            onClick={() => {setAdviceType('withdraw')}}
+                            className="p-2"
+                        >
+                            <LuPiggyBank size={24} className="mr-2" />
+                            Make a withdrawal
+                        </Button>
                     </div>
-                    <div className="h-[240px] flex flex-col justify-between px-8 mb-16">
+                    <div className="h-[320px] flex flex-col justify-between px-8 mb-16">
                         {adviceType==='review' && (
                         <div className="gap-6 flex-col flex p-8">
                             <div className="grid w-full max-w-sm items-center gap-1">

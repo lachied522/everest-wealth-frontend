@@ -45,8 +45,8 @@ export default async function Page() {
         />
         <div className='z-[-1] opacity-60 bg-[linear-gradient(rgba(0,0,0,0),rgba(0,0,0,0.84))] absolute top-[24%] bottom-0 inset-x-0' />
       </div>
-      <div className='flex flex-col justify-center mb-4'>
-        <h2>Your Profile</h2>
+      <div className='flex flex-col justify-center gap-4 mb-4'>
+        <h2 className="text-2xl font-medium">Your Profile</h2>
         <p className='text-lg text-slate-800'>Your profile helps us make recommendations that are appropriate for you. It is important to make sure your profile is update to date.</p>
       </div>
       <ProfileForm data={data[0]} metaData={session.user.user_metadata} />

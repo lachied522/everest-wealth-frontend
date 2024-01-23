@@ -23,7 +23,7 @@ export default function Logo({ width, height, withText }: LogoProps) {
                 height={h}
                 className="transform transition duration-300 relative hover:scale-105"
             />
-            {withText && <h2 className="text-slate-700 font-serif mb-0">Palladian</h2>}
+            {withText && <h2 className="text-slate-700 text-2xl font-serif font-semibold mb-0">Everest Wealth</h2>}
         </Link>
     )
 }

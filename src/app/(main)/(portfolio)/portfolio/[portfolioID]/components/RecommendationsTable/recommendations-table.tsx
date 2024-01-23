@@ -23,7 +23,6 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 
 import { LuFileText, LuLoader2 } from "react-icons/lu";
@@ -34,14 +33,14 @@ import { usePortfolioContext, PortfolioState } from "@/context/PortfolioState";
 import { columns } from "./recommendations-table-columns";
 
 import type { Tables } from "@/types/supabase";
-import type { PopulatedHolding, Transaction } from "@/types/types";
+import type { PopulatedHolding } from "@/types/types";
 
 const USDollar = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
 });
 
-function populateTransactionsData(transactions: Transaction[]) {
+function populateTransactionsData(transactions: Tables<'recom_transactions'>[]) {
     // populate columns
     if (!(transactions?.length > 0)) return [];
 
@@ -68,13 +67,10 @@ export default function RecommendationsTable<TData>() {
 
     if (!currentPortfolio) throw new Error('currentPortfolio undefined');
 
-    const populatedData = useMemo(() => {
+    const adviceData = useMemo(() => {
         const advice = currentPortfolio.advice[0];
-        if (advice && advice.recom_transactions && !(advice.status==="actioned")) {
-            return {
-                ...advice,
-                recom_transactions: populateTransactionsData(advice.recom_transactions),
-            }
+        if (advice && !(advice.status==="actioned")) {
+            return advice;
         }
         return;
     }, [currentPortfolio.advice]);
@@ -82,10 +78,10 @@ export default function RecommendationsTable<TData>() {
     useEffect(() => {
         // reset row selection on change in data
         setRowSelection({});
-    }, [populatedData]);
+    }, [adviceData]);
 
     const table = useReactTable({
-        data: populatedData?.recom_transactions || [],
+        data: populateTransactionsData(adviceData?.recom_transactions || []),
         columns: columns as ColumnDef<TData | any>[],
         getCoreRowModel: getCoreRowModel(),
         onSortingChange: setSorting,
@@ -97,7 +93,7 @@ export default function RecommendationsTable<TData>() {
         },
     });
 
-    const selectedData = useMemo(() => {
+    const selectedData: ReturnType<typeof populateTransactionsData> = useMemo(() => {
         const data = table.getFilteredSelectedRowModel().rows.map((row) => row.original);
         // if none selected, return every row
         if (data.length) return data;
@@ -112,7 +108,7 @@ export default function RecommendationsTable<TData>() {
             ...data,
         ];
         setPortfolio(currentPortfolio.id, newHoldings);
-    }, [currentPortfolio, setPortfolio]);
+    }, [currentPortfolio.id, currentPortfolio.holdings, setPortfolio]);
 
     const navigateToOverview = useCallback(() => {
         // switch to 'Overview' tab
@@ -130,14 +126,14 @@ export default function RecommendationsTable<TData>() {
     }, [currentPortfolio.id, currentPortfolio.advice, setAdvice]);
 
     const onAdviceAction = useCallback((action: 'confirm'|'dismiss') => {
-        if (!populatedData) return;
+        if (!adviceData) return;
         const data = action==='confirm'? selectedData: [];
         
         fetch('/api/action-advice', {
             method: "POST",
             body: JSON.stringify({
                 data,
-                advice_id: populatedData.id,
+                advice_id: adviceData.id,
             }),
             headers: {
                 "Content-Type": "application/json",
@@ -152,7 +148,7 @@ export default function RecommendationsTable<TData>() {
             setAdviceStatus('actioned');
         })
         .catch(err => console.log(err));
-    }, [populatedData, selectedData, updatePortfolio, navigateToOverview, setAdviceStatus]);
+    }, [adviceData?.id, selectedData, updatePortfolio, navigateToOverview, setAdviceStatus]);
 
     const gross = useMemo(() => {;
         if (!selectedData.length) return 0;
@@ -166,30 +162,40 @@ export default function RecommendationsTable<TData>() {
 
     return (
         <>
-            {populatedData ? (
+            {adviceData ? (
             <>
                 <div className="flex justify-between mb-3">
-                    {populatedData.status==='generating' ? (
+                    {adviceData.status==='generating' ? (
                     <Button variant="ghost" disabled className="flex items-center gap-2">
                         <LuLoader2 className="animate-spin" size={25}/>
                         Generating advice...
                     </Button>
                     ) : (
-                    <a href={populatedData.url || ""} target="_blank" className="h-10 px-4 py-2 flex items-center no-underline font-medium text-slate-700 group-hover:text-blue-600">
+                    <a href={adviceData.url || ""} target="_blank" className="h-10 px-4 py-2 flex items-center no-underline font-medium text-slate-700 group-hover:text-blue-600">
                         <LuFileText size={30} className="mr-2" />
                         Statement of Advice
                     </a>
                     )}
                     <div className="flex items-start gap-6">
-                        <Button variant="secondary" onClick={() => onAdviceAction('dismiss')}>
+                        <Button
+                            variant="secondary"
+                            disabled={adviceData.status==='generating'}
+                            onClick={() => onAdviceAction('dismiss')}
+                        >
                             Dismiss Changes
                         </Button>
                         {table.getFilteredSelectedRowModel().rows.length > 0 ? (
-                        <Button onClick={() => onAdviceAction('confirm')}>
+                        <Button
+                            disabled={adviceData.status==='generating'}
+                            onClick={() => onAdviceAction('confirm')}
+                        >
                             Make {table.getFilteredSelectedRowModel().rows.length} Changes
                         </Button>
                         ) : (
-                        <Button onClick={() => onAdviceAction('confirm')}>
+                        <Button
+                            disabled={adviceData.status==='generating'}
+                            onClick={() => onAdviceAction('confirm')}
+                        >
                             Make All Changes
                         </Button>
                         )}
@@ -216,7 +222,7 @@ export default function RecommendationsTable<TData>() {
                         ))}
                         </TableHeader>
                         <TableBody>
-                            {populatedData.recom_transactions.length > 0 ? (
+                            {table.getRowModel().rows.length > 0 ? (
                             <>
                                 {table.getRowModel().rows.map((row) => (
                                 <TableRow
@@ -261,9 +267,9 @@ export default function RecommendationsTable<TData>() {
                             </>
                             ) : (
                             <TableRow>
-                                <TableCell colSpan={columns.length} className="h-48 text-center">
-                                    <div className="w-full flex items-center justify-center">
-                                        <LuLoader2 className="animate-spin" size={50}/>
+                                <TableCell colSpan={columns.length} className="h-32 text-center">
+                                    <div className="w-full flex items-center justify-center text-base">
+                                        Nothing here yet.
                                     </div>
                                 </TableCell>
                             </TableRow>
@@ -274,7 +280,7 @@ export default function RecommendationsTable<TData>() {
             </>
             ) : (
             <div className="ml-2">
-                No current recommendations. <Link href={`/advice/${currentPortfolio.id}`}>View previous Advice.</Link>
+                We have no recommendations at the moment. Check back in later or <Link href={`/advice/${currentPortfolio.id}`} className="text-blue-600 underline">view previous Advice.</Link>
             </div>
             )}
         </>
