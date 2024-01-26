@@ -135,18 +135,12 @@ export async function POST(req: Request) {
         // populate new holdings with stock data prior to returning to client
         const populatedHoldings = await fetchStockDataFromServer(data);
 
-        return Response.json({
-          data: populatedHoldings,
-          success: true,
-        });
+        return NextResponse.json({ data: populatedHoldings }, { status: 200 });
 
     } catch (e) {
 
       console.log(e);
 
-      return Response.json({
-        data: [],
-        success: false,
-      });
+      return NextResponse.json({ data: [] }, { status: 500 });
     }
 }

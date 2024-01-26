@@ -19,18 +19,12 @@ import { Button } from '@/components/ui/button';
 import AdviceTable from "./advice-table"
 import type { AdviceData } from '@/types/types';
 
-type PopulatedAdviceData = AdviceData & {
-    value: number
-    gross: number
-    brokerage: number
-}
-
 const USDollar = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
 });
 
-const TableSubRow = ({ data }: { data: PopulatedAdviceData }) => {
+const TableSubRow = ({ data }: { data: AdviceData }) => {
     const [isOpen, setIsOpen] = useState(false);
 
     const toggleOpen = () => {
@@ -40,6 +34,8 @@ const TableSubRow = ({ data }: { data: PopulatedAdviceData }) => {
     const date = new Date(data.created_at).toUTCString().slice(5, 16);
     const type = data.type.toUpperCase();
 
+    const value = data.recom_transactions.reduce((acc, obj) => acc + (obj.price * obj.units), 0);
+    
     return (
         <>
             <TableRow className='bg-white transition-none hover:bg-white'>
@@ -57,7 +53,7 @@ const TableSubRow = ({ data }: { data: PopulatedAdviceData }) => {
                 </TableCell>
                 <TableCell className='text-center'>{date}</TableCell>
                 <TableCell className='text-center'>{type}</TableCell>
-                <TableCell className='text-center'>{USDollar.format(data.value)}</TableCell>
+                <TableCell className='text-center'>{USDollar.format(value)}</TableCell>
                 <TableCell className='text-center'>
                     <Button variant="outline" size="icon" onClick={toggleOpen}>
                         <LuChevronRight className={cn(
@@ -79,7 +75,7 @@ const TableSubRow = ({ data }: { data: PopulatedAdviceData }) => {
 }
 
 interface AllAdviceTableProps {
-    data?: PopulatedAdviceData[]
+    data: AdviceData[] | null
 }
 
 export default function AllAdviceTable({ data }: AllAdviceTableProps) {

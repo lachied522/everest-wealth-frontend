@@ -27,9 +27,11 @@ export default function AICompanionTrigger() {
                     toast && "flex items-center gap-2"
                 )}>
                     <div className={cn(
-                        "text-lg text-slate-800 font-medium -translate-x-full transition-transform duration-300 ease-in-out",
+                        "text-lg text-slate-800 font-medium translate-x-full transition-transform duration-300 ease-in-out",
                         toast && "translate-x-0"
-                    )}>{toast}</div>
+                    )}>
+                        {toast}
+                    </div>
                     <LuMessageCircle size={36} className="text-slate-800"/>
                 </div>
             </AICompanionPopup>

@@ -180,7 +180,7 @@ export default function ProfileForm({ data, metaData } : ProfileFormProps) {
                             )}
                         />
                         <div className="w-full text-left text-lg text-slate-800">
-                            What proportion of your net worth does your portfolio make up?
+                            What proportion of your net worth do your investments make up?
                         </div>
                         <FormField
                             control={form.control}

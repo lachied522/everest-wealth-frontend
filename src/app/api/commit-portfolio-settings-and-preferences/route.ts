@@ -36,16 +36,12 @@ export async function POST(req: Request) {
             throw new Error(`Error committing data: ${error}`);
         }
 
-        return Response.json({
-          success: true,
-        });
+        return NextResponse.json({}, { status: 200 });
 
     } catch (e) {
 
       console.log(e);
 
-      return Response.json({
-        success: false,
-      });
+      return Response.json({}, { status: 500 });
     }
 }

@@ -36,7 +36,7 @@ const formatData = (data: RawPortfolioData[] | null): FormattedPortfolioData[] =
 
 const fetchData = async (
     session: Session,
-    supabase: SupabaseClient
+    supabase: SupabaseClient<Database>
 ): Promise<{
     portfolioData: FormattedPortfolioData[]
     userData: {
@@ -69,8 +69,8 @@ const fetchData = async (
         return {
             portfolioData: formattedData,
             userData: {
-                watchlist: userData[0].watchlist || [],
-                notifications: JSON.parse(userData[0].notifications) || []
+                watchlist: userData[0].watchlist,
+                notifications: userData[0].notifications
             }
         };
 

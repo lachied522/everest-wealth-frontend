@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -16,14 +17,18 @@ import type { Database } from "@/types/supabase";
 export default function SignupPage() {
   const router = useRouter();
   const supabase = createClientComponentClient<Database>();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    setIsLoading(true);
+
     const formData = new FormData(e.currentTarget);
 
     try {
-        const { data, error } = await supabase.auth.signUp(
+        // sign user up
+        const { error: signupError } = await supabase.auth.signUp(
           {
             email: String(formData.get("email")),
             password: String(formData.get("password")),
@@ -36,7 +41,13 @@ export default function SignupPage() {
           }
         );
         
-        if (error) throw new Error(`Error signing up: ${error}`);
+        if (signupError) throw new Error(`Error signing up: ${signupError}`);
+
+        // log user in
+        const { data, error: loginError } = await supabase.auth.signInWithPassword({
+            email: String(formData.get("email")),
+            password: String(formData.get("password"))
+        });
         
         router.push('/new-user');
     } catch (e) {
@@ -48,37 +59,39 @@ export default function SignupPage() {
     <div className="h-[100vh] grid grid-cols-2">
         <div>
           <div className="flex items-center justify-center py-8">
-                <Link
-                  href="/"
-                  className="max-w-[160px] transform transition duration-300 relative hover:scale-110"
-                >
-                  <Image
-                    src="/palladian.svg"
-                    alt="Palladian Logo"
-                    width={48}
-                    height={48}
-                  />
-                </Link>
+              <Link
+                href="/"
+                className="max-w-[160px] transform transition duration-300 relative hover:scale-110"
+              >
+                <Image
+                  src="/everest-logo-transparent-background.png"
+                  alt="Everest Logo"
+                  width={48}
+                  height={48}
+                />
+              </Link>
           </div>
           <div className="flex flex-col justify-center justify-items-center items-center">
             <Card className="max-w-lg p-16">
-                <div className="flex justify-center mb-4">
+                <div className="flex items-center justify-center gap-6 mb-4">
                   <Image
                     src="https://uploads-ssl.webflow.com/64afbac816bb17eb2fdc3f03/64afbac916bb17eb2fdc40c5_log-in-icon-dashboardly-webflow-template.svg"
                     loading="eager"
                     alt=""
-                    width={48}
-                    height={48}
+                    width={56}
+                    height={56}
                   />
+                  <div>
+                    <h3 className="text-lg font-medium mb-2">Create an Account</h3>
+                    <p className="mb-6">
+                      Lorem ipsum dolor sit amet consectetur adipiscing elit sedol do
+                      eiusmod tempor consectur.
+                    </p>
+                  </div>
                 </div>
-                <h3 className="text-lg font-medium mb-2">Create an Account</h3>
-                <p className="mb-6">
-                  Lorem ipsum dolor sit amet consectetur adipiscing elit sedol do
-                  eiusmod tempor consectur.
-                </p>
                 <div className="min-h-[144px] mb-6">
                   <form onSubmit={handleLogin} className="flex flex-col gap-6">
-                    <div className="grid w-full max-w-sm items-center">
+                    <div className="w-full max-w-sm flex flex-col gap-2">
                       <Label htmlFor="name">Name</Label>
                       <Input
                         id="name"
@@ -90,7 +103,7 @@ export default function SignupPage() {
                         required
                       />
                     </div>
-                    <div className="grid w-full max-w-sm items-center">
+                    <div className="w-full max-w-sm flex flex-col gap-2">
                       <Label htmlFor="DOB">DOB</Label>
                       <Input
                         id="DOB"
@@ -102,7 +115,7 @@ export default function SignupPage() {
                         required
                       />
                     </div>
-                    <div className="grid w-full max-w-sm items-center">
+                    <div className="w-full max-w-sm flex flex-col gap-2">
                       <Label htmlFor="email">Email</Label>
                       <Input
                         id="email"
@@ -114,7 +127,7 @@ export default function SignupPage() {
                         required
                       />
                     </div>
-                    <div className="grid w-full max-w-sm items-center">
+                    <div className="w-full max-w-sm flex flex-col gap-2">
                       <Label htmlFor="password">Password</Label>
                       <Input
                         id="password"

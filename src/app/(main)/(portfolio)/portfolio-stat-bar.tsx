@@ -6,6 +6,7 @@ import {
     LuDollarSign,
     LuArrowUpRight, 
     LuArrowDownRight,
+    LuMinus,
 } from "react-icons/lu";
 
 import {
@@ -29,10 +30,16 @@ const USDollar = new Intl.NumberFormat("en-US", {
 const DayReturn = ({ portfolio }: { portfolio: PortfolioData }) => {
 
     const dollarChange = useMemo(() => {
-        return portfolio.holdings.reduce((acc, obj) => acc + obj.units * (obj?.change || 0), 0);
-    }, [portfolio]);
+        if (portfolio.holdings.length > 0) return portfolio.holdings.reduce(
+            (acc, obj) => acc + obj.units * (obj?.change || 0), 0
+        );
+        return 0;
+    }, [portfolio.holdings]);
 
-    const change = 100*(dollarChange / portfolio.totalValue);
+    const change = useMemo(() => {
+        if (portfolio.totalValue > 0) return 100*(dollarChange / portfolio.totalValue);
+        return 0;
+    }, [portfolio.totalValue]);
 
     return (
         <div className="flex items-center">
@@ -41,14 +48,17 @@ const DayReturn = ({ portfolio }: { portfolio: PortfolioData }) => {
                 <div className="flex items-center">
                     <div className={cn(
                         "text-sm text-green-600",
+                        change === 0 && "text-slate-600",
                         change < 0 && "text-red-400"
                     )}>
                         {change.toFixed(2)}%
                     </div>
-                    {change > 0 ? (
-                    <LuArrowUpRight className="text-green-600"/>
-                    ) : (
+                    {change === 0 ? (
+                    <LuMinus className="text-slate-600" />
+                    ) : change < 0 ? (
                     <LuArrowDownRight className="text-red-400"/>
+                    ) : (
+                    <LuArrowUpRight className="text-green-600"/>
                     )}
                 </div>
             </div>
@@ -59,10 +69,14 @@ const DayReturn = ({ portfolio }: { portfolio: PortfolioData }) => {
 const TotalReturn = ({ portfolio }: { portfolio: PortfolioData }) => {
 
     const totalCost = useMemo(() => {
-        return portfolio.holdings.reduce((acc, obj) => acc + (obj?.cost || 0), 0);
-    }, [portfolio]);
+        if (portfolio.holdings.length > 0) return portfolio.holdings.reduce((acc, obj) => acc + (obj.totalCost || 0), 0);
+        return 0;
+    }, [portfolio.holdings]);
     
-    const change = ((portfolio.totalValue / totalCost) - 1);
+    const change = useMemo(() => {
+        if (totalCost > 0) return (portfolio.totalValue / totalCost) - 1;
+        return 0;
+    }, [portfolio.totalValue, totalCost]);
 
     return (
         <div className="flex items-center">
@@ -71,12 +85,17 @@ const TotalReturn = ({ portfolio }: { portfolio: PortfolioData }) => {
                 <div className="flex items-center">
                     <div className={cn(
                         "text-sm text-green-600",
+                        change === 0 && "text-slate-600",
                         change < 0 && "text-red-400"
-                    )}>{change.toFixed(2)}%</div>
-                    {change > 0 ? (
-                        <LuArrowUpRight className="text-green-600"/>
+                    )}>
+                        {change.toFixed(2)}%
+                    </div>
+                    {change === 0 ? (
+                    <LuMinus className="text-slate-600" />
+                    ) : change < 0 ? (
+                    <LuArrowDownRight className="text-red-400"/>
                     ) : (
-                        <LuArrowDownRight className="text-red-400"/>
+                    <LuArrowUpRight className="text-green-600"/>
                     )}
                 </div>
             </div>

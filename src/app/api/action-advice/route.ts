@@ -94,13 +94,13 @@ export async function POST(req: Request) {
         // Step 2: get all existing holdings matching symbols
         const symbols = Array.from(data, (obj) => obj.symbol);
   
-        const { data: currentHoldings, error: holdingsError } = await supabase
+        const { data: currentHoldings, error: currentHoldingsError } = await supabase
         .from("holdings")
         .select("*")
         .eq("portfolio_id", advice[0].portfolio_id!)
         .in("symbol", symbols);
   
-        if (holdingsError) throw new Error(`Error fetching holdings: ${holdingsError}`);
+        if (currentHoldingsError) throw new Error(`Error fetching holdings: ${currentHoldingsError}`);
   
         const newHoldingRecords = getNewHoldings({
             currentHoldings,
@@ -111,12 +111,14 @@ export async function POST(req: Request) {
         }));
         
         // Step 3: upsert new holdings to DB
-        const { data: updatedHoldings, error: commitError } = await supabase
+        const { data: newHoldings, error: newHoldingsError } = await supabase
           .from('holdings')
           .upsert(newHoldingRecords, { onConflict: 'id', ignoreDuplicates: false, defaultToNull: false })
           .select();
         
-        if (commitError) throw new Error(`Error committing changes: ${commitError}`);
+        if (newHoldingsError) throw new Error(`Error committing changes: ${newHoldingsError}`);
+
+        updatedHoldings = newHoldings;
 
         // Step 4: add transaction to transactions table
         const { error: transactionsError } = await supabase

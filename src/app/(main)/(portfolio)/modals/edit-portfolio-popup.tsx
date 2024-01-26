@@ -154,7 +154,7 @@ const HoldingRow = ({ holding, update } : {
                 maxLength={24}
                 name="cost"
                 data-name="cost"
-                min="0"
+                min={0}
                 value={holding.totalCost || 0}
                 onChange={changeCost}
             />
@@ -248,19 +248,17 @@ export default function EditPortfolioPopup() {
         }
       })
       .then(res => res.json())
-      .then(({ success, data }) => {
-        if (success) {
-          // api route only returns updated holdings, combine updated and existing holdings for new portfolio
-          const newPortfolioState = [
-            ...allHoldingData.filter((holding) => !updatedHoldings.includes(holding)),
-            ...data,
-          ];
-          
-          setPortfolio(
-            currentPortfolio.id,
-            newPortfolioState,
-          );
-        }
+      .then(({ data }) => {
+        // api route only returns updated holdings, combine updated and existing holdings for new portfolio
+        const newPortfolioState = [
+          ...allHoldingData.filter((holding) => !updatedHoldings.includes(holding)),
+          ...data,
+        ];
+        
+        setPortfolio(
+          currentPortfolio.id,
+          newPortfolioState,
+        );
       });
     }
   }

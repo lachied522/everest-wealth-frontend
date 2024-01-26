@@ -34,7 +34,7 @@ export default function NewAdvicePopup() {
     const { currentPortfolio } = usePortfolioContext() as PortfolioState;
     const router = useRouter();
     const [socketUrl, setSocketUrl] = useState<string | null>(null); // set url to null until called
-    const [adviceType, setAdviceType] = useState<'deposit'|'withdraw'|'review'>('review'); // deposit, withdraw, or review
+    const [adviceType, setAdviceType] = useState<'deposit'|'withdraw'|'review'>('deposit'); // deposit, withdraw, or review
     const [amount, setAmount] = useState<number>(0);
     const [currentValue, setCurrentValue] = useState(0); // current value of portfolio
     const [proposedValue, setProposedValue] = useState(0); // value after proposed transaction
@@ -75,6 +75,8 @@ export default function NewAdvicePopup() {
                         id: data.id,
                     }
                 );
+                // close websocket
+                setSocketUrl(null);
             }
         },
         onClose: (event) => {
@@ -88,12 +90,10 @@ export default function NewAdvicePopup() {
     });
 
     useEffect(() => {
-        if (currentPortfolio) {
-            setCurrentValue(currentPortfolio.totalValue);
-            setProposedValue(currentPortfolio.totalValue);
-            setAmount(0);
-        }
-    }, [currentPortfolio, setCurrentValue, setProposedValue, setAmount]);
+        setCurrentValue(currentPortfolio.totalValue);
+        setProposedValue(currentPortfolio.totalValue);
+        setAmount(0);
+    }, [currentPortfolio.totalValue, setCurrentValue, setProposedValue, setAmount]);
 
     useEffect(() => {
         if (adviceType === 'deposit') {
@@ -119,7 +119,7 @@ export default function NewAdvicePopup() {
 
     const onCancel = useCallback(() => {
         // reset state
-        setAdviceType('review');
+        setAdviceType('deposit');
         setAmount(0);
     }, [setAdviceType, setAmount]);
 
@@ -172,15 +172,6 @@ export default function NewAdvicePopup() {
                     <div className="grid grid-cols-3 gap-4">
                         <Button
                             type="button"
-                            variant={adviceType==='review' ? 'default': 'secondary'}
-                            onClick={() => {setAdviceType('review')}}
-                            className="p-2"
-                        >
-                            <LuRefreshCw size={18} className="mr-2" />
-                            Review portfolio
-                        </Button>
-                        <Button
-                            type="button"
                             variant={adviceType==='deposit' ? 'default': 'secondary'}
                             onClick={() => {setAdviceType('deposit')}}
                             className="p-2"
@@ -190,9 +181,20 @@ export default function NewAdvicePopup() {
                         </Button>
                         <Button
                             type="button"
+                            variant={adviceType==='review' ? 'default': 'secondary'}
+                            onClick={() => {setAdviceType('review')}}
+                            className="p-2"
+                            disabled={currentPortfolio.totalValue===0}
+                        >
+                            <LuRefreshCw size={18} className="mr-2" />
+                            Review portfolio
+                        </Button>
+                        <Button
+                            type="button"
                             variant={adviceType==='withdraw' ? 'default': 'secondary'}
                             onClick={() => {setAdviceType('withdraw')}}
                             className="p-2"
+                            disabled={currentPortfolio.totalValue===0}
                         >
                             <LuPiggyBank size={24} className="mr-2" />
                             Make a withdrawal

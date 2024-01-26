@@ -17,11 +17,11 @@ export default function Logo({ width, height, withText }: LogoProps) {
             className="flex items-center justify-center gap-3 no-underline"
         >
             <Image
-                src="/palladian.svg"
-                alt="Palladian Logo"
+                src="/everest-logo-transparent-background.png"
+                alt="Everest Logo"
                 width={w}
                 height={h}
-                className="transform transition duration-300 relative hover:scale-105"
+                className="transform transition duration-300 relative"
             />
             {withText && <h2 className="text-slate-700 text-2xl font-serif font-semibold mb-0">Everest Wealth</h2>}
         </Link>

@@ -133,7 +133,7 @@ export default function Page() {
             </div>
             <div className="flex flex-wrap justify-center gap-1">
               <div className="text-sm font-medium text-slate-800">
-                Don’t have an account? 
+                Don&apos;t have an account?
               </div>
               <a href="/signup" className="text-blue-600 text-sm font-medium underline">
                 Create an account

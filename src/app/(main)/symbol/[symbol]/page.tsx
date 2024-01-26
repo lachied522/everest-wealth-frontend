@@ -105,18 +105,16 @@ export default async function Page({ params }: PageProps) {
             <div className="flex flex-col items-stretch gap-4">
                 <div className="grid grid-cols-[1fr_0.25fr] gap-16">
                     <div className="">
-                        <h3 className="text-xl font-medium mb-3">About the company</h3>
+                        <h3 className="text-xl font-medium mb-3">About</h3>
                         <p className="text-xs">{data.description}</p>
                     </div>
                     <div className="">
-                        <h3 className="text-xl font-medium mb-3">Price chart</h3>
+                        <h3 className="text-xl font-medium mb-3">Chart</h3>
                         <TradingViewWidget symbol={data.domestic? `ASX:${data.symbol}`: `NASDAQ:${data.symbol}`} />
                     </div>
                 </div>
-                <div>
+                <div className="w-full flex flex-col items-center gap-6 p-6">
                     <h3 className="text-xl font-medium mb-3">Latest News</h3>
-                </div>
-                <div className="w-full flex items-center">
                     <TradingViewNewsWidget symbol={data.domestic? `ASX:${data.symbol}`: `NASDAQ:${data.symbol}`} />
                 </div>
             </div>

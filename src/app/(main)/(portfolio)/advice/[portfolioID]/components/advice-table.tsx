@@ -22,17 +22,34 @@ import {
 
 import { columns } from "./advice-table-columns";
 
-import type { Transaction } from "@/types/types";
+import type { Tables } from "@/types/supabase";
+
+function populateTransactionsData(transactions: Tables<'recom_transactions'>[]) {
+    if (!(transactions.length > 0)) return [];
+  
+    const populatedTransactions = transactions.map((obj) => {
+        const price = obj.price || 0;
+        const units = obj.units || 0;
+        const value = (price * units).toFixed(2);
+        const net = obj.brokerage? (price * units - obj.brokerage).toFixed(2): value;
+  
+        const transaction = units > 0? "Buy" : "Sell";
+  
+        return { ...obj, transaction, value, net};
+    });
+  
+    return populatedTransactions;
+  }
 
 interface AdviceTableProps {
-    transactions: Transaction[]
+    transactions: Tables<'recom_transactions'>[]
 }
 
 export default function AdviceTable<TData>({
     transactions,
 }:  AdviceTableProps) {
     const table = useReactTable({
-        data: transactions,
+        data: populateTransactionsData(transactions),
         columns: columns as ColumnDef<TData | any>[],
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),

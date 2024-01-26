@@ -3,12 +3,12 @@ import { cookies } from 'next/headers';
 
 import { NextResponse } from 'next/server';
 
-import type { Database, Tables } from '@/types/supabase';
+import type { Database, TablesInsert } from '@/types/supabase';
 
 async function createProfile({ profile, session, supabase } : {
-    profile: Partial<Tables<'profiles'>>
+    profile: Omit<TablesInsert<'profiles'>, 'user_id'>
     session: Session
-    supabase: SupabaseClient
+    supabase: SupabaseClient<Database>
 }) {
 
     const { data, error } = await supabase
@@ -19,21 +19,64 @@ async function createProfile({ profile, session, supabase } : {
         })
         .select();
 
+    console.log(error);
+
     if (error) console.log(`Error creating profile: ${error}`);
 }
 
-async function newAdvice({ amount, portfolio, session } : {
-    portfolio: Tables<'portfolios'>
-    amount: number,
+async function createPortfolio({ portfolio, session, supabase } : {
+    portfolio: Omit<TablesInsert<'portfolios'>, 'user_id'> & {
+        holdings: TablesInsert<'holdings'>[]
+    }
+    session: Session
+    supabase: SupabaseClient<Database>
+}) {
+    const { data: portfolioData, error: portfolioError } = await supabase
+        .from('portfolios')
+        .insert({
+            name: portfolio.name,
+            objective: portfolio.objective,
+            international: portfolio.international,
+            active: portfolio.active,
+            entity: portfolio.entity,
+            preferences: portfolio.preferences,
+            user_id: session.user.id,
+        })
+        .select();
+
+    console.log(portfolioError);
+
+    if (portfolioError) throw new Error(`Error creating portfolio ${portfolioError}`);
+
+    const portfolio_id = portfolioData[0].id;
+
+    if (portfolio.holdings.length > 0) {
+        const { error: holdingsError } = await supabase
+        .from('holdings')
+        .upsert(portfolio.holdings.map((holding) => ({
+            ...holding,
+            portfolio_id,
+        })));
+    
+        if (holdingsError) throw new Error(`Error inserting holdings ${holdingsError}`);
+    }
+    
+    return portfolio_id;
+}
+
+async function newAdvice({ portfolio_id, amount, session } : {
+    portfolio_id: string,
+    amount?: number,
     session: Session
 }) {
-    const url = `${process.env.NEXT_PUBLIC_WEB_SERVER_BASE_URL}/new_advice/${session.user.id}`;
+    const url = `${process.env.NEXT_PUBLIC_WEB_SERVER_BASE_URL}/new_advice/${portfolio_id}`;
+
+    console.log(amount);
 
     fetch(url, {
         method: "POST",
         body: JSON.stringify({
-            amount,
-            portfolio_id: portfolio.id,
+            amount: amount || 0,
             reason: "new",
         }),
         headers: {
@@ -44,12 +87,10 @@ async function newAdvice({ amount, portfolio, session } : {
 }
 
 type RequestBody = {
-    profile: Partial<Tables<'profiles'>>
-    portfolio: {
-        name: string
-        objective: string
-        value: number
-        flatBrokerage?: number
+    profile: Omit<TablesInsert<'profiles'>, 'user_id'>
+    portfolio: Omit<TablesInsert<'portfolios'>, 'user_id'> & {
+        holdings: TablesInsert<'holdings'>[]
+        value?: number
     }
 }
 
@@ -61,46 +102,40 @@ export async function POST(req: Request) {
         data: { session },
     } = await supabase.auth.getSession();
 
-    if (!session) {
-        // redirect to login
-        return NextResponse.redirect(new URL('/login', req.url));
-    }
+    if (!session) return NextResponse.json("User not logged in", { status: 500 });
 
     const body = await req.json() as RequestBody;
 
     try {
-        
-    // create user profile
-    createProfile({
-        profile: body.profile,
-        session,
-        supabase,
-    })
+            
+        // Step 1: create profile record
+        await createProfile({
+            profile: body.profile,
+            session,
+            supabase,
+        })
 
-    // create portfolio record
-    const { data, error } = await supabase
-    .from('portfolios')
-    .insert({
-        ...body.portfolio,
-        user_id: session.user.id
-    })
-    .select();
+        // Step 2: create portfolio record
+        const portfolio_id = await createPortfolio({
+            portfolio: body.portfolio,
+            session,
+            supabase,
+        })
 
-    if (error) throw new Error(`Error creating portfolio ${error}`);
+        // Step 3: create portfolio record - does not need to be awaited
+        newAdvice({
+            portfolio_id,
+            amount: body.portfolio.value,
+            session,
+        });
 
-    newAdvice({
-        portfolio: data[0],
-        amount: body.portfolio.value,
-        session,
-    });
-
-    // redirect user to new portfolio
-    return NextResponse.redirect(new URL(`/portfolio/${data[0].id}`, req.url));
+        // redirect user to dashboard
+        return NextResponse.redirect(new URL('/dashboard', req.url));
 
     } catch (e) {
         console.log(e);
 
-        return Response.error();
+        return NextResponse.json({}, { status: 500 });
     }
 
 }

@@ -47,7 +47,6 @@ export interface Database {
       holdings: {
         Row: {
           cost: number | null
-          created_at: string
           id: string
           locked: boolean | null
           portfolio_id: string
@@ -56,7 +55,6 @@ export interface Database {
         }
         Insert: {
           cost?: number | null
-          created_at?: string
           id?: string
           locked?: boolean | null
           portfolio_id: string
@@ -65,7 +63,6 @@ export interface Database {
         }
         Update: {
           cost?: number | null
-          created_at?: string
           id?: string
           locked?: boolean | null
           portfolio_id?: string
@@ -142,9 +139,6 @@ export interface Database {
           employment: string | null
           experience: number | null
           id: string
-          international: number | null
-          passive: number | null
-          preferences: Json | null
           risk_tolerance_q1: number | null
           risk_tolerance_q2: number | null
           risk_tolerance_q3: number | null
@@ -161,9 +155,6 @@ export interface Database {
           employment?: string | null
           experience?: number | null
           id?: string
-          international?: number | null
-          passive?: number | null
-          preferences?: Json | null
           risk_tolerance_q1?: number | null
           risk_tolerance_q2?: number | null
           risk_tolerance_q3?: number | null
@@ -180,9 +171,6 @@ export interface Database {
           employment?: string | null
           experience?: number | null
           id?: string
-          international?: number | null
-          passive?: number | null
-          preferences?: Json | null
           risk_tolerance_q1?: number | null
           risk_tolerance_q2?: number | null
           risk_tolerance_q3?: number | null
@@ -205,7 +193,6 @@ export interface Database {
           actioned: boolean
           advice_id: string
           brokerage: number
-          created_at: string
           id: string
           name: string | null
           price: number
@@ -216,7 +203,6 @@ export interface Database {
           actioned?: boolean
           advice_id: string
           brokerage: number
-          created_at?: string
           id?: string
           name?: string | null
           price: number
@@ -227,7 +213,6 @@ export interface Database {
           actioned?: boolean
           advice_id?: string
           brokerage?: number
-          created_at?: string
           id?: string
           name?: string | null
           price?: number
@@ -314,54 +299,30 @@ export interface Database {
       universe: {
         Row: {
           active: boolean | null
-          beta: number | null
-          description: string | null
-          div_yield: number | null
           domestic: boolean | null
           id: number
-          last_price: number | null
-          last_updated: string | null
           link_to_equity_research: string | null
-          market_cap: number | null
-          name: string | null
           sector: string | null
           symbol: string | null
           tags: string[] | null
-          target_price: number | null
         }
         Insert: {
           active?: boolean | null
-          beta?: number | null
-          description?: string | null
-          div_yield?: number | null
           domestic?: boolean | null
           id?: number
-          last_price?: number | null
-          last_updated?: string | null
           link_to_equity_research?: string | null
-          market_cap?: number | null
-          name?: string | null
           sector?: string | null
           symbol?: string | null
           tags?: string[] | null
-          target_price?: number | null
         }
         Update: {
           active?: boolean | null
-          beta?: number | null
-          description?: string | null
-          div_yield?: number | null
           domestic?: boolean | null
           id?: number
-          last_price?: number | null
-          last_updated?: string | null
           link_to_equity_research?: string | null
-          market_cap?: number | null
-          name?: string | null
           sector?: string | null
           symbol?: string | null
           tags?: string[] | null
-          target_price?: number | null
         }
         Relationships: []
       }
@@ -371,9 +332,8 @@ export interface Database {
           email: string | null
           id: string
           name: string | null
-          notifications: Json[] | null
-          profile: string | null
-          watchlist: string[] | null
+          notifications: Json[]
+          watchlist: string[]
         }
         Insert: {
           created_at?: string | null
@@ -381,8 +341,7 @@ export interface Database {
           id: string
           name?: string | null
           notifications?: Json[] | null
-          profile?: string | null
-          watchlist?: string[] | null
+          watchlist?: string[]
         }
         Update: {
           created_at?: string | null
@@ -390,15 +349,14 @@ export interface Database {
           id?: string
           name?: string | null
           notifications?: Json[] | null
-          profile?: string | null
-          watchlist?: string[] | null
+          watchlist?: string[]
         }
         Relationships: [
           {
-            foreignKeyName: "users_profile_fkey"
-            columns: ["profile"]
-            isOneToOne: false
-            referencedRelation: "profiles"
+            foreignKeyName: "users_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "users"
             referencedColumns: ["id"]
           }
         ]

@@ -15,7 +15,7 @@ export const useAICompanionContext = () => {
 const SAMPLE_PROMPTS_ARRAY = [
     "Should I buy shares in BHP?",
     "Should I invest more in ETFs?",
-    "Why is the market up or down?",
+    "Why is the market up/down today?",
     "What does 'EPS' mean?"
 ]
 
@@ -38,6 +38,7 @@ async function* readStream(reader: ReadableStreamDefaultReader<Uint8Array>) {
 
 export type AICompanionState = {
     toast: string | null
+    toastVisible: boolean
     samplePrompts: string[] | null
     messages: Message[]
     isLoading: boolean
@@ -54,6 +55,8 @@ export type AICompanionState = {
 export const AICompanionProvider = ({ children }: { children: React.ReactNode }) => {
     const pathname = usePathname();
     const [toast, setToast] = useState<string | null>();
+    const [toastVisible, setToastVisible] = useState<boolean>(true);
+    const [toastHistory, setToastHistory] = useState<string[]>([]); // array of toast messages that have already been displayed to user
     const [samplePrompts, setSamplePrompts] = useState<string[] | null>(SAMPLE_PROMPTS_ARRAY);
     const [messages, setMessages] = useState<Message[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false); // loading new message
@@ -65,7 +68,9 @@ export const AICompanionProvider = ({ children }: { children: React.ReactNode })
 
     useEffect(() => {
         if (!timerRef.current) {
-            if (pathname.startsWith('/symbol')) {
+            if (pathname.startsWith('/dashboard')) {
+                newMessage('What happened in the market today?');
+            } else if (pathname.startsWith('/symbol')) {
                 const symbol = pathname.split('/').at(-1);
                 newMessage(`Should I invest in ${symbol}?`);
             }
@@ -77,12 +82,15 @@ export const AICompanionProvider = ({ children }: { children: React.ReactNode })
             }
         }
 
-        async function newMessage(m: string) {
+        function newMessage(m: string) {
+            if (toastHistory.includes(m)) return; // prevent showing same message to user more than once 
             setToast(m);
             // remove message after three seconds
-            timerRef.current = setTimeout(() => {
+            setTimeout(() => {
                 setToast(null);
             }, 3000);
+            // update toast history
+            setToastHistory((prevArray) => [...prevArray, m]);
         }
     }, [pathname, setToast]);
 
@@ -156,6 +164,7 @@ export const AICompanionProvider = ({ children }: { children: React.ReactNode })
     return (
         <AICompanionContext.Provider value={{
             toast,
+            toastVisible,
             samplePrompts,
             messages,
             isLoading,

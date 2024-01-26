@@ -57,11 +57,10 @@ function AdviceTableColumnHeader ({
     )
 }
 
-const IsActionedIndicator = ({ status }: { status?: string }) => {
-
+const IsActionedIndicator = ({ actioned }: { actioned: boolean }) => {
   return (
     <div className="flex items-center justify-center">
-        {status? (
+        {actioned? (
         <LuCheck size={20} />
         ) : (
         <LuX size={20} />
@@ -144,12 +143,12 @@ export const columns: ColumnDef<Transaction>[] = [
       )
     },
     {
-      accessorKey: 'status',
+      accessorKey: 'actioned',
       header: ({ column }) => (
         <AdviceTableColumnHeader title='Actioned?' />
       ),
       cell: ({ row }) => (
-        <IsActionedIndicator status={row.getValue('status')} />
+        <IsActionedIndicator actioned={row.getValue('actioned')} />
       )
     },
 ]

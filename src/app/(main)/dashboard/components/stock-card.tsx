@@ -7,6 +7,7 @@ import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { 
     LuArrowUpRight, 
     LuArrowDownRight,
+    LuMinus,
 } from "react-icons/lu";
 
 import { cn } from "@/components/lib/utils";
@@ -52,14 +53,17 @@ export default function StockCard({ symbol }: { symbol: string | null }) {
                         <div className="flex items-center gap-0.5">
                             <div className={cn(
                                 "text-xs text-green-600",
+                                data.change === 0 && "text-slate-600",
                                 data.change < 0 && "text-red-400"
                             )}>
                                 {data.change.toFixed(2)}%
                             </div>
-                            {data.change > 0 ? (
-                            <LuArrowUpRight size={12} className="text-green-600"/>
-                            ) : (
+                            {data.change === 0 ? (
+                            <LuMinus size={12} className="text-slate-600" />
+                            ) : data.change < 0 ? (
                             <LuArrowDownRight size={12} className="text-red-400"/>
+                            ) : (
+                            <LuArrowUpRight size={12} className="text-green-600"/>
                             )}
                         </div>
 

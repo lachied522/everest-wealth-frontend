@@ -4,10 +4,9 @@ import Link from 'next/link';
 
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
-import { LuCandlestickChart, LuFileLineChart, LuGlobe, LuLink, LuUser2 } from 'react-icons/lu';
+import { LuLink } from 'react-icons/lu';
 
 import Logo from '@/components/logo';
 
@@ -23,10 +22,10 @@ export default async function Home() {
 
   return (
     <main className="h-full">
-      <div className="flex items-center justify-between px-12 py-6">
+      <div className="z-10 w-full flex items-center justify-between px-12 py-6 bg-white fixed">
           <Logo withText={true} />
           <div className="flex gap-8">
-              <Link href='/' className="text-base text-slate-700 no-underline">
+              {/* <Link href='/' className="text-base text-slate-700 no-underline">
                 Features
               </Link>
               <Link href='/' className="text-base text-slate-700 no-underline">
@@ -34,7 +33,7 @@ export default async function Home() {
               </Link>
               <Link href='/' className="text-base text-slate-700 no-underline">
                 Resources
-              </Link>
+              </Link> */}
           </div>
           {session ? (
           <Link href='/dashboard'>
@@ -51,37 +50,37 @@ export default async function Home() {
             </Link>
             <Link href='/signup'>
               <Button>
-                Signup
+                Try Free
               </Button>
             </Link>
           </div>
           )}
       </div>
       <div className="h-[50vh] md:h-[90vh] relative bg-gradient-to-b from-transparent from-70% to-white">
-        <div className="bg-[url('/hero-background-image.jpg')] bg-cover bg-center opacity-5 absolute inset-0 -z-10 lg:bg-[center_top_25%]" />
-        <div className="flex items-center justify-between gap-6 p-12 sm:6 lg:p-36 inset-y-0 absolute">
-          <h1 className="basis-3/4 text-7xl font-semibold text-slate-900 drop-shadow-md">Investment Advice Shouldn&apos;t Break the Bank</h1>
-          <div className="basis-1/2 flex flex-col gap-4">
+        <div className="bg-[url('/landing-page/hero-background-image.jpg')] bg-cover bg-center opacity-[0.32] absolute inset-0 -z-10 lg:bg-[center_top_25%]" />
+        <div className="grid grid-cols-2 items-center justify-items-center p-36 lg:p-56 inset-y-0 absolute">
+          <h1 className="text-5xl font-semibold text-slate-900 drop-shadow-md lg:text-7xl">Investment Advice Shouldn&apos;t Break the Bank</h1>
+          <div className="max-w-[60%] flex flex-col items-center justify-center gap-6">
             <p className="text-lg font-medium drop-shadow-md">
-              Get personalised and objective investment advice and build wealth without the associated cost
+              Everest Wealth is bridging the gap between costly financial advice and those who need it the most.
             </p>
-            <div className="flex items-center justify-center gap-4">
+            <div className="flex items-center justify-center gap-6">
               {session ? (
               <Link href='/dashboard'>
-                <Button variant="secondary">
+                <Button>
                   Dashboard
                 </Button>
               </Link>
               ) : (
               <>
                 <Link href='/login'>
-                  <Button variant="secondary">
+                  <Button variant="secondary" className="shadow-sm">
                     Login
                   </Button>
                 </Link>
                 <Link href='/signup'>
-                  <Button>
-                    Signup
+                  <Button className="shadow-sm">
+                    Try Free
                   </Button>
                 </Link>
               </>
@@ -90,71 +89,112 @@ export default async function Home() {
           </div>
         </div>
       </div>
-      <div className="flex items-center justify-center bg-blue-300 p-36 lg:p-48">
-        <div className="grid grid-cols-2 place-items-center p-16">
+      <div className="flex flex-col items-center justify-center bg-white px-24 lg:px-36 py-36">
+        <h2 className="text-3xl font-medium mb-24">The Problem</h2>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-24 mb-24">
             <div className="flex flex-col items-start gap-4">
+              <h3 className="text-2xl text-center">Market Gap</h3>
+              <p>Only 11.2% of Australians have a financial adviser, yet 60% percent of believe they could benefit from receiving advice.<sup>1</sup></p>
+            </div>
+            <div className="flex flex-col items-start gap-4">
+              <h3 className="text-2xl text-center">Generations Missing Out</h3>
+              <p>Only 4 percent of Millennials and Gen Z receive financial advice, however they stand to benefit the most.<sup>1</sup></p>
+            </div>
+            <div className="flex flex-col items-start gap-4">
+              <h3 className="text-2xl text-center">Barriers to Entry</h3>
+              <p>Number one barrier to seeking financial advice is cost, with the median fee at $3,256 p.a.<sup>1</sup></p>
+            </div>
+            <div className="flex flex-col items-start gap-4">
+              <h3 className="text-2xl text-center">Increasing Costs</h3>
+              <p>Costs are only going up as 13,000 advisers have left the industry since 2019.<sup>1,2</sup></p>
+            </div>
+        </div>
+        <ol className="list-decimal">
+          {[
+            "https://www.afr.com/wealth/personal-finance/how-to-get-financial-advice-without-forking-out-3000-20210419-p57kcu",
+            "https://www.ifa.com.au/news/29479-adviser-numbers-to-plummet-by-30"
+          ].map((ref, index) => (
+          <li key={`list-item-${index}`} className="text-xs mb-1">
+            <a href={ref} className="text-blue-600 underline">{ref}</a>
+          </li>
+          ))}
+        </ol>
+      </div>
+      <div className="flex flex-col items-center justify-center bg-blue-300 px-24 py-48 lg:px-36">
+        <h2 className="text-3xl font-medium mb-24">The Solution</h2>
+        <div className="grid grid-cols-2 lg:grid-cols-4 items-center justify-items-center gap-12 lg:gap-24">
+            <div className="flex items-center justify-center gap-6">
+              <Image 
+                src="/landing-page/investment-icon.png"
+                alt="Investment"
+                width={55}
+                height={55}
+              />
+              <p>A platform that provides both passive and on-demand, personal investment advice.</p>
+            </div>
+            <div className="flex items-center justify-center gap-6">
+                <Image 
+                  src="/landing-page/tablet-icon.png"
+                  alt="Tablet Screen"
+                  width={58}
+                  height={58}
+                />
+              <p>Users can stay involved in managing your investments, or not!</p>
+            </div>
+            <div className="flex items-center justify-center gap-6">
+                <Image 
+                  src="/landing-page/affordable-icon.png"
+                  alt="Affordable"
+                  width={70}
+                  height={70}
+                />
+              <p>Access quicker and more affordable than a traditional adviser.</p>
+            </div>
+            <div className="flex items-center justify-center gap-6">
+                <Image 
+                  src="/landing-page/hand-shake.png"
+                  alt="Handshake"
+                  width={70}
+                  height={70}
+                />
+              <p>Eliminate conflicts of interest associated with traditional advisers.</p>
+            </div>
+        </div>
+      </div>
+      <div className="bg-white p-36 lg:p-48">
+        <div className="grid grid-cols-2 place-items-center">
+            <div className="max-w-[60%] flex flex-col items-start gap-4">
               <div className="flex items-center">
                   <LuLink size={32} className="mr-2" />
                   <h3 className="text-2xl">Link Your Existing Broker</h3>
               </div>
-              <p>Easily integrate with your existing broker account, and start receiving advice.</p>
+              <p>We integrate with a range of discount brokers, so users can start receiving advice straight away.</p>
               <Button className="mt-4">
                 <a href="" className="no-underline">View Available Brokers</a>
               </Button>
             </div>
             <Image 
-              src=""
+              src="/landing-page/iphone-transparent-background.png"
               alt="iPhone"
-              width={180}
-              height={180}
+              width={360}
+              height={360}
             />
         </div>
       </div>
-      <div className="grid grid-cols-3 items-center justify-center bg-white p-24">
-          <div className="flex flex-col items-center gap-4">
-            <div className="flex items-center">
-                <LuGlobe size={56} className="mr-2" />
-                <h3 className="text-2xl">Global Markets</h3>
-            </div>
-          </div>
-          <div className="flex flex-col items-center gap-4">
-            <div className="flex items-center">
-                <LuGlobe size={56} className="mr-2" />
-                <h3 className="text-2xl">Stocks & ETFs</h3>
-            </div>
-          </div>
-          <div className="flex flex-col items-center gap-4">
-            <div className="flex items-center">
-                <LuGlobe size={56} className="mr-2" />
-                <h3 className="text-2xl">Stocks & ETFs</h3>
-            </div>
-          </div>
-      </div>
-      <div className="flex flex-col items-center justify-center bg-white p-36 lg:p-48">
-        <h2 className="text-3xl mb-4">Pricing</h2>
-        <div className="grid grid-cols-3 items-center justify-center gap-6 p-16">
-          <Card>
-            <CardHeader>
-              <div className="text-xl text-center font-medium">Plan 1</div>
-            </CardHeader>
-            <CardContent className="w-[360px] h-[540px] flex flex-col items-start gap-4">
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <div className="text-xl text-center font-medium">Plan 2</div>
-            </CardHeader>
-            <CardContent className="w-[360px] h-[540px] flex flex-col items-start gap-4">
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <div className="text-xl text-center font-medium">Plan 3</div>
-            </CardHeader>
-            <CardContent className="w-[360px] h-[540px] flex flex-col items-start gap-4">
-            </CardContent>
-          </Card>
+      <div className="flex flex-col items-center justify-center bg-white px-24 lg:px-36 py-36">
+        <div className="max-w-[60%] flex flex-col text-center gap-4 mb-24">
+          <h2 className="text-3xl font-medium">Where We Sit</h2>
+          <p>We aim to provide the same personalised investment experience as a traditional broker at the cost of a discount broker.</p>
         </div>
+        <Image 
+          src="/landing-page/where-we-sit.png"
+          alt="iPhone"
+          width={800}
+          height={465}
+        />
+      </div>
+      <div className="w-full h-20 flex items-center justify-center bg-slate-200">
+          Footer
       </div>
     </main>
   )

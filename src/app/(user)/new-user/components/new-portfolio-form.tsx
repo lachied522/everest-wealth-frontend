@@ -27,7 +27,9 @@ import { cn } from "@/components/lib/utils"
 
 import PortfolioEditor from "./portfolio-editor";
 import ObjectiveSelector from "@/components/objective-selector"
+import IndustryPreferences from "@/components/industry-preferences"
 import { BiBriefcaseAlt } from "react-icons/bi";
+import { Slider } from "@/components/ui/slider";
 
 export const FormSchema = z.object({
     name: z.string().default('My Portfolio'),
@@ -35,30 +37,22 @@ export const FormSchema = z.object({
     objective: z.string({
         required_error: "Please select an objective for this portfolio"
     }),
+    active: z.number().array().transform((val) => val[0]).nullable().default([50]),
+    international: z.number().array().transform((val) => val[0]).nullable().default([50]),
+    preferences: z.record(
+        z.string(),
+        z.union([z.literal("like"), z.literal("dislike")]),
+    ).nullable(),
     holdings: z.object({
         symbol: z.string(),
         units: z.number(),
-        cost: z.number(),
-    }).array().default([]).optional(),
+        cost: z.number().optional(),
+    }).array().optional().default([]),
     value: z.coerce.number().min(0).optional(),
 })
 
-type Holding = {
-    symbol: string
-    units: number
-    cost: number
-}
-
-type Data = {
-    name: string
-    entity: string
-    objective: string
-    holdings?: Holding[]
-    value?: number
-}
-
 interface NewPortfolioFormProps {
-    onSuccess: (values: Data) => void
+    onSuccess: (values: z.infer<typeof FormSchema>) => void
     navigateBack: () => void
 }
 
@@ -78,8 +72,8 @@ export const NewPortfolioForm = ({ onSuccess, navigateBack }: NewPortfolioFormPr
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="max-w-6xl flex flex-col gap-6 p-6 space-y-8">
-                <div className="flex items-center gap-4 mb-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="max-w-6xl flex flex-col items-center gap-6 p-6 space-y-8">
+                <div className="flex items-center gap-6 mb-4 mx-auto">
                     <BiBriefcaseAlt size={42} />
                     <div className="flex flex-col justify-center gap-2">
                         <h3 className="text-xl font-medium">Create your first portfolio</h3>
@@ -141,6 +135,74 @@ export const NewPortfolioForm = ({ onSuccess, navigateBack }: NewPortfolioFormPr
                         name="objective"
                         render={({field}) => (
                             <ObjectiveSelector handleChange={field.onChange} value={field.value} />
+                        )}
+                    />
+                    <h3 className="text-2xl font-medium">Preferences</h3>
+                    <div className="flex flex-col gap-12 items-center">
+                        <div className="text-lg text-slate-800">
+                            What proportion of your portfolio do you wish to invest in
+                            international stocks?
+                        </div>
+                        <FormField
+                            control={form.control}
+                            name="international"
+                            render={({ field }) => (
+                                <FormItem className="flex gap-4 justify-stretch">
+                                <span>0</span>
+                                <FormControl>
+                                    <Slider
+                                        min={0}
+                                        max={100}
+                                        step={1}
+                                        defaultValue={[field.value || 50]}
+                                        onValueChange={field.onChange}
+                                        className="w-[240px] cursor-pointer"
+                                    />
+                                </FormControl>
+                                <span>100</span>
+                                </FormItem>
+                            )}
+                        />
+                        <div className="text-lg text-slate-800">
+                            What proportion of your portfolio do you wish to invest in
+                            ETFs?
+                        </div>
+                        <FormField
+                            control={form.control}
+                            name="active"
+                            render={({ field }) => (
+                                <FormItem className="flex gap-4 justify-stretch">
+                                <span>0</span>
+                                <FormControl>
+                                    <Slider
+                                        min={0}
+                                        max={100}
+                                        step={1}
+                                        defaultValue={[field.value || 50]}
+                                        onValueChange={field.onChange}
+                                        className="w-[240px] cursor-pointer"
+                                    />
+                                </FormControl>
+                                <span>100</span>
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+                    <div className="text-lg text-slate-800">
+                        Do you have any industry preferences?
+                    </div>
+                    <FormField
+                        control={form.control}
+                        name="preferences"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormControl>
+                            <IndustryPreferences
+                                handleChange={field.onChange}
+                                value={field.value}
+                            />
+                            </FormControl>
+                        </FormItem>
                         )}
                     />
                     <div className="text-lg font-medium text-slate-800">
@@ -209,10 +271,19 @@ export const NewPortfolioForm = ({ onSuccess, navigateBack }: NewPortfolioFormPr
                     </>
                     )}
                 </Card>
-                <div className="flex justify-between mt-6">
-                    <Button type="button" onClick={navigateBack}>Back</Button>
-                    {!isLoading && <Button type="submit" onClick={() => console.log(form.formState.errors)}>Next</Button>}
-                    {isLoading && <Button type="button" disabled>Please wait...</Button>}
+                <div className="w-full flex justify-between mt-6">
+                    <Button 
+                        type="button"
+                        variant="secondary"
+                        onClick={navigateBack}
+                    >
+                        Back
+                    </Button>
+                    {!false ? (
+                    <Button type="submit" onClick={() => console.log(form.formState.errors)}>Submit</Button>
+                    ) : (
+                    <Button type="button" disabled>Please wait...</Button>
+                    )}
                 </div>
             </form>
         </Form>

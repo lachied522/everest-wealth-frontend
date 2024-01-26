@@ -48,22 +48,22 @@ const HoldingRow = ({ holding, update } : {
     const [stockPrice, setStockPrice] = useState<number | null>(null); // current stock price - must be fetched from api
 
     useEffect(() => {
-    let active = true; // keep track of whether component is active
+        let active = true; // keep track of whether component is active
 
-    if (holding) getData();
-    return () => {
-        active = false;
-    }
-
-    async function getData() {
-        if (!holding.hasOwnProperty('last_price')) {
-        const price = await getStockPrice(holding.symbol);
-        if (active) setStockPrice(price);
-        } else if (holding.last_price) {
-        // data already populated
-        setStockPrice(holding.last_price);
+        if (holding) getData();
+        return () => {
+            active = false;
         }
-    }
+
+        async function getData() {
+            if (!holding.hasOwnProperty('last_price')) {
+                const price = await getStockPrice(holding.symbol);
+                if (active) setStockPrice(price);
+            } else if (holding.last_price) {
+                // data already populated
+                setStockPrice(holding.last_price);
+            }
+        }
     }, [holding, setStockPrice]);
 
     // value column pre-populates if user fills units column and vice versa
@@ -105,6 +105,8 @@ const HoldingRow = ({ holding, update } : {
     });
     }, [holding, update]);
 
+    if (!(holding.units > 0)) return null;
+
     return (
         <div className="grid grid-rows-[auto] gap-0 grid-cols-[0.5fr_0.75fr_1fr_1fr_20px] auto-cols-[1fr] items-center justify-items-center p-1.5">
             <div className="">{holding.symbol.toUpperCase()}</div>
@@ -138,7 +140,7 @@ const HoldingRow = ({ holding, update } : {
                 maxLength={24}
                 name="cost"
                 data-name="cost"
-                min="0"
+                min={0}
                 value={holding.totalCost || 0}
                 onChange={changeCost}
             />
@@ -248,17 +250,13 @@ export default function PortfolioEditor({ onChange }: EditPortfolioProps) {
                     Search stocks to add to your portfolio
                 </div>
                 )}
-                <ScrollArea className="h-[400px]">
+                <ScrollArea className="min-h-[200px] max-h-[400px]">
                 {holdings.map((holding, index) => (
-                <>
-                    {holding.units > 0 && (
                     <HoldingRow 
                         key={index}
                         holding={holding}
                         update={updateHolding}
                     />
-                    )}
-                </>
                 ))}
                 </ScrollArea>
             </div>

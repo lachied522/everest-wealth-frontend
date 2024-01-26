@@ -86,7 +86,7 @@ export default function PortfolioSettingsPopup() {
 
     const commitChanges = useCallback(
         async (data: Partial<FormData>): Promise<boolean> => {
-            const { success } = await fetch(
+            const res = await fetch(
                 '/api/commit-portfolio-settings-and-preferences',
                 {
                     method: "POST",
@@ -98,10 +98,9 @@ export default function PortfolioSettingsPopup() {
                         "Content-Type": "application/json",
                     }
                 }
-            )
-            .then(res => res.json());
+            );
 
-            return success;
+            return res.ok;
         },
         [currentPortfolio.id]
     );
@@ -331,11 +330,11 @@ export default function PortfolioSettingsPopup() {
                                                 <FormItem>
                                                 <FormControl>
                                                     <Input
-                                                    type="number"
-                                                    min={0}
-                                                    value={field.value}
-                                                    onChange={field.onChange}
-                                                    className="text-lg w-[80px] bg-transparent text-slate-800"
+                                                        type="number"
+                                                        min={0}
+                                                        value={field.value}
+                                                        onChange={field.onChange}
+                                                        className="text-lg w-[80px] bg-transparent text-slate-800"
                                                     />
                                                 </FormControl>
                                                 </FormItem>
@@ -351,11 +350,11 @@ export default function PortfolioSettingsPopup() {
                                                 <FormItem>
                                                 <FormControl>
                                                     <Input
-                                                    type="number"
-                                                    min={0}
-                                                    value={field.value}
-                                                    onChange={field.onChange}
-                                                    className="text-lg w-[80px] bg-transparent text-slate-800"
+                                                        type="number"
+                                                        min={0}
+                                                        value={field.value}
+                                                        onChange={field.onChange}
+                                                        className="text-lg w-[80px] bg-transparent text-slate-800"
                                                     />
                                                 </FormControl>
                                                 </FormItem>

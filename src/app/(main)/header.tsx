@@ -19,7 +19,7 @@ export default function Header({ userName }: { userName: string }) {
 
   return (
     <div className={cn(
-      "bg-white w-full shadow-[0_2px_12px_rgba(11,22,44,0.05)] z-[1] px-16 items-center py-[14px] flex min-h-[78px] relative",
+      "bg-white w-full shadow-[0_2px_12px_rgba(11,22,44,0.05)] z-[1] px-12 items-center py-[14px] flex min-h-[78px] relative",
       isMobile && "pl-24"
     )}>
       {isMobile && (
@@ -30,7 +30,7 @@ export default function Header({ userName }: { userName: string }) {
         />
       )}
       <div className="w-full flex items-center gap-6">
-        <div>{today}</div>
+        <p className="text-sm">{today}</p>
         <SymbolSearch />
       </div>
       <div className="flex items-center gap-6 ml-auto ">

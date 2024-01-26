@@ -40,7 +40,7 @@ export type Transaction = {
     units: number
     price: number
     brokerage: number
-    status?: string
+    actioned: boolean
 }
 
 export type AdviceData = (

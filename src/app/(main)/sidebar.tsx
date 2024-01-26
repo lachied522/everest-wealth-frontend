@@ -169,16 +169,13 @@ export default function SideBar() {
           !isOpen && "translate-x-[-100%]"
         )}
       >
-        <div className="min-h-[74px] content-center justify-center flex">
-          <Link
-            href="/"
-            className="w-full flex justify-center transform transition duration-300 relative hover:scale-105"
-          >
+        <div className="min-h-[74px] flex items-center justify-center">
+          <Link href="/">
             <Image
-              src="/palladian.svg"
-              alt="Palladian Logo"
-              width={48}
-              height={48}
+              src="/everest-logo-transparent-background.png"
+              alt="Everest Logo"
+              width={55}
+              height={40}
             />
           </Link>
         </div>
