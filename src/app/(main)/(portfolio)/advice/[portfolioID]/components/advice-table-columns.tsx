@@ -87,11 +87,9 @@ export const columns: ColumnDef<Transaction>[] = [
           <AdviceTableColumnHeader title='Symbol' />
         ),
         cell: ({ row }) => (
-          <div className="flex items-center gap-2">
-            <Link href={`/symbol/${row.getValue('symbol')}`} className="font-semibold">
+            <Link href={`/symbol/${row.getValue('symbol')}`} className="text-center font-semibold">
               {row.getValue('symbol')}
             </Link>
-          </div>
         )
     },
     {

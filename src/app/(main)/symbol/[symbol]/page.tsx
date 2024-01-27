@@ -1,17 +1,26 @@
-import { notFound } from "next/navigation";
-
 import { fetchSymbol } from "src/app/lib/redis";
 
 import { Button } from "@/components/ui/button";
-import { LuPlus, LuFileText, LuMinus, LuGlobe2 } from "react-icons/lu";
+import { 
+    LuPlus,
+    LuFileText,
+    LuMinus,
+    LuGlobe2,
+    LuArrowUpRight, 
+    LuArrowDownRight,
+} from "react-icons/lu";
 import { GiAustralia } from "react-icons/gi";
+
+import { cn } from "@/components/lib/utils";
 
 import WatchlistButton from "./components/watchlist-button";
 import TradingViewWidget from "./components/TradingViewWidget";
 import TradingViewNewsWidget from "./components/TradingViewNewsWidget";
 
+import type { StockInfo } from "@/types/types";
+
 function formatMarketCap(marketCap: number | null) {
-    if (!marketCap) return
+    if (!marketCap) return 'N/A';
     
     const trillion = 1e12;
     const billion = 1e9;
@@ -28,17 +37,34 @@ function formatMarketCap(marketCap: number | null) {
     }
 }
 
-function ChangeIndicator({ last, change }: { last: number, change: number }) {
-    if (!change || !last) return <div className="text-green-500">+0%</div>;
+function getTradingViewSymbol(data: StockInfo) {
+    if (data.domestic) return `ASX:${data.symbol}`;
 
-    const percentChange = 100*(change / last);
+    if (!data.domestic && !data.active) return `AMEX:${data.symbol}`
 
-    if (percentChange < 0) return (
-        <div className="text-red-500">{percentChange.toFixed(2)}%</div>
-    )
+    return data.symbol;
+}
+
+const ChangeIndicator = ({ last, change }: { last: number | null, change: number | null }) => {
+    const percentChange = (change && last)? 100*(change / last): 0;
 
     return (
-        <div className="text-green-500">+{percentChange.toFixed(2)}%</div>
+        <div className="flex items-center gap-1">
+            <div className={cn(
+                "text-sm text-green-600",
+                percentChange === 0 && "text-slate-600",
+                percentChange < 0 && "text-red-400"
+            )}>
+                {percentChange.toFixed(2)}%
+            </div>
+            {percentChange === 0 ? (
+            <LuMinus className="text-slate-600" />
+            ) : percentChange < 0 ? (
+            <LuArrowDownRight className="text-red-400"/>
+            ) : (
+            <LuArrowUpRight className="text-green-600"/>
+            )}
+        </div>
     )
 }
 
@@ -94,7 +120,7 @@ export default async function Page({ params }: PageProps) {
                     </div>
                     <div className="flex gap-2">
                         <span className="text-slate-800 font-semibold">P/E</span>
-                        {data['PE']? data['PE'].toFixed(2): 'NaN'}
+                        {data.PE? data.PE.toFixed(2): 'N/A'}
                     </div>
                     <div className="flex gap-2">
                         <span className="text-slate-800 font-semibold">Sector</span>
@@ -103,19 +129,19 @@ export default async function Page({ params }: PageProps) {
                 </div>
             </div>
             <div className="flex flex-col items-stretch gap-4">
-                <div className="grid grid-cols-[1fr_0.25fr] gap-16">
+                <div className="h-[400px] grid grid-cols-[1fr_0.25fr] gap-24">
                     <div className="">
                         <h3 className="text-xl font-medium mb-3">About</h3>
                         <p className="text-xs">{data.description}</p>
                     </div>
                     <div className="">
                         <h3 className="text-xl font-medium mb-3">Chart</h3>
-                        <TradingViewWidget symbol={data.domestic? `ASX:${data.symbol}`: `NASDAQ:${data.symbol}`} />
+                        <TradingViewWidget symbol={getTradingViewSymbol(data)} />
                     </div>
                 </div>
                 <div className="w-full flex flex-col items-center gap-6 p-6">
                     <h3 className="text-xl font-medium mb-3">Latest News</h3>
-                    <TradingViewNewsWidget symbol={data.domestic? `ASX:${data.symbol}`: `NASDAQ:${data.symbol}`} />
+                    <TradingViewNewsWidget symbol={getTradingViewSymbol(data)} />
                 </div>
             </div>
         </>

@@ -10,7 +10,7 @@ export const useSidebarContext = () => {
 }
 
 export const SidebarProvider = ({ children }: { children: ReactNode }) => {
-    const isMobile = useMediaQuery('(max-width: 856px)');
+    const isMobile = useMediaQuery('(max-width: 1025px)');
     const [isOpen, setIsOpen] = useState<boolean>(!isMobile);
 
     useEffect(() => {

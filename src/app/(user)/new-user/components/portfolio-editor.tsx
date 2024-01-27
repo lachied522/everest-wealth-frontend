@@ -29,18 +29,17 @@ async function getStockPrice(symbol: string) {
 const SearchHit = ({ hit, selectHit } : { 
     hit: StockInfo, 
     selectHit: (hit: StockInfo) => void 
-  }) => {
-  
-const onClick = () => selectHit(hit);
+}) => {
+    const onClick = () => selectHit(hit);
 
     return (
         <div className="grid gap-0 cursor-pointer grid-rows-[auto] grid-cols-[0.25fr_1fr] auto-cols-[1fr] content-center justify-center items-center justify-items-center p-2.5" onClick={onClick}>
-        <div>{hit.symbol}</div>
-        <div className="text-[#0b0e2c] justify-start font-medium">{hit.name}</div>
+            <div>{hit.symbol}</div>
+            <div className="text-[#0b0e2c] justify-start font-medium">{hit.name}</div>
         </div>
     );
 };
-  
+
 const HoldingRow = ({ holding, update } : { 
     holding: PartialHolding,
     update: (holding: PartialHolding) => void

@@ -1,7 +1,5 @@
 "use client";
-import { useState, useMemo } from "react";
-
-import { LuArrowRightCircle, LuArrowLeftCircle } from "react-icons/lu";
+import { useState } from "react";
 
 import { useGlobalContext } from "@/context/GlobalState";
 

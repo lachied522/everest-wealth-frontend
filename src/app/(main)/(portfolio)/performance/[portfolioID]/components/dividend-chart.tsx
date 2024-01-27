@@ -41,9 +41,10 @@ type TimeSeriesDataPoint = {
 
 interface DividendChartProps {
     data: TimeSeriesDataPoint[]
+    name: string
 }
 
-export default function DividendChart({ data }: DividendChartProps) {
+export default function DividendChart({ data, name }: DividendChartProps) {
     const [timeframe, setTimeframe] = useState<Timeframe>(TIMEFRAMES[2])
 
     return (
@@ -81,11 +82,13 @@ export default function DividendChart({ data }: DividendChartProps) {
                         tickFormatter={(value: number) => USDollar.format(value)}
                     />
                     {/* <Tooltip /> */}
+                    <Legend />
                     <Bar
                         dataKey="value"
                         fill="#8884d8"
                         barSize={48}
                         activeBar={<Rectangle fill="pink" stroke="blue" />}
+                        name={name}
                     />
                 </BarChart>
             </ResponsiveContainer>

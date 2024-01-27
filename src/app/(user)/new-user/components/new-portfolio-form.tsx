@@ -21,15 +21,17 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
+import { Slider } from "@/components/ui/slider";
 
 import { LuCircle } from "react-icons/lu"
+import { BiBriefcaseAlt } from "react-icons/bi";
 import { cn } from "@/components/lib/utils"
 
-import PortfolioEditor from "./portfolio-editor";
-import ObjectiveSelector from "@/components/objective-selector"
 import IndustryPreferences from "@/components/industry-preferences"
-import { BiBriefcaseAlt } from "react-icons/bi";
-import { Slider } from "@/components/ui/slider";
+import ObjectiveSelector from "@/components/objective-selector"
+
+import PortfolioEditor from "./portfolio-editor";
+import LinkBroker from "./link-broker";
 
 export const FormSchema = z.object({
     name: z.string().default('My Portfolio'),
@@ -49,6 +51,7 @@ export const FormSchema = z.object({
         cost: z.number().optional(),
     }).array().optional().default([]),
     value: z.coerce.number().min(0).optional(),
+    publicToken: z.string().optional(),
 })
 
 interface NewPortfolioFormProps {
@@ -57,8 +60,9 @@ interface NewPortfolioFormProps {
 }
 
 export const NewPortfolioForm = ({ onSuccess, navigateBack }: NewPortfolioFormProps) => {
-    const [isExistingPortfolio, setIsExistingPortfolio] = useState(false)
-    const [isLoading, setIsLoading] = useState(false)
+    const [isLinkedPortfolio, setIsLinkedPortfolio] = useState<boolean>(false);
+    const [isExistingPortfolio, setIsExistingPortfolio] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
     
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
@@ -83,62 +87,64 @@ export const NewPortfolioForm = ({ onSuccess, navigateBack }: NewPortfolioFormPr
                         </p>
                     </div>
                 </div>
-                <Card className="flex flex-col gap-16 items-center p-16 m-4">
-                    <div className="text-lg font-medium text-slate-800">Portfolio Name</div>
-                    <FormField 
-                        control={form.control}
-                        name="name"
-                        render={({field}) => (
-                            <FormItem>
-                                <FormControl>
-                                    <Input
-                                        placeholder="My Portfolio"
-                                        className='max-w-[240px]'
-                                        value={field.value}
-                                        onChange={field.onChange}
-                                    />
-                                </FormControl>
-                            </FormItem>
-                        )}
-                    />
-                    <div className="text-lg font-medium text-slate-800">Investment Entity</div>
-                    <FormField
-                        control={form.control}
-                        name="entity"
-                        render={({ field }) => (
-                            <FormItem>
-                                <Select
-                                    onValueChange={field.onChange}
-                                    defaultValue={field.value}
-                                >
+                <Card className="flex flex-col gap-36 items-center p-16 m-4">
+                    <div className="grid grid-cols-2 place-items-center gap-16">
+                        <div className="text-lg font-medium text-slate-800">Portfolio Name</div>
+                        <FormField 
+                            control={form.control}
+                            name="name"
+                            render={({field}) => (
+                                <FormItem>
                                     <FormControl>
-                                        <SelectTrigger className="w-[240px] text-slate-700">
-                                            <SelectValue placeholder="Select one..." />
-                                        </SelectTrigger>
+                                        <Input
+                                            placeholder="My Portfolio"
+                                            className='max-w-[240px]'
+                                            value={field.value}
+                                            onChange={field.onChange}
+                                        />
                                     </FormControl>
-                                    <SelectContent>
-                                        <SelectItem value="individual">Individual</SelectItem>
-                                        <SelectItem value="joint">Joint</SelectItem>
-                                        <SelectItem value="company">Company</SelectItem>
-                                        <SelectItem value="trust">Trust</SelectItem>
-                                        <SelectItem value="Super">Super Fund</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </FormItem>
-                        )}
-                    />
-                    <div className="text-lg font-medium text-slate-800">
-                        What is the objective for this portfolio?
+                                </FormItem>
+                            )}
+                        />
+                        <div className="text-lg font-medium text-slate-800">Investment Entity</div>
+                        <FormField
+                            control={form.control}
+                            name="entity"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <Select
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value}
+                                    >
+                                        <FormControl>
+                                            <SelectTrigger className="w-[240px] text-slate-700">
+                                                <SelectValue placeholder="Select one..." />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="individual">Individual</SelectItem>
+                                            <SelectItem value="joint">Joint</SelectItem>
+                                            <SelectItem value="company">Company</SelectItem>
+                                            <SelectItem value="trust">Trust</SelectItem>
+                                            <SelectItem value="super">Super Fund</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </FormItem>
+                            )}
+                        />
                     </div>
-                    <FormField 
-                        control={form.control}
-                        name="objective"
-                        render={({field}) => (
-                            <ObjectiveSelector handleChange={field.onChange} value={field.value} />
-                        )}
-                    />
-                    <h3 className="text-2xl font-medium">Preferences</h3>
                     <div className="flex flex-col gap-12 items-center">
+                        <h3 className="text-2xl font-medium">Objective</h3>
+                        <FormField 
+                            control={form.control}
+                            name="objective"
+                            render={({field}) => (
+                                <ObjectiveSelector handleChange={field.onChange} value={field.value} />
+                            )}
+                        />
+                    </div>
+                    <div className="flex flex-col gap-12 items-center">
+                        <h3 className="text-2xl font-medium">Preferences</h3>
                         <div className="text-lg text-slate-800">
                             What proportion of your portfolio do you wish to invest in
                             international stocks?
@@ -147,19 +153,18 @@ export const NewPortfolioForm = ({ onSuccess, navigateBack }: NewPortfolioFormPr
                             control={form.control}
                             name="international"
                             render={({ field }) => (
-                                <FormItem className="flex gap-4 justify-stretch">
-                                <span>0</span>
-                                <FormControl>
-                                    <Slider
-                                        min={0}
-                                        max={100}
-                                        step={1}
-                                        defaultValue={[field.value || 50]}
-                                        onValueChange={field.onChange}
-                                        className="w-[240px] cursor-pointer"
-                                    />
-                                </FormControl>
-                                <span>100</span>
+                                <FormItem className="flex gap-4 space-y-0 items-center justify-center">
+                                    <FormControl>
+                                        <Slider
+                                            min={0}
+                                            max={100}
+                                            step={1}
+                                            defaultValue={[field.value || 50]}
+                                            onValueChange={(value: number[]) => field.onChange(value[0])}
+                                            className="w-[240px] cursor-pointer"
+                                        />
+                                    </FormControl>
+                                    <div className="font-semibold">{field.value || 50}</div>
                                 </FormItem>
                             )}
                         />
@@ -171,105 +176,155 @@ export const NewPortfolioForm = ({ onSuccess, navigateBack }: NewPortfolioFormPr
                             control={form.control}
                             name="active"
                             render={({ field }) => (
-                                <FormItem className="flex gap-4 justify-stretch">
-                                <span>0</span>
-                                <FormControl>
-                                    <Slider
-                                        min={0}
-                                        max={100}
-                                        step={1}
-                                        defaultValue={[field.value || 50]}
-                                        onValueChange={field.onChange}
-                                        className="w-[240px] cursor-pointer"
-                                    />
-                                </FormControl>
-                                <span>100</span>
+                                <FormItem className="flex gap-4 space-y-0 items-center justify-center">
+                                    <FormControl>
+                                        <Slider
+                                            min={0}
+                                            max={100}
+                                            step={1}
+                                            defaultValue={[field.value || 50]}
+                                            onValueChange={(value: number[]) => field.onChange(value[0])}
+                                            className="w-[240px] cursor-pointer"
+                                        />
+                                    </FormControl>
+                                    <div className="font-semibold">{field.value || 50}</div>
                                 </FormItem>
                             )}
                         />
-                    </div>
-                    <div className="text-lg text-slate-800">
-                        Do you have any industry preferences?
-                    </div>
-                    <FormField
-                        control={form.control}
-                        name="preferences"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormControl>
-                            <IndustryPreferences
-                                handleChange={field.onChange}
-                                value={field.value}
-                            />
-                            </FormControl>
-                        </FormItem>
-                        )}
-                    />
-                    <div className="text-lg font-medium text-slate-800">
-                        Would you like us to make a recommendation for this portfolio?
-                    </div>
-                    <div className="flex gap-8">
-                        <Button
-                            type="button"
-                            variant='ghost'
-                            onClick={() => setIsExistingPortfolio(!isExistingPortfolio)}
-                        >
-                            <div className="h-4 w-4 rounded-full border flex items-center justify-center mr-2">
-                                <LuCircle className={cn(
-                                    "h-2.5 w-2.5 hidden",
-                                    !isExistingPortfolio && "block fill-slate-700"
-                                )}/>
-                            </div>
-                            Yes please
-                        </Button>
-                        <Button
-                            type="button"
-                            variant='ghost'
-                            onClick={() => setIsExistingPortfolio(!isExistingPortfolio)}
-                        >
-                            <div className="h-4 w-4 rounded-full border flex items-center justify-center mr-2">
-                                <LuCircle className={cn(
-                                    "h-2.5 w-2.5 hidden",
-                                    isExistingPortfolio && "block fill-slate-700"
-                                )}/>
-                            </div>
-                            No, I have an existing portfolio
-                        </Button>
-                    </div>
-                    {isExistingPortfolio ? (
-                    <FormField 
-                        control={form.control}
-                        name="holdings"
-                        render={({field}) => (
-                            <PortfolioEditor onChange={field.onChange} />
-                        )}
-                    />
-                    ) : (
-                    <>
-                        <div className="text-lg font-medium text-slate-800">
-                            What is the intended value of this portfolio?
+                        <div className="text-lg text-slate-800">
+                            Do you have any industry preferences?
                         </div>
-                        <FormField 
+                        <FormField
                             control={form.control}
-                            name="value"
-                            render={({field}) => (
-                                <FormItem className="flex gap-2 items-center">
-                                    <div className="mt-2">$</div>
-                                    <FormControl>
-                                        <Input
-                                            type="number"
-                                            min={0}
-                                            placeholder="e.g. 10,000"
-                                            className='max-w-[25%] min-w-[200px]'
-                                            value={field.value}
-                                            onChange={field.onChange}
-                                        />
-                                    </FormControl>
-                                </FormItem>
+                            name="preferences"
+                            render={({ field }) => (
+                            <FormItem className="max-w-[560px]">
+                                <FormControl>
+                                    <IndustryPreferences
+                                        handleChange={field.onChange}
+                                        value={field.value}
+                                    />
+                                </FormControl>
+                            </FormItem>
                             )}
-                        />                        
-                    </>
-                    )}
+                        />
+                    </div>
+                    <div className="flex flex-col gap-12 items-center">
+                        <div className="text-lg font-medium text-slate-800">
+                            Would you like to link this portfolio to a broker?
+                        </div>
+                        <div className="flex gap-8">
+                            <Button
+                                type="button"
+                                variant='ghost'
+                                onClick={() => setIsLinkedPortfolio(true)}
+                            >
+                                <div className="h-4 w-4 rounded-full border flex items-center justify-center mr-2">
+                                    <LuCircle
+                                        className={cn(
+                                            "h-2.5 w-2.5 hidden",
+                                            isLinkedPortfolio && "block fill-slate-700"
+                                        )}
+                                    />
+                                </div>
+                                Yes
+                            </Button>
+                            <Button
+                                type="button"
+                                variant='ghost'
+                                onClick={() => setIsLinkedPortfolio(false)}
+                            >
+                                <div className="h-4 w-4 rounded-full border flex items-center justify-center mr-2">
+                                    <LuCircle
+                                        className={cn(
+                                            "h-2.5 w-2.5 hidden",
+                                            !isLinkedPortfolio && "block fill-slate-700"
+                                        )}
+                                    />
+                                </div>
+                                No
+                            </Button>
+                        </div>
+                        {isLinkedPortfolio ? (
+                        <div className="h-20 flex items-center">
+                            <FormField 
+                                control={form.control}
+                                name="publicToken"
+                                render={({ field }) => (
+                                    <LinkBroker onSuccess={(publicToken: string) => console.log(publicToken)} />
+                                )}
+                            />
+                        </div>
+                        ) : (
+                        <>
+                            <div className="text-lg font-medium text-slate-800">
+                                Would you like us to make a recommendation for this portfolio?
+                            </div>
+                            <div className="flex gap-8">
+                                <Button
+                                    type="button"
+                                    variant='ghost'
+                                    onClick={() => setIsExistingPortfolio(!isExistingPortfolio)}
+                                >
+                                    <div className="h-4 w-4 rounded-full border flex items-center justify-center mr-2">
+                                        <LuCircle className={cn(
+                                            "h-2.5 w-2.5 hidden",
+                                            !isExistingPortfolio && "block fill-slate-700"
+                                        )}/>
+                                    </div>
+                                    Yes please
+                                </Button>
+                                <Button
+                                    type="button"
+                                    variant='ghost'
+                                    onClick={() => setIsExistingPortfolio(!isExistingPortfolio)}
+                                >
+                                    <div className="h-4 w-4 rounded-full border flex items-center justify-center mr-2">
+                                        <LuCircle className={cn(
+                                            "h-2.5 w-2.5 hidden",
+                                            isExistingPortfolio && "block fill-slate-700"
+                                        )}/>
+                                    </div>
+                                    No, add investments manually
+                                </Button>
+                            </div>
+                            {isExistingPortfolio ? (
+                            <FormField 
+                                control={form.control}
+                                name="holdings"
+                                render={({field}) => (
+                                    <PortfolioEditor onChange={field.onChange} />
+                                )}
+                            />
+                            ) : (
+                            <>
+                                <div className="text-lg font-medium text-slate-800">
+                                    What is the intended value of this portfolio?
+                                </div>
+                                <FormField 
+                                    control={form.control}
+                                    name="value"
+                                    render={({field}) => (
+                                        <FormItem className="flex gap-2 items-center">
+                                            <div className="mt-2">$</div>
+                                            <FormControl>
+                                                <Input
+                                                    type="number"
+                                                    min={0}
+                                                    placeholder="e.g. 10,000"
+                                                    className='max-w-[25%] min-w-[200px]'
+                                                    value={field.value}
+                                                    onChange={field.onChange}
+                                                />
+                                            </FormControl>
+                                        </FormItem>
+                                    )}
+                                />                        
+                            </>
+                            )}
+                        </>
+                        )}
+                    </div>
                 </Card>
                 <div className="w-full flex justify-between mt-6">
                     <Button 

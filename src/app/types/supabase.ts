@@ -83,7 +83,7 @@ export interface Database {
         Row: {
           active: number | null
           created_at: string
-          entity: string | null
+          entity: string
           flat_brokerage: number
           id: string
           international: number | null

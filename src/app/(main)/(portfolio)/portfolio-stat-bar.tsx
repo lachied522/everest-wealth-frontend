@@ -74,7 +74,7 @@ const TotalReturn = ({ portfolio }: { portfolio: PortfolioData }) => {
     }, [portfolio.holdings]);
     
     const change = useMemo(() => {
-        if (totalCost > 0) return (portfolio.totalValue / totalCost) - 1;
+        if (totalCost > 0) return 100*((portfolio.totalValue / totalCost) - 1);
         return 0;
     }, [portfolio.totalValue, totalCost]);
 
@@ -114,7 +114,7 @@ export default function PortfolioStatBar() {
                     <>
                         <LuTarget 
                             className="w-8 h-8"
-                            color="#1d4ed8"
+                            color="#3b82f6"
                         />
                         <div>
                             <div className="text-sm font-medium">Objective</div>
@@ -130,7 +130,7 @@ export default function PortfolioStatBar() {
                     <>
                         <LuDollarSign 
                             className="w-8 h-8"
-                            color="#1d4ed8"
+                            color="#3b82f6"
                         />
                         <div>
                             <div className="text-sm font-medium">Value</div>

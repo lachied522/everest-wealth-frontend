@@ -25,7 +25,7 @@ interface FormData {
 
 export const NewUserForm = () => {
     const router = useRouter()
-    const [activeTab, setActiveTab] = useState(1)
+    const [activeTab, setActiveTab] = useState<number>(1)
     const [loading, setLoading] = useState(false)
     const [formData, setFormData] = useState<FormData>({
         profile: {},
@@ -40,6 +40,8 @@ export const NewUserForm = () => {
         })
         // navigate to next tab
         setActiveTab(2)
+        // scroll to top of screen
+        window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
     }
 
     function onPortfolioSubmit(values: z.infer<typeof PortfolioSchema>) {
@@ -62,6 +64,13 @@ export const NewUserForm = () => {
         .catch((err) => console.log(err));
     }
 
+    const navigateBack = () => {
+        // navigate to next tab
+        setActiveTab((currentTab) => Math.max(currentTab - 1, 1));
+        // scroll to top of screen
+        window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+    }
+
     return (
         <>
             <div className="grid grid-cols-3">
@@ -81,7 +90,7 @@ export const NewUserForm = () => {
             {activeTab === 1 ? (
             <NewProfileForm onSuccess={onProfileSubmit} />
             ) : activeTab === 2 ? (
-            <NewPortfolioForm onSuccess={onPortfolioSubmit} navigateBack={() => setActiveTab(1)}/>
+            <NewPortfolioForm onSuccess={onPortfolioSubmit} navigateBack={navigateBack}/>
             ) : null}
         </>
     );

@@ -71,7 +71,6 @@ export const searchUniverse = async (q: string) => {
   await connect();
 
   try {
-      const query = q.toLocaleUpperCase();
       const results = await universeRepository.search()
           .where('symbol').match(q, { fuzzyMatching: true } )
           .or('name').match(q, { fuzzyMatching: true })
@@ -112,8 +111,12 @@ function parseData(data: Data) {
   // convert any numbers to Number type
   for (const key in data) {
     const value = data[key as keyof Data];
-    if (value) {
-      parsedData[key] = !isNaN(Number(value))? Number(value): value
+    if (value==='None') {
+      parsedData[key] = null;
+    } else if (!isNaN(Number(value))) {
+      parsedData[key] = Number(value);
+    } else {
+      parsedData[key] = value;
     }
   }
   // convert to boolean

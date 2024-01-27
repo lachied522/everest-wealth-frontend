@@ -1,16 +1,18 @@
 "use client";
-import { useState } from "react";
 import Link from "next/link";
 
 import { BiBriefcaseAlt } from "react-icons/bi";
 import { 
     LuTarget,
     LuDollarSign,
-    LuArrowUpRight, 
-    LuArrowDownRight,
     LuFileLineChart,
     LuFileBarChart,
     LuPlus,
+    LuUser2,
+    LuFactory,
+    LuUsers2,
+    LuScrollText,
+    LuPiggyBank,
 } from "react-icons/lu";
 
 import { Button } from "@/components/ui/button";
@@ -20,19 +22,32 @@ import NewPortfolioPopup from "@/components/modals/new-portfolio-popup";
 
 import type { PortfolioData } from "@/types/types";
 
-const ChangeIndicator = ({ change }: { change: number }) => {
+
+const EntityMap: { [key: string]: typeof LuUser2 } = {
+    individual: LuUser2,
+    joint: LuUsers2,
+    company: LuFactory,
+    trust: LuScrollText,
+    super: LuPiggyBank,
+}
+
+const PortfolioEntityIndicator = ({ entity } : { entity: string }) => {
+    let Icon;
+    if (EntityMap.hasOwnProperty(entity)) {
+        Icon = EntityMap[entity]
+    } else {
+        Icon = LuUser2
+    };
+
     return (
-        <div className="flex items-end">
-            <div className="text-lg text-slate-800 font-bold mr-1">4.5K</div>
-            <div className="text-100 medium mg-bottom-4px">
-                <div className="flex">
-                    <div className={change > 0? "text-green-600": "text-red-400"}>{change}%</div>
-                    {change > 0 ? (
-                    <LuArrowUpRight className="text-green-600"/>
-                    ) : (
-                    <LuArrowDownRight className="text-red-400"/>
-                    )}
-                </div>
+        <div className="flex items-center gap-2">
+            <Icon
+                size={24}
+                color="#1d4ed8"
+            />
+            <div>
+                <div className="text-sm font-medium">Entity</div>
+                <div className="text-xs text-slate-800 font-bold mr-1">{entity.charAt(0).toUpperCase() + entity.slice(1)}</div>
             </div>
         </div>
     )
@@ -41,23 +56,26 @@ const ChangeIndicator = ({ change }: { change: number }) => {
 const PortfolioListItem = ({ portfolio }: { portfolio: PortfolioData }) => {
 
     return (
-        <div className="grid items-end justify-start md:grid-cols-2 gap-2">
-            <div className="flex flex-col items-stretch gap-2">
+        <div className="grid grid-cols-1 xl:grid-cols-2 justify-stretch gap-12">
+            <div className="flex flex-col items-stretch justify-end gap-2">
                 <div className="text-lg font-medium text-slate-700">{portfolio.name}</div>
-                <div className="grid grid-cols-2 gap-2 pl-2">
-                    <div className="flex items-center gap-2">
+                <div className="flex gap-12 pl-2">
+                    <div className="grid grid-cols-[32px_1fr] items-center gap-2">
                         <LuTarget 
-                            className="w-5 h-5"
+                            size={24}
                             color="#1d4ed8"
                         />
                         <div>
                             <div className="text-sm font-medium">Objective</div>
-                            <div className="w-[180px] text-xs font-bold text-slate-800 text-wrap">{portfolio.objective}</div>
+                            <div className="max-w-[160px] text-xs font-bold text-slate-800 truncate">{portfolio.objective}</div>
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
+                        <PortfolioEntityIndicator entity={portfolio.entity} />
+                    </div>
+                    <div className="flex items-center gap-2">
                         <LuDollarSign
-                            className="w-5 h-5"
+                            size={24}
                             color="#1d4ed8"
                         />
                         <div>
@@ -67,7 +85,7 @@ const PortfolioListItem = ({ portfolio }: { portfolio: PortfolioData }) => {
                     </div>
                 </div>
             </div>
-            <div className="flex justify-center gap-2 md:justify-self-end">
+            <div className="flex items-end justify-center gap-2 justify-self-start xl:justify-self-end">
                 <Link href={`/portfolio/${portfolio.id}`} className="no-underline">
                     <Button variant='ghost' size='sm' className="flex text-slate-700 gap-2">
                         <BiBriefcaseAlt />
@@ -93,14 +111,13 @@ const PortfolioListItem = ({ portfolio }: { portfolio: PortfolioData }) => {
 
 export default function UserPortfolioList() {
     const { portfolioData } = useGlobalContext() as GlobalState;
-    const [visibleIndex, setVisibleIndex] = useState(2);
     
     return (
-        <>
+        <div className="flex flex-col gap-6">
             <div className="flex items-center justify-between">
-                <div className="text-xl font-medium text-slate-800 mb-0">
+                <h4 className="text-xl font-medium text-slate-800 mb-0">
                     My Portfolios
-                </div>
+                </h4>
                 <NewPortfolioPopup>
                     <Button>
                         <LuPlus
@@ -118,6 +135,6 @@ export default function UserPortfolioList() {
                     />
                 ))}
             </div>
-        </>
+        </div>
     );
 }

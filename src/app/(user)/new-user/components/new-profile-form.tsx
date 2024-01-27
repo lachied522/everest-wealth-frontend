@@ -56,8 +56,6 @@ export const NewProfileForm = ({ onSuccess } : NewProfileFormProps) => {
 
     function onSubmit(values: z.infer<typeof FormSchema>) {
         onSuccess(values);
-        // scroll to top of screen
-        window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
     }
     
     return (

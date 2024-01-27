@@ -248,7 +248,7 @@ export default function PortfolioSettingsPopup() {
                                                             <SelectItem value="joint">Joint</SelectItem>
                                                             <SelectItem value="company">Company</SelectItem>
                                                             <SelectItem value="trust">Trust</SelectItem>
-                                                            <SelectItem value="Super">Super Fund</SelectItem>
+                                                            <SelectItem value="super">Super Fund</SelectItem>
                                                         </SelectContent>
                                                     </Select>
                                                 </FormItem>

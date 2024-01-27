@@ -88,7 +88,7 @@ export const AICompanionProvider = ({ children }: { children: React.ReactNode })
             // remove message after three seconds
             setTimeout(() => {
                 setToast(null);
-            }, 3000);
+            }, 10000);
             // update toast history
             setToastHistory((prevArray) => [...prevArray, m]);
         }

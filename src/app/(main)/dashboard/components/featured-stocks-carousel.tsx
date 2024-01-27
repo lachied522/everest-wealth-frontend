@@ -1,11 +1,6 @@
 "use client";
 import { useState } from "react";
 
-import Link from "next/link";
-
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { LuArrowRightCircle, LuArrowLeftCircle } from "react-icons/lu";
-
 import StockCard from "./stock-card";
 
 interface FeaturedStocksCarouselProps {

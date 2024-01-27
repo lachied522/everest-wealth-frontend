@@ -55,14 +55,14 @@ export default function PortfolioTable<TData, TValue>({
 }: PortfolioTableProps<TData, TValue>) {
     const { toggleFavourite } = useGlobalContext() as GlobalState;
     const { currentPortfolio } = usePortfolioContext() as PortfolioState;
-    const [sorting, setSorting] = useState<SortingState>([]);
+    const [sorting, setSorting] = useState<SortingState>([{
+        id: 'symbol', desc: false,
+    }]);
 
     if (!currentPortfolio) throw new Error('currentPortfolio undefined');
 
-    const data = useMemo(() => currentPortfolio.holdings, [currentPortfolio.holdings]);
-
     const table = useReactTable({
-        data: data as TData[],
+        data: currentPortfolio.holdings as TData[],
         columns,
         getCoreRowModel: getCoreRowModel(),
         onSortingChange: setSorting,
@@ -95,9 +95,9 @@ export default function PortfolioTable<TData, TValue>({
                 ))}
                 </TableHeader>
                 <TableBody>
-                {data ? (
+                {currentPortfolio.holdings ? (
                     <>
-                    {data.length > 0 ? (
+                    {currentPortfolio.holdings.length > 0 ? (
                         table.getRowModel().rows.map((row) => (
                         <TableRow
                             key={row.id}

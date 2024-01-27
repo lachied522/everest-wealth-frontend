@@ -80,9 +80,9 @@ export default function PerformanceTabs({
                 <Card className='w-full'>
                     <CardContent className='flex flex-col items-center justify-center p-6 gap-6'>
                         {currentTab===TABS[0] ? (
-                        <PerformanceChart data={performance} benchmark={benchmark} name={currentPortfolio.name} />
+                        <PerformanceChart data={performance} benchmark={benchmark} name="Mock Data" />
                         ) : currentTab===TABS[1] ? (
-                        <DividendChart data={dividends} />
+                        <DividendChart data={dividends} name="Mock Data" />
                         ) : null}
                         <PerformanceSummaryTable performance={performance} dividends={dividends} />
                     </CardContent>

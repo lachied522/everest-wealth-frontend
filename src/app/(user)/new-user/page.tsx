@@ -4,9 +4,9 @@ import { cookies } from 'next/headers';
 import Link from "next/link";
 import Image from "next/image";
 
-import { Database } from '@/types/supabase';
-
 import { NewUserForm } from './components/new-user-tabs';
+
+import type{ Database } from '@/types/supabase';
 
 export default async function NewUserPage() {
     const cookieStore = cookies();
@@ -15,8 +15,6 @@ export default async function NewUserPage() {
     const {
         data: { user },
     } = await supabase.auth.getUser();
-
-    console.log(user);
 
     return (
         <>

@@ -24,7 +24,7 @@ export default function AICompanionTrigger() {
             </div>
             <AICompanionPopup>
                 <div className={cn(
-                    toast && "flex items-center gap-2"
+                    toast && "flex items-center justify-center gap-2"
                 )}>
                     <div className={cn(
                         "text-lg text-slate-800 font-medium translate-x-full transition-transform duration-300 ease-in-out",
