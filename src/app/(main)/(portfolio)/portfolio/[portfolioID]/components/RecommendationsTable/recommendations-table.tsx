@@ -141,13 +141,13 @@ export default function RecommendationsTable<TData>() {
         .then((res) => res.json())
         .then(({ data }: { data: PopulatedHolding[] }) => {
             if (data.length > 0) updatePortfolio(data);
-
+            // switch back to overview tab
             navigateToOverview();
             // update advice status
             setAdviceStatus('actioned');
         })
         .catch(err => console.log(err));
-    }, [adviceData?.id, selectedData, updatePortfolio, navigateToOverview, setAdviceStatus]);
+    }, [adviceData, selectedData, updatePortfolio, navigateToOverview, setAdviceStatus]);
 
     const gross = useMemo(() => {;
         if (!selectedData.length) return 0;

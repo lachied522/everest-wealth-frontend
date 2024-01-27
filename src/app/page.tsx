@@ -58,7 +58,7 @@ export default async function Home() {
       </div>
       <div className="h-[50vh] md:h-[90vh] relative bg-gradient-to-b from-transparent from-70% to-white">
         <div className="bg-[url('/landing-page/hero-background-image.jpg')] bg-cover bg-center opacity-[0.32] absolute inset-0 -z-10 lg:bg-[center_top_25%]" />
-        <div className="grid grid-cols-2 items-center justify-items-center p-36 lg:p-56 inset-y-0 absolute">
+        <div className="grid grid-cols-1 xl:grid-cols-2 items-center justify-items-center p-36 xl:p-56 inset-y-0 absolute">
           <h1 className="text-5xl font-semibold text-slate-900 drop-shadow-md lg:text-7xl">Investment Advice Shouldn&apos;t Break the Bank</h1>
           <div className="max-w-[60%] flex flex-col items-center justify-center gap-6">
             <p className="text-lg font-medium drop-shadow-md">
@@ -120,71 +120,63 @@ export default async function Home() {
           ))}
         </ol>
       </div>
-      <div className="flex flex-col items-center justify-center bg-blue-300 px-24 py-48 lg:px-36">
+      <div className="flex flex-col items-center justify-center bg-blue-300 px-24 py-48 lg:px-36 gap-24">
         <h2 className="text-3xl font-medium mb-24">The Solution</h2>
-        <div className="grid grid-cols-2 lg:grid-cols-4 items-center justify-items-center gap-12 lg:gap-24">
-            <div className="flex items-center justify-center gap-6">
+        <div className="grid grid-cols-[repeat(2,90px_1fr)] items-center justify-items-center px-48 gap-12 mb-12">
+            <Image 
+              src="/landing-page/investment-icon.png"
+              alt="Investment"
+              width={75}
+              height={75}
+            />
+            <p className="text-lg">A platform that provides both passive and on-demand, personal investment advice.</p>
               <Image 
-                src="/landing-page/investment-icon.png"
-                alt="Investment"
-                width={55}
-                height={55}
+                src="/landing-page/tablet-icon.png"
+                alt="Tablet Screen"
+                width={78}
+                height={78}
               />
-              <p>A platform that provides both passive and on-demand, personal investment advice.</p>
-            </div>
-            <div className="flex items-center justify-center gap-6">
-                <Image 
-                  src="/landing-page/tablet-icon.png"
-                  alt="Tablet Screen"
-                  width={58}
-                  height={58}
-                />
-              <p>Users can stay involved in managing your investments, or not!</p>
-            </div>
-            <div className="flex items-center justify-center gap-6">
-                <Image 
-                  src="/landing-page/affordable-icon.png"
-                  alt="Affordable"
-                  width={70}
-                  height={70}
-                />
-              <p>Access quicker and more affordable than a traditional adviser.</p>
-            </div>
-            <div className="flex items-center justify-center gap-6">
-                <Image 
-                  src="/landing-page/hand-shake.png"
-                  alt="Handshake"
-                  width={70}
-                  height={70}
-                />
-              <p>Eliminate conflicts of interest associated with traditional advisers.</p>
-            </div>
+            <p className="text-lg">Users can stay involved in managing their investments, or not!</p>
+              <Image 
+                src="/landing-page/affordable-icon.png"
+                alt="Affordable"
+                width={88}
+                height={88}
+              />
+            <p className="text-lg">Quicker and more affordable than a traditional adviser.</p>
+              <Image 
+                src="/landing-page/hand-shake.png"
+                alt="Handshake"
+                width={88}
+                height={88}
+              />
+            <p className="text-lg">No conflicts of interest associated with traditional advisers.</p>
         </div>
       </div>
-      <div className="bg-white p-36 lg:p-48">
+      <div className="bg-white p-36">
         <div className="grid grid-cols-2 place-items-center">
-            <div className="max-w-[60%] flex flex-col items-start gap-4">
-              <div className="flex items-center">
-                  <LuLink size={32} className="mr-2" />
-                  <h3 className="text-2xl">Link Your Existing Broker</h3>
-              </div>
-              <p>We integrate with a range of discount brokers, so users can start receiving advice straight away.</p>
-              <Button className="mt-4">
-                <a href="" className="no-underline">View Available Brokers</a>
-              </Button>
+          <div className="max-w-[60%] flex flex-col items-start gap-4">
+            <div className="flex items-center">
+                <LuLink size={32} className="mr-2" />
+                <h3 className="text-2xl">Link Your Existing Broker</h3>
             </div>
-            <Image 
-              src="/landing-page/iphone-transparent-background.png"
-              alt="iPhone"
-              width={360}
-              height={360}
-            />
+            <p className="text-lg">We are not a broker! We integrate with your existing accounts, so it&apos;s easy to get started.</p>
+            <Button className="mt-4">
+              <a href="" className="no-underline">View Available Brokers</a>
+            </Button>
+          </div>
+          <Image 
+            src="/landing-page/iphone-transparent-background.png"
+            alt="iPhone"
+            width={360}
+            height={360}
+          />
         </div>
       </div>
       <div className="flex flex-col items-center justify-center bg-white px-24 lg:px-36 py-36">
         <div className="max-w-[60%] flex flex-col text-center gap-4 mb-24">
           <h2 className="text-3xl font-medium">Where We Sit</h2>
-          <p>We aim to provide the same personalised investment experience as a traditional broker at the cost of a discount broker.</p>
+          <p className="text-lg">We aim to provide the same personalised investment experience as a traditional broker at the cost of a discount broker.</p>
         </div>
         <Image 
           src="/landing-page/where-we-sit.png"
@@ -193,7 +185,35 @@ export default async function Home() {
           height={465}
         />
       </div>
-      <div className="w-full h-20 flex items-center justify-center bg-slate-200">
+      <div className="bg-white p-56">
+        <div className="grid grid-cols-2 place-items-center">
+          <div className="max-w-[60%] flex flex-col items-center gap-6">
+            <div className="flex flex-col gap-4 mb-6">
+              <h2 className="text-3xl font-medium">Start Receiving Advice for Free</h2>
+              <p className="text-lg">No credit card required.</p>
+            </div>
+            <div className="flex gap-4">
+              <Link href='/login'>
+                <Button variant="secondary">
+                  Login
+                </Button>
+              </Link>
+              <Link href='/signup'>
+                <Button>
+                  Try Free
+                </Button>
+              </Link>
+            </div>
+          </div>
+          <Image 
+            src=""
+            alt="Compound returns on investment"
+            width={100}
+            height={100}
+          />
+        </div>
+      </div>
+      <div className="w-full h-32 flex items-center justify-center bg-slate-300">
           Footer
       </div>
     </main>

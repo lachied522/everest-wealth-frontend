@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useContext, useState, useEffect, useRef, useCallback } from "react";
+import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { usePathname } from "next/navigation";
 
 import { usePortfolioContext, PortfolioState } from "@/context/PortfolioState";
@@ -62,37 +62,28 @@ export const AICompanionProvider = ({ children }: { children: React.ReactNode })
     const [isLoading, setIsLoading] = useState<boolean>(false); // loading new message
     const [isDisabled, setIsDisabled] = useState<boolean>(false);
     const [portfolioID, setPortfolioID] = useState<string | undefined>(); // id of portfolio that conversation relates to
-    const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const { currentPortfolio } = usePortfolioContext() as PortfolioState;
 
+    const newToast = useCallback((m: string) => {
+        if (toastHistory.includes(m)) return; // prevent showing same message to user more than once 
+        setToast(m);
+        // remove message after three seconds
+        setTimeout(() => {
+            setToast(null);
+        }, 10000);
+        // update toast history
+        setToastHistory((prevArray) => [...prevArray, m]);
+    }, [toastHistory, setToast, setToastHistory]);
+
     useEffect(() => {
-        if (!timerRef.current) {
-            if (pathname.startsWith('/dashboard')) {
-                newMessage('What happened in the market today?');
-            } else if (pathname.startsWith('/symbol')) {
-                const symbol = pathname.split('/').at(-1);
-                newMessage(`Should I invest in ${symbol}?`);
-            }
+        if (pathname.startsWith('/dashboard')) {
+            newToast('What happened in the market today?');
+        } else if (pathname.startsWith('/symbol')) {
+            const symbol = pathname.split('/').at(-1);
+            newToast(`Should I invest in ${symbol}?`);
         }
-
-        return () => {
-            if (timerRef.current) {
-                clearTimeout(timerRef.current);
-            }
-        }
-
-        function newMessage(m: string) {
-            if (toastHistory.includes(m)) return; // prevent showing same message to user more than once 
-            setToast(m);
-            // remove message after three seconds
-            setTimeout(() => {
-                setToast(null);
-            }, 10000);
-            // update toast history
-            setToastHistory((prevArray) => [...prevArray, m]);
-        }
-    }, [pathname, setToast]);
+    }, [pathname, newToast]);
 
     useEffect(() => {
         if (currentPortfolio) setPortfolioID(currentPortfolio.id);

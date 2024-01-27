@@ -39,7 +39,7 @@ const DayReturn = ({ portfolio }: { portfolio: PortfolioData }) => {
     const change = useMemo(() => {
         if (portfolio.totalValue > 0) return 100*(dollarChange / portfolio.totalValue);
         return 0;
-    }, [portfolio.totalValue]);
+    }, [portfolio.totalValue, dollarChange]);
 
     return (
         <div className="flex items-center">
