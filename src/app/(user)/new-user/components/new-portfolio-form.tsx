@@ -27,8 +27,8 @@ import { LuCircle } from "react-icons/lu"
 import { BiBriefcaseAlt } from "react-icons/bi";
 import { cn } from "@/components/lib/utils"
 
-import IndustryPreferences from "@/components/industry-preferences"
-import ObjectiveSelector from "@/components/objective-selector"
+import IndustryPreferences from "@/components/custom/industry-preferences"
+import ObjectiveSelector from "@/components/custom/objective-selector"
 
 import PortfolioEditor from "./portfolio-editor";
 import LinkBroker from "./link-broker";

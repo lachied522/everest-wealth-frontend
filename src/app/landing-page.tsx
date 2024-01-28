@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 
 import { LuGlobe, LuLink } from 'react-icons/lu';
 
-import Logo from '@/components/logo';
+import Logo from 'src/app/logo';
 
 import type { Database } from '@/types/supabase';
 

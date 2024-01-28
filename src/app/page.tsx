@@ -8,7 +8,8 @@ import { Button } from '@/components/ui/button';
 
 import { LuLink } from 'react-icons/lu';
 
-import Logo from '@/components/logo';
+import Logo from './logo';
+import Footer from './footer';
 
 import type { Database } from '@/types/supabase';
 
@@ -213,9 +214,7 @@ export default async function Home() {
           />
         </div>
       </div>
-      <div className="w-full h-32 flex items-center justify-center bg-slate-300">
-          Footer
-      </div>
+      <Footer />
     </main>
   )
 }

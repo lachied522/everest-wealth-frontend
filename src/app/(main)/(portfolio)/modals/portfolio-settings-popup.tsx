@@ -37,10 +37,10 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 import { cn } from "@/components/lib/utils";
 
-import IndustryPreferences from "@/components/industry-preferences";
+import IndustryPreferences from "@/components/custom/industry-preferences";
 
-import { GlobalState, useGlobalContext } from "@/context/GlobalState";
-import { PortfolioState, usePortfolioContext } from "../../context/PortfolioState";
+import { useGlobalContext, GlobalState } from "@/context/GlobalState";
+import { usePortfolioContext, PortfolioState } from "@/context/PortfolioState";
 
 import type { PortfolioData } from "@/types/types";
 
