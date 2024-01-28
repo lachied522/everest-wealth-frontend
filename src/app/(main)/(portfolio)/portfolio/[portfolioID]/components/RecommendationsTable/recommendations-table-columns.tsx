@@ -19,7 +19,7 @@ export type Transaction = {
     units: number;
     price: number;
     brokerage: number;
-    transaction: string;
+    direction: "Buy" | "Sell";
     value: number;
 }
 
@@ -80,13 +80,13 @@ function AdviceTableColumnHeader<TData, TValue> ({
 
 export const columns: ColumnDef<Transaction, any>[] = [
     {
-      accessorKey: 'transaction',
+      accessorKey: 'direction',
       header: ({ column }) => (
         <div className="ml-8" >Transaction</div>
       ),
       cell: ({ row }) => (
           <div className="ml-8">
-            <Badge type={String(row.getValue('transaction'))}/>
+            <Badge type={String(row.getValue('direction'))}/>
           </div>
       )
     },
@@ -108,9 +108,6 @@ export const columns: ColumnDef<Transaction, any>[] = [
         header: ({ column }) => (
           <div>Name</div>
         ),
-        cell: ({ row }) => (
-          <div className="flex justify-start">{row.getValue('name')}</div>
-        )
     },
     {
         accessorKey: 'units',

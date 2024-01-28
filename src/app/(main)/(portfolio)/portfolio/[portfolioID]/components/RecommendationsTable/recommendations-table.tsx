@@ -8,10 +8,9 @@ import Link from "next/link";
 
 import {
     ColumnDef,
-    SortingState,
+    RowSelectionState,
     flexRender,
     getCoreRowModel,
-    getSortedRowModel,
     useReactTable,
 } from "@tanstack/react-table";
 
@@ -41,36 +40,33 @@ const USDollar = new Intl.NumberFormat("en-US", {
 });
 
 function populateTransactionsData(transactions: Tables<'recom_transactions'>[]) {
-    // populate columns
-    if (!(transactions?.length > 0)) return [];
-
-    const populatedTransactions = transactions.map((obj) => {
+    return transactions.map((obj) => {
         const price = obj.price || 0;
         const units = obj.units || 0;
         const value = (price * units).toFixed(2);
         const net = obj.brokerage? (price * units - obj.brokerage).toFixed(2): value;
 
-        const transaction = units > 0? "Buy" : "Sell";
+        const direction = units > 0? "Buy" : "Sell";
 
-        return { ...obj, transaction, value, net};
+        return { ...obj, direction, value, net};
     });
-
-    return populatedTransactions;
 }
 
 export default function RecommendationsTable<TData>() {
     const { setPortfolio, setAdvice } = useGlobalContext() as GlobalState;
     const { currentPortfolio } = usePortfolioContext() as PortfolioState;
-    const [sorting, setSorting] = useState<SortingState>([]);
-    const [rowSelection, setRowSelection] = useState({})
+    const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
     const router = useRouter();
 
     if (!currentPortfolio) throw new Error('currentPortfolio undefined');
 
-    const adviceData = useMemo(() => {
+    const populatedData = useMemo(() => {
         const advice = currentPortfolio.advice[0];
         if (advice && !(advice.status==="actioned")) {
-            return advice;
+            return {
+                ...advice,
+                recom_transactions: populateTransactionsData(advice.recom_transactions),
+            };
         }
         return;
     }, [currentPortfolio.advice]);
@@ -78,17 +74,14 @@ export default function RecommendationsTable<TData>() {
     useEffect(() => {
         // reset row selection on change in data
         setRowSelection({});
-    }, [adviceData]);
+    }, [populatedData]);
 
     const table = useReactTable({
-        data: populateTransactionsData(adviceData?.recom_transactions || []),
+        data: populatedData? populatedData.recom_transactions: [],
         columns: columns as ColumnDef<TData | any>[],
         getCoreRowModel: getCoreRowModel(),
-        onSortingChange: setSorting,
-        getSortedRowModel: getSortedRowModel(),
         onRowSelectionChange: setRowSelection,
         state: {
-          sorting,
           rowSelection,
         },
     });
@@ -132,7 +125,7 @@ export default function RecommendationsTable<TData>() {
             method: "POST",
             body: JSON.stringify({
                 data,
-                advice_id: adviceData!.id,
+                advice_id: populatedData!.id,
             }),
             headers: {
                 "Content-Type": "application/json",
@@ -147,9 +140,9 @@ export default function RecommendationsTable<TData>() {
             setAdviceStatus('actioned');
         })
         .catch(err => console.log(err));
-    }, [adviceData, selectedData, updatePortfolio, navigateToOverview, setAdviceStatus]);
+    }, [populatedData, selectedData, updatePortfolio, navigateToOverview, setAdviceStatus]);
 
-    const gross = useMemo(() => {;
+    const gross = useMemo(() => {
         if (!selectedData.length) return 0;
         return selectedData.reduce((acc, obj) => acc + (Number(obj["units" as keyof typeof obj] || 0) * Number(obj["price" as keyof typeof obj] || 0)), 0)
     }, [selectedData]);
@@ -161,16 +154,16 @@ export default function RecommendationsTable<TData>() {
 
     return (
         <>
-            {adviceData ? (
+            {populatedData ? (
             <>
                 <div className="flex justify-between mb-3">
-                    {adviceData.status==='generating' ? (
+                    {populatedData.status==='generating' ? (
                     <Button variant="ghost" disabled className="flex items-center gap-2">
                         <LuLoader2 className="animate-spin" size={25}/>
                         Generating advice...
                     </Button>
                     ) : (
-                    <a href={adviceData.url || ""} target="_blank" className="h-10 px-4 py-2 flex items-center no-underline font-medium text-slate-700 group-hover:text-blue-600">
+                    <a href={populatedData.url || ""} target="_blank" className="h-10 px-4 py-2 flex items-center no-underline font-medium text-slate-700 group-hover:text-blue-600">
                         <LuFileText size={30} className="mr-2" />
                         Statement of Advice
                     </a>
@@ -178,21 +171,21 @@ export default function RecommendationsTable<TData>() {
                     <div className="flex items-start gap-6">
                         <Button
                             variant="secondary"
-                            disabled={adviceData.status==='generating'}
+                            disabled={populatedData.status==='generating'}
                             onClick={() => onAdviceAction('dismiss')}
                         >
                             Dismiss Changes
                         </Button>
                         {table.getFilteredSelectedRowModel().rows.length > 0 ? (
                         <Button
-                            disabled={adviceData.status==='generating'}
+                            disabled={populatedData.status==='generating'}
                             onClick={() => onAdviceAction('confirm')}
                         >
                             Make {table.getFilteredSelectedRowModel().rows.length} Changes
                         </Button>
                         ) : (
                         <Button
-                            disabled={adviceData.status==='generating'}
+                            disabled={populatedData.status==='generating'}
                             onClick={() => onAdviceAction('confirm')}
                         >
                             Make All Changes

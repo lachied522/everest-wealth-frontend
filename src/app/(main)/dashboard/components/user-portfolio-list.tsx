@@ -56,11 +56,11 @@ const PortfolioEntityIndicator = ({ entity } : { entity: string }) => {
 const PortfolioListItem = ({ portfolio }: { portfolio: PortfolioData }) => {
 
     return (
-        <div className="grid grid-cols-1 xl:grid-cols-2 justify-stretch gap-12">
+        <div className="grid grid-cols-1 xl:grid-cols-2 justify-stretch gap-6 xl:gap-0">
             <div className="flex flex-col items-stretch justify-end gap-2">
                 <div className="text-lg font-medium text-slate-700">{portfolio.name}</div>
-                <div className="flex gap-12 pl-2">
-                    <div className="grid grid-cols-[32px_1fr] items-center gap-2">
+                <div className="grid grid-cols-[200px_1fr_1fr] place-items-center gap-4 pl-2">
+                    <div className="grid grid-cols-[32px_1fr] items-center gap-2 place-self-start">
                         <LuTarget 
                             size={24}
                             color="#1d4ed8"
@@ -85,7 +85,7 @@ const PortfolioListItem = ({ portfolio }: { portfolio: PortfolioData }) => {
                     </div>
                 </div>
             </div>
-            <div className="flex items-end justify-center gap-2 justify-self-start xl:justify-self-end">
+            <div className="flex items-end justify-center justify-self-center xl:justify-self-end gap-2">
                 <Link href={`/portfolio/${portfolio.id}`} className="no-underline">
                     <Button variant='ghost' size='sm' className="flex text-slate-700 gap-2">
                         <BiBriefcaseAlt />
