@@ -251,7 +251,7 @@ export const NewPortfolioForm = ({ onSuccess, navigateBack }: NewPortfolioFormPr
                                 control={form.control}
                                 name="publicToken"
                                 render={({ field }) => (
-                                    <LinkBroker onSuccess={(publicToken: string) => console.log(publicToken)} />
+                                    <LinkBroker setPublicToken={field.onChange} />
                                 )}
                             />
                         </div>
