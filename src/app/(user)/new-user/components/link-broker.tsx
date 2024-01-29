@@ -4,18 +4,26 @@ import { usePlaidLink } from 'react-plaid-link';
 
 import { Button } from '@/components/ui/button';
 
-import { LuLink } from 'react-icons/lu';
+import { LuLink, LuLink2 } from 'react-icons/lu';
 
 interface LinkBrokerProps {
-    onSuccess: (publicToken: string) => void
+    setPublicToken: (publicToken: string) => void
 }
 
-export default function LinkBroker({ onSuccess }: LinkBrokerProps) {
+export default function LinkBroker({ setPublicToken }: LinkBrokerProps) {
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [isLinked, setIsLinked] = useState<boolean>(false);
     const [LinkToken, setLinkToken] = useState<string | null>(null);
+
+    const onSuccess = useCallback((publicToken: string) => {
+        setIsLinked(true);
+        setPublicToken(publicToken);
+    }, [])
 
     const { open, ready } = usePlaidLink({
         token: LinkToken,
         onSuccess,
+        onExit: () => setIsLoading(false),
     });
 
     useEffect(() => {
@@ -23,7 +31,8 @@ export default function LinkBroker({ onSuccess }: LinkBrokerProps) {
         if (ready) open();
     }, [ready, open]);
 
-    const onLink = useCallback(async () => {
+    const onClick = useCallback(async () => {
+        setIsLoading(true);
         const response = await fetch('/api/create-link-token', {
             method: 'POST',
         });
@@ -38,9 +47,18 @@ export default function LinkBroker({ onSuccess }: LinkBrokerProps) {
     }, [setLinkToken]);
     
     return (
-        <Button onClick={onLink}>
-            <LuLink className="mr-2" />
-            Link Broker
-        </Button>
+        <>
+            {!isLinked? (
+            <Button onClick={onClick} disabled={isLoading}>
+                <LuLink className="mr-2" />
+                {!isLoading ? "Link Broker": "Loading..."}
+            </Button>
+            ) : (
+            <Button variant='outline' disabled>
+                <LuLink2 className="mr-2" />
+                Broker Linked
+            </Button>
+            )}
+        </>
     )
 }

@@ -5,8 +5,9 @@ import Link from "next/link";
 import Image from "next/image";
 
 import { NewUserForm } from './components/new-user-tabs';
+import Footer from 'src/app/footer';
 
-import type{ Database } from '@/types/supabase';
+import type { Database } from '@/types/supabase';
 
 export default async function NewUserPage() {
     const cookieStore = cookies();
@@ -18,7 +19,7 @@ export default async function NewUserPage() {
 
     return (
         <>
-            <div className="grid grid-cols-1 content-between justify-stretch">
+            <div className="grid grid-cols-1 content-between justify-stretch mb-12">
                 <div className="flex items-center justify-center py-8">
                     <Link
                         href="/"
@@ -37,10 +38,7 @@ export default async function NewUserPage() {
                     <NewUserForm />
                 </div>
             </div>
-            <div className="w-full h-20 flex bg-slate-200 mt-20">
-
-
-            </div>
+            <Footer />
         </>
     );
 }

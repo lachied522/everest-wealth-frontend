@@ -177,7 +177,7 @@ export default async function Home() {
       <div className="flex flex-col items-center justify-center bg-white px-24 lg:px-36 py-36">
         <div className="max-w-[60%] flex flex-col text-center gap-4 mb-24">
           <h2 className="text-3xl font-medium">Where We Sit</h2>
-          <p className="text-lg">We aim to provide the same personalised investment experience as a traditional broker at the cost of a discount broker.</p>
+          <p className="text-lg">We aim to provide the same personalised investment experience as a full-service adviser at the cost of a discount broker.</p>
         </div>
         <Image 
           src="/landing-page/where-we-sit.png"

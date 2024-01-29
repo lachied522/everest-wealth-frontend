@@ -43,30 +43,26 @@ export default function Page() {
               className="max-w-[160px] transform transition duration-300 relative hover:scale-110"
             >
               <Image
-                src="/palladian.svg"
-                alt="Palladian Logo"
-                width={48}
-                height={48}
+                  src="/everest-logo-transparent-background.png"
+                  alt="Everest Logo"
+                  width={48}
+                  height={48}
               />
             </Link>
         </div>
-        <Card className='max-w-lg p-16'>
-            <div className="flex justify-center mb-4">
+        <Card className='w-[440px] p-16'>
+            <div className="flex items-center justify-center gap-6 mb-12">
               <Image
                 src="/login-icon.svg"
                 loading="eager"
                 alt=""
-                width={92}
-                height={92}
+                width={56}
+                height={56}
               />
+              <h3 className="text-2xl font-semibold">Welcome back</h3>
             </div>
-            <h3 className="text-2xl font-semibold mb-2">Welcome back</h3>
-            <p className="mb-6">
-              Lorem ipsum dolor sit amet consectetur adipiscing elit sedol do
-              eiusmod tempor consectur.
-            </p>
             <div className="min-h-[144px] mb-6">
-              <form onSubmit={handleLogin} className="flex flex-col gap-4">
+              <form onSubmit={handleLogin} className="flex flex-col gap-6">
                 <Input
                   type="email"
                   maxLength={256}

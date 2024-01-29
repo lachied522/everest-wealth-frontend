@@ -43,12 +43,11 @@ export default function NewAdvicePopup() {
     if (!currentPortfolio) throw new Error('currentPortfolio undefined');
     
     const { readyState, sendJsonMessage } = useWebSocket(socketUrl, {
-        onOpen: () => console.log('opened'),
+        onOpen: () => {},
         onMessage: (event) => {
             const data =  JSON.parse(event.data);
             // update advice in global state
             if ('transactions' in data) {
-                console.log(data.transactions);
                 setAdvice(
                     currentPortfolio.id, 
                     {
@@ -79,8 +78,7 @@ export default function NewAdvicePopup() {
                 setSocketUrl(null);
             }
         },
-        onClose: (event) => {
-            console.log('WebSocket closed:', event);
+        onClose: () => {
             setSocketUrl(null);
         },
         onError: (event) => {

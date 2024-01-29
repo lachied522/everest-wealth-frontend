@@ -46,7 +46,7 @@ async function fetchData(symbol: string, amount: number, portfolioID: string, se
         return res.json();
     });
 
-    console.log(response);
+    if (process.env.NODE_ENV==="development") console.log(response);
 
     return response;
 }
@@ -65,7 +65,7 @@ export async function getSingleAdvice(symbol: string, amount: number, portfolioI
     }
 
     if (amount===0) {
-        return "Ask the user what the amount should be."
+        return "What amount in dollars are you looking to invest?"
     }
 
     const cookieStore = cookies();
@@ -78,7 +78,7 @@ export async function getSingleAdvice(symbol: string, amount: number, portfolioI
     try {
         const results = await fetchData(symbol, amount, portfolioID, session!);
 
-        console.log(results);
+        if (process.env.NODE_ENV==="development") console.log(results);
 
         return formatResults(results);
     } catch (e) {

@@ -72,7 +72,7 @@ export default function SignupPage() {
               </Link>
           </div>
           <div className="flex flex-col justify-center justify-items-center items-center">
-            <Card className="max-w-lg p-16">
+            <Card className="w-[440px] p-16">
                 <div className="flex items-center justify-center gap-6 mb-4">
                   <Image
                     src="https://uploads-ssl.webflow.com/64afbac816bb17eb2fdc3f03/64afbac916bb17eb2fdc40c5_log-in-icon-dashboardly-webflow-template.svg"
@@ -81,13 +81,7 @@ export default function SignupPage() {
                     width={56}
                     height={56}
                   />
-                  <div>
-                    <h3 className="text-lg font-medium mb-2">Create an Account</h3>
-                    <p className="mb-6">
-                      Lorem ipsum dolor sit amet consectetur adipiscing elit sedol do
-                      eiusmod tempor consectur.
-                    </p>
-                  </div>
+                  <h3 className="text-2xl font-medium">Create an Account</h3>
                 </div>
                 <div className="min-h-[144px] mb-6">
                   <form onSubmit={handleLogin} className="flex flex-col gap-6">
