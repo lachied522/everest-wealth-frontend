@@ -26,6 +26,7 @@ type Notification = {
 }
 
 export type GlobalState = {
+  session: Session
   portfolioData: PortfolioData[]
   watchlist: string[]
   notifications: Notification[]

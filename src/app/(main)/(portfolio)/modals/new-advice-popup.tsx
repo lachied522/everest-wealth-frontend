@@ -17,23 +17,41 @@ import { Label } from "@/components/ui/label";
 
 import { LuPiggyBank, LuRefreshCw, LuTrendingUp } from "react-icons/lu";
 
-import useWebSocket, { ReadyState } from 'react-use-websocket';
-
-import { useGlobalContext, GlobalState } from "@/context/GlobalState";
-import { usePortfolioContext, PortfolioState } from "@/context/PortfolioState";
-
-const WEB_SOCKET_URL = process.env.NEXT_PUBLIC_WEBSOCKET_URL|| "";
+import { useGlobalContext, type GlobalState } from "@/context/GlobalState";
+import { usePortfolioContext, type PortfolioState } from "@/context/PortfolioState";
 
 const USDollar = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
 });
 
+type AdviceResponse = {
+    type: "transactions"|"url"|"id"
+    payload: any
+}
+
+async function* readStream(reader: ReadableStreamDefaultReader): AsyncGenerator<AdviceResponse> {
+    const decoder = new TextDecoder();
+
+    try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) {
+            break;
+          }
+          const text = decoder.decode(value);
+          yield JSON.parse(text);
+        }
+    } catch (error) {
+        console.error('Error reading stream:', error);
+    }
+}
+
+
 export default function NewAdvicePopup() {
-    const { setAdvice } = useGlobalContext() as GlobalState;
+    const { session, setAdvice } = useGlobalContext() as GlobalState;
     const { currentPortfolio } = usePortfolioContext() as PortfolioState;
     const router = useRouter();
-    const [socketUrl, setSocketUrl] = useState<string | null>(null); // set url to null until called
     const [adviceType, setAdviceType] = useState<'deposit'|'withdraw'|'review'>('deposit'); // deposit, withdraw, or review
     const [amount, setAmount] = useState<number>(0);
     const [currentValue, setCurrentValue] = useState(0); // current value of portfolio
@@ -42,50 +60,69 @@ export default function NewAdvicePopup() {
 
     if (!currentPortfolio) throw new Error('currentPortfolio undefined');
     
-    const { readyState, sendJsonMessage } = useWebSocket(socketUrl, {
-        onOpen: () => {},
-        onMessage: (event) => {
-            const data =  JSON.parse(event.data);
-            // update advice in global state
-            if ('transactions' in data) {
-                setAdvice(
-                    currentPortfolio.id, 
-                    {
-                        ...currentPortfolio.advice[0],
-                        recom_transactions: data.transactions,
-                    }
-                );
+    const handleRequest = useCallback(async (amount: number, reason: string) => {
+        // reset advice data in global state
+        setAdvice(
+            currentPortfolio.id, 
+            {
+                status: 'generating',
+                recom_transactions: [],
             }
-            if ('url' in data) {
-                setAdvice(
-                    currentPortfolio.id, 
-                    {
-                        ...currentPortfolio.advice[0],
-                        url: data.url,
-                        status: 'finished',
-                    }
-                );
+        );
+    
+        const response = await fetch(`${process.env.NEXT_PUBLIC_WEB_SERVER_BASE_URL}/new_advice/${currentPortfolio.id}`, {
+            method: "POST",
+            body: JSON.stringify({
+                amount: reason==='withdraw'? -amount: amount,
+                reason,
+            }),
+            headers: {
+                "Content-Type": "application/json",
+                token: session.access_token,
             }
-            if ('id' in data) {
-                setAdvice(
-                    currentPortfolio.id, 
-                    {
-                        ...currentPortfolio.advice[0],
-                        id: data.id,
-                    }
-                );
-                // close websocket
-                setSocketUrl(null);
-            }
-        },
-        onClose: () => {
-            setSocketUrl(null);
-        },
-        onError: (event) => {
-            console.error('WebSocket error:', event);
-            setSocketUrl(null);
-        },
-    });
+        });
+    
+        if (!(response.ok && response.body)) return;
+        
+        const reader = response.body.getReader();
+        
+        for await (const res of readStream(reader)) {
+            // TO DO: handle state changes more compactly
+            console.log(res);
+            switch (res.type) {
+                case ("transactions") : {
+                    setAdvice (
+                        currentPortfolio.id, 
+                        {
+                            ...currentPortfolio.advice[0],
+                            recom_transactions: res.payload,
+                        }
+                    );
+                    break;
+                }
+                case ("url") : {
+                    setAdvice (
+                        currentPortfolio.id, 
+                        {
+                            ...currentPortfolio.advice[0],
+                            url: res.payload,
+                            status: 'finished',
+                        }
+                    );
+                    break;
+                }
+                case ("id") : {
+                    setAdvice(
+                        currentPortfolio.id, 
+                        {
+                            ...currentPortfolio.advice[0],
+                            id: res.payload,
+                        }
+                    );
+                }
+            };
+        }
+    }, [currentPortfolio.id, session]);
 
     useEffect(() => {
         setCurrentValue(currentPortfolio.totalValue);
@@ -110,37 +147,14 @@ export default function NewAdvicePopup() {
         }
     }, [setAmount]);
 
-    const onOpen = useCallback(() => {
-        // establish websocket connection
-        setSocketUrl(`${WEB_SOCKET_URL}/ws/${currentPortfolio.id}`);
-    }, [setSocketUrl, currentPortfolio.id]);
-
     const onCancel = useCallback(() => {
         // reset state
         setAdviceType('deposit');
         setAmount(0);
     }, [setAdviceType, setAmount]);
 
-    const handleMessage = useCallback((body: any) => {
-        if (readyState===ReadyState.OPEN) {
-            // send message
-            sendJsonMessage(body);
-            // reset advice data in global state
-            setAdvice(
-                currentPortfolio.id, 
-                {
-                    status: 'generating',
-                    recom_transactions: [],
-                }
-            );
-        }
-    }, [currentPortfolio.id, readyState, sendJsonMessage, setAdvice]);
-
     const onSubmit = () => {
-        handleMessage({
-            reason: adviceType,
-            amount: adviceType==='withdraw'? -amount: amount,
-        });
+        handleRequest(amount, adviceType);
         // navigate to Recommendations tab
         router.push(`/portfolio/${currentPortfolio.id}?tab=Recommendations`);
         // close modal
@@ -150,10 +164,7 @@ export default function NewAdvicePopup() {
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button
-                    disabled={!currentPortfolio}
-                    onClick={onOpen}
-                >
+                <Button disabled={!currentPortfolio}>
                     <LuTrendingUp className="mr-2" />
                     Get Advice
                 </Button>

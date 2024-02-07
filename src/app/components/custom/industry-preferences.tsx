@@ -1,53 +1,91 @@
 "use client";
+import { ScrollArea } from "@/components/ui/scroll-area";
+
 import { cn } from "@/components/lib/utils";
 
 import { Preferences } from "@/types/types";
 
 const SECTORS = [
   {
-    name: 'financials',
-    key: 'financials',
+    name: 'Financials',
+    key: 'financial-services',
   },
   {
-    name: 'energy',
+    name: 'Energy',
     key: 'energy',
   },
   {
-    name: 'materials',
+    name: 'Materials',
     key: 'materials',
   },
   {
-    name: 'consumer discretionary',
+    name: 'Consumer Discretionary',
     key: 'consumer-cyclical',
   },
   {
-    name: 'communication services',
+    name: 'Communication Services',
     key: 'communication-services',
   },
   {
-    name: 'industrials',
+    name: 'Industrials',
     key: 'industrials',
   },
   {
-    name: 'consumer staples',
+    name: 'Consumer Staples',
     key: 'consumer-defensive',
   },
   {
-    name: 'real estate',
+    name: 'Real Estate',
     key: 'real-estate',
   },
   {
-    name: 'technology',
+    name: 'Technology',
     key: 'technology',
   },
   {
-    name: 'healthcare',
+    name: 'Healthcare',
     key: 'healthcare',
   },
   {
-    name: 'utilities',
+    name: 'Utilities',
     key: 'utilities',
-  }
+  },
+  {
+    name: 'Lithium',
+    key: 'lithium',
+  },
+  {
+    name: 'Green Energy',
+    key: 'renewables',
+  },
+  {
+    name: 'Artificial Intelligence',
+    key: 'ai',
+  },
+  {
+    name: 'Pharmaceuticals',
+    key: 'pharmaceuticals',
+  },
+  {
+    name: 'Retailers',
+    key: 'retail',
+  },
+  {
+    name: 'Banks',
+    key: 'banks',
+  },
+  {
+    name: 'Cybersecurity',
+    key: 'cybersecurity',
+  },
+  {
+    name: 'Gold',
+    key: 'gold',
+  },
+  {
+    name: 'Iron Ore',
+    key: 'iron',
+  },
 ]
 
 interface SectorPrefenceProps {
@@ -65,7 +103,7 @@ const SectorPrefence = ({ sector, value, togglePreference }: SectorPrefenceProps
         <div 
           onClick={onClick}
           className={cn(
-                "flex flex-1 border rounded-full px-2 py-4 text-xs items-center justify-center h-[36px] max-w-[160px] text-center text-slate-800 cursor-pointer",
+                "h-[48px] max-w-[280px] flex bg-slate-50 border rounded-full px-3 py-4 text-xs items-center justify-center text-center text-slate-800 cursor-pointer",
                 value==="like" && "text-[#13a570] bg-[#edfbee] border-solid border-[#edfbee]",
                 value==="dislike" && "text-[#dc2b2b] bg-[#ffeff0] border-[#ffeff0]"
             )}
@@ -107,26 +145,28 @@ export default function IndustryPreferences({ value, handleChange }: IndustryPre
 
   return (
       <div className="flex flex-col items-center">
-        <div className="flex items-center gap-4 mb-8">
+        <div className="flex items-center gap-4 mb-12">
           <div className="grid grid-cols-2 items-center gap-2">
-            <div className="flex border rounded-full px-2 py-4 text-xs items-center justify-center h-[36px] text-center text-[#13a570] bg-[#edfbee] border-solid border-[#edfbee]">Green</div>
+            <div className="flex border rounded-full px-3 py-4 text-xs items-center justify-center h-[48px] text-center text-[#13a570] bg-[#edfbee] border-solid border-[#edfbee]">Green</div>
             <span>= like</span>
           </div>
           <div className="grid grid-cols-2 items-center gap-2">
-            <div className="flex border rounded-full px-2 py-4 text-xs items-center justify-center h-[36px] text-center text-[#dc2b2b] bg-[#ffeff0] border-[#ffeff0]">Red</div>
+            <div className="flex border rounded-full px-3 py-4 text-xs items-center justify-center h-[48px] text-center text-[#dc2b2b] bg-[#ffeff0] border-[#ffeff0]">Red</div>
             <span>= dislike</span>
           </div>
-        </div>  
-        <div className="flex flex-wrap max-w-[80%] gap-4 text-center justify-center items-center">
-          {SECTORS.map((sector, index) => (
-              <SectorPrefence 
-                  key={index}
-                  sector={sector}
-                  value={value? value[sector.key]: null}
-                  togglePreference={togglePreference}
-              />
-          ))}
         </div>
+        <ScrollArea className="h-[480px]">
+          <div className="flex flex-wrap text-center items-center justify-center p-8 gap-8 mx-auto">
+            {SECTORS.map((sector, index) => (
+                <SectorPrefence 
+                    key={index}
+                    sector={sector}
+                    value={value? value[sector.key]: null}
+                    togglePreference={togglePreference}
+                />
+            ))}
+          </div>
+        </ScrollArea>
       </div>
   );
 }

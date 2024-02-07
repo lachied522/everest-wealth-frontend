@@ -44,8 +44,6 @@ async function createPortfolio({ portfolio, session, supabase } : {
         })
         .select();
 
-    console.log(portfolioError);
-
     if (portfolioError) throw new Error(`Error creating portfolio ${portfolioError}`);
 
     const portfolio_id = portfolioData[0].id;
@@ -70,8 +68,6 @@ async function newAdvice({ portfolio_id, amount, session } : {
     session: Session
 }) {
     const url = `${process.env.NEXT_PUBLIC_WEB_SERVER_BASE_URL}/new_advice/${portfolio_id}`;
-
-    console.log(amount);
 
     fetch(url, {
         method: "POST",

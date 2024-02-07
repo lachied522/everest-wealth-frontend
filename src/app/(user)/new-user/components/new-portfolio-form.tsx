@@ -31,7 +31,7 @@ import IndustryPreferences from "@/components/custom/industry-preferences"
 import ObjectiveSelector from "@/components/custom/objective-selector"
 
 import PortfolioEditor from "./portfolio-editor";
-import LinkBroker from "./link-broker";
+import LinkPopup from "./link-broker";
 
 export const FormSchema = z.object({
     name: z.string().default('My Portfolio'),
@@ -39,8 +39,7 @@ export const FormSchema = z.object({
     objective: z.string({
         required_error: "Please select an objective for this portfolio"
     }),
-    active: z.number().array().transform((val) => val[0]).nullable().default([50]),
-    international: z.number().array().transform((val) => val[0]).nullable().default([50]),
+    active: z.number().nullable().default(70),
     preferences: z.record(
         z.string(),
         z.union([z.literal("like"), z.literal("dislike")]),
@@ -60,8 +59,7 @@ interface NewPortfolioFormProps {
 }
 
 export const NewPortfolioForm = ({ onSuccess, navigateBack }: NewPortfolioFormProps) => {
-    const [isLinkedPortfolio, setIsLinkedPortfolio] = useState<boolean>(false);
-    const [isExistingPortfolio, setIsExistingPortfolio] = useState<boolean>(false);
+    const [portfolioType, setPortfolioType] = useState<'link'|'manual'|'new'|'dummy'>('dummy'); // 
     const [isLoading, setIsLoading] = useState<boolean>(false);
     
     const form = useForm<z.infer<typeof FormSchema>>({
@@ -70,13 +68,13 @@ export const NewPortfolioForm = ({ onSuccess, navigateBack }: NewPortfolioFormPr
     })
 
     async function onSubmit(values: z.infer<typeof FormSchema>) {
-        setIsLoading(true)
-        onSuccess(values)
+        setIsLoading(true);
+        onSuccess(values);
     }
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="max-w-6xl flex flex-col items-center gap-6 p-6 space-y-8">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="max-w-6xl flex flex-col items-center gap-12 p-6 space-y-8">
                 <div className="flex items-center gap-6 mb-4 mx-auto">
                     <BiBriefcaseAlt size={42} />
                     <div className="flex flex-col justify-center gap-2">
@@ -87,7 +85,7 @@ export const NewPortfolioForm = ({ onSuccess, navigateBack }: NewPortfolioFormPr
                         </p>
                     </div>
                 </div>
-                <Card className="flex flex-col gap-36 items-center p-16 m-4">
+                <Card className="flex flex-col gap-36 items-center p-16 pb-48 m-4">
                     <div className="grid grid-cols-2 place-items-center gap-16">
                         <div className="text-lg font-medium text-slate-800">Portfolio Name</div>
                         <FormField 
@@ -143,32 +141,9 @@ export const NewPortfolioForm = ({ onSuccess, navigateBack }: NewPortfolioFormPr
                             )}
                         />
                     </div>
-                    <div className="flex flex-col gap-12 items-center">
+                    <div className="flex flex-col gap-24 items-center">
                         <h3 className="text-2xl font-medium">Preferences</h3>
-                        <div className="text-lg text-slate-800">
-                            What proportion of your portfolio do you wish to invest in
-                            international stocks?
-                        </div>
-                        <FormField
-                            control={form.control}
-                            name="international"
-                            render={({ field }) => (
-                                <FormItem className="flex gap-4 space-y-0 items-center justify-center">
-                                    <FormControl>
-                                        <Slider
-                                            min={0}
-                                            max={100}
-                                            step={1}
-                                            defaultValue={[field.value || 50]}
-                                            onValueChange={(value: number[]) => field.onChange(value[0])}
-                                            className="w-[240px] cursor-pointer"
-                                        />
-                                    </FormControl>
-                                    <div className="font-semibold">{field.value || 50}</div>
-                                </FormItem>
-                            )}
-                        />
-                        <div className="text-lg text-slate-800">
+                        <div className="text-lg font-medium text-slate-800">
                             What proportion of your portfolio do you wish to invest in
                             ETFs?
                         </div>
@@ -176,7 +151,7 @@ export const NewPortfolioForm = ({ onSuccess, navigateBack }: NewPortfolioFormPr
                             control={form.control}
                             name="active"
                             render={({ field }) => (
-                                <FormItem className="flex gap-4 space-y-0 items-center justify-center">
+                                <FormItem className="flex gap-5 space-y-0 items-center justify-center">
                                     <FormControl>
                                         <Slider
                                             min={0}
@@ -187,12 +162,12 @@ export const NewPortfolioForm = ({ onSuccess, navigateBack }: NewPortfolioFormPr
                                             className="w-[240px] cursor-pointer"
                                         />
                                     </FormControl>
-                                    <div className="font-semibold">{field.value || 50}</div>
+                                    <div className="text-lg font-semibold">{field.value || 50}%</div>
                                 </FormItem>
                             )}
                         />
-                        <div className="text-lg text-slate-800">
-                            Do you have any industry preferences?
+                        <div className="max-w-[80%] text-center text-lg text-slate-800">
+                            Select market sectors you like or dislike below. The recommendations we make for your portfolio will be adjusted to match what you select.
                         </div>
                         <FormField
                             control={form.control}
@@ -209,21 +184,21 @@ export const NewPortfolioForm = ({ onSuccess, navigateBack }: NewPortfolioFormPr
                             )}
                         />
                     </div>
-                    <div className="flex flex-col gap-12 items-center">
+                    <div className="flex flex-col gap-16 items-center">
                         <div className="text-lg font-medium text-slate-800">
-                            Would you like to link this portfolio to a broker?
+                            Do you have an existing broker account you would like to link to this portfolio?
                         </div>
                         <div className="flex gap-8">
                             <Button
                                 type="button"
-                                variant='ghost'
-                                onClick={() => setIsLinkedPortfolio(true)}
+                                variant="ghost"
+                                onClick={() => setPortfolioType("manual")}
                             >
                                 <div className="h-4 w-4 rounded-full border flex items-center justify-center mr-2">
                                     <LuCircle
                                         className={cn(
                                             "h-2.5 w-2.5 hidden",
-                                            isLinkedPortfolio && "block fill-slate-700"
+                                            portfolioType!=="new" && "block fill-slate-700"
                                         )}
                                     />
                                 </div>
@@ -231,64 +206,50 @@ export const NewPortfolioForm = ({ onSuccess, navigateBack }: NewPortfolioFormPr
                             </Button>
                             <Button
                                 type="button"
-                                variant='ghost'
-                                onClick={() => setIsLinkedPortfolio(false)}
+                                variant="ghost"
+                                onClick={() => setPortfolioType("new")}
                             >
                                 <div className="h-4 w-4 rounded-full border flex items-center justify-center mr-2">
                                     <LuCircle
                                         className={cn(
                                             "h-2.5 w-2.5 hidden",
-                                            !isLinkedPortfolio && "block fill-slate-700"
+                                            portfolioType==="new" && "block fill-slate-700"
                                         )}
                                     />
                                 </div>
-                                No
+                                No, I&apos;m starting fresh
                             </Button>
                         </div>
-                        {isLinkedPortfolio ? (
-                        <div className="h-20 flex items-center">
-                            <FormField 
-                                control={form.control}
-                                name="publicToken"
-                                render={({ field }) => (
-                                    <LinkBroker setPublicToken={field.onChange} />
-                                )}
-                            />
-                        </div>
-                        ) : (
+                        {portfolioType!=="new" ? (
                         <>
                             <div className="text-lg font-medium text-slate-800">
-                                Would you like us to make a recommendation for this portfolio?
+                                Select one of the below options
                             </div>
                             <div className="flex gap-8">
+                                <FormField 
+                                    control={form.control}
+                                    name="publicToken"
+                                    render={({ field }) => (
+                                        <div onClick={() => setPortfolioType("link")}>
+                                            <LinkPopup setPublicToken={field.onChange} />
+                                        </div>
+                                    )}
+                                />
                                 <Button
                                     type="button"
-                                    variant='ghost'
-                                    onClick={() => setIsExistingPortfolio(!isExistingPortfolio)}
+                                    variant="ghost"
+                                    onClick={() => setPortfolioType("manual")}
                                 >
                                     <div className="h-4 w-4 rounded-full border flex items-center justify-center mr-2">
                                         <LuCircle className={cn(
                                             "h-2.5 w-2.5 hidden",
-                                            !isExistingPortfolio && "block fill-slate-700"
+                                            portfolioType==="manual" && "block fill-slate-700"
                                         )}/>
                                     </div>
-                                    Yes please
-                                </Button>
-                                <Button
-                                    type="button"
-                                    variant='ghost'
-                                    onClick={() => setIsExistingPortfolio(!isExistingPortfolio)}
-                                >
-                                    <div className="h-4 w-4 rounded-full border flex items-center justify-center mr-2">
-                                        <LuCircle className={cn(
-                                            "h-2.5 w-2.5 hidden",
-                                            isExistingPortfolio && "block fill-slate-700"
-                                        )}/>
-                                    </div>
-                                    No, add investments manually
+                                    Add investments manually
                                 </Button>
                             </div>
-                            {isExistingPortfolio ? (
+                            {portfolioType==="manual" && (
                             <FormField 
                                 control={form.control}
                                 name="holdings"
@@ -296,32 +257,32 @@ export const NewPortfolioForm = ({ onSuccess, navigateBack }: NewPortfolioFormPr
                                     <PortfolioEditor onChange={field.onChange} />
                                 )}
                             />
-                            ) : (
-                            <>
-                                <div className="text-lg font-medium text-slate-800">
-                                    What is the intended value of this portfolio?
-                                </div>
-                                <FormField 
-                                    control={form.control}
-                                    name="value"
-                                    render={({field}) => (
-                                        <FormItem className="flex gap-2 items-center">
-                                            <div className="mt-2">$</div>
-                                            <FormControl>
-                                                <Input
-                                                    type="number"
-                                                    min={0}
-                                                    placeholder="e.g. 10,000"
-                                                    className='max-w-[25%] min-w-[200px]'
-                                                    value={field.value}
-                                                    onChange={field.onChange}
-                                                />
-                                            </FormControl>
-                                        </FormItem>
-                                    )}
-                                />                        
-                            </>
                             )}
+                        </>
+                        ) : (
+                        <>
+                            <div className="text-lg font-medium text-slate-800">
+                                What is the intended value of this portfolio?
+                            </div>
+                            <FormField 
+                                control={form.control}
+                                name="value"
+                                render={({field}) => (
+                                    <FormItem className="flex gap-2 items-center">
+                                        <div className="mt-2">$</div>
+                                        <FormControl>
+                                            <Input
+                                                type="number"
+                                                min={0}
+                                                placeholder="e.g. 10,000"
+                                                className='max-w-[25%] min-w-[200px]'
+                                                value={field.value}
+                                                onChange={field.onChange}
+                                            />
+                                        </FormControl>
+                                    </FormItem>
+                                )}
+                            />                        
                         </>
                         )}
                     </div>
@@ -334,7 +295,7 @@ export const NewPortfolioForm = ({ onSuccess, navigateBack }: NewPortfolioFormPr
                     >
                         Back
                     </Button>
-                    {!false ? (
+                    {!isLoading ? (
                     <Button type="submit" onClick={() => console.log(form.formState.errors)}>Submit</Button>
                     ) : (
                     <Button type="button" disabled>Please wait...</Button>

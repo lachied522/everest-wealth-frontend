@@ -85,21 +85,21 @@ const PortfolioListItem = ({ portfolio }: { portfolio: PortfolioData }) => {
                     </div>
                 </div>
             </div>
-            <div className="flex items-end justify-center justify-self-center xl:justify-self-end gap-2">
+            <div className="flex items-end justify-center justify-self-center xl:justify-self-end gap-4">
                 <Link href={`/portfolio/${portfolio.id}`} className="no-underline">
-                    <Button variant='ghost' size='sm' className="flex text-slate-700 gap-2">
+                    <Button variant="ghost" size="lg" className="flex text-slate-700 gap-2">
                         <BiBriefcaseAlt />
                         Portfolio
                     </Button>
                 </Link>
                 <Link href={`/performance/${portfolio.id}`} className="no-underline">
-                    <Button variant='ghost' size='sm' className="flex text-slate-700 gap-2">
+                    <Button variant="ghost" size="lg" className="flex text-slate-700 gap-2">
                         <LuFileLineChart />
                         Performance
                     </Button>
                 </Link>
                 <Link href={`/advice/${portfolio.id}`} className="no-underline">
-                    <Button variant='ghost' size='sm' className="flex text-slate-700 gap-2">
+                    <Button variant="ghost" size="lg" className="flex text-slate-700 gap-2">
                         <LuFileBarChart />
                         Advice
                     </Button>

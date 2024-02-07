@@ -2,7 +2,7 @@
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { usePathname } from "next/navigation";
 
-import { usePortfolioContext, PortfolioState } from "@/context/PortfolioState";
+import { usePortfolioContext, type PortfolioState } from "@/context/PortfolioState";
 
 import type { Message } from "@/types/ai";
 
@@ -32,7 +32,7 @@ async function* readStream(reader: ReadableStreamDefaultReader<Uint8Array>) {
           yield text;
         }
     } catch (error) {
-    console.error('Error reading stream:', error);
+        console.error('Error reading stream:', error);
     }
 };
 
@@ -77,8 +77,11 @@ export const AICompanionProvider = ({ children }: { children: React.ReactNode })
     }, [toastHistory, setToast, setToastHistory]);
 
     useEffect(() => {
+        // EXAMPLE toasts
         if (pathname.startsWith('/dashboard')) {
             newToast('What happened in the market today?');
+        } else if (pathname.startsWith('/portfolio')) {
+            newToast('How do rising interest rates affect my portfolio?');
         } else if (pathname.startsWith('/symbol')) {
             const symbol = pathname.split('/').at(-1);
             newToast(`Should I invest in ${symbol}?`);

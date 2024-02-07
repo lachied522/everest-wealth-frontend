@@ -6,11 +6,11 @@ import { Button } from '@/components/ui/button';
 
 import { LuLink, LuLink2 } from 'react-icons/lu';
 
-interface LinkBrokerProps {
+interface LinkPopupProps {
     setPublicToken: (publicToken: string) => void
 }
 
-export default function LinkBroker({ setPublicToken }: LinkBrokerProps) {
+export default function LinkPopup({ setPublicToken }: LinkPopupProps) {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isLinked, setIsLinked] = useState<boolean>(false);
     const [LinkToken, setLinkToken] = useState<string | null>(null);
@@ -49,7 +49,11 @@ export default function LinkBroker({ setPublicToken }: LinkBrokerProps) {
     return (
         <>
             {!isLinked? (
-            <Button onClick={onClick} disabled={isLoading}>
+            <Button
+                variant="ghost"
+                onClick={onClick}
+                disabled={isLoading}
+            >
                 <LuLink className="mr-2" />
                 {!isLoading ? "Link Broker": "Loading..."}
             </Button>

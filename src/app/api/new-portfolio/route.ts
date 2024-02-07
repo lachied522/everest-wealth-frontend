@@ -9,13 +9,12 @@ async function newAdvice({ amount, portfolio, session } : {
     amount: number,
     session: Session
 }) {
-    const url = `${process.env.NEXT_PUBLIC_WEB_SERVER_BASE_URL}/new_advice/${session.user.id}`;
+    const url = `${process.env.NEXT_PUBLIC_WEB_SERVER_BASE_URL}/new_advice/${portfolio.id}`;
 
     fetch(url, {
         method: "POST",
         body: JSON.stringify({
             amount,
-            portfolio_id: portfolio.id,
             reason: "new",
         }),
         headers: {
@@ -28,7 +27,7 @@ async function newAdvice({ amount, portfolio, session } : {
 type RequestBody = {
     name: string
     objective: string
-    value: number
+    value?: number
     flatBrokerage?: number
 }
 
@@ -48,23 +47,25 @@ export async function POST(req: Request) {
     const body = await req.json() as RequestBody;
 
     try {
+        // 1. Create new portfolio record in DB
         const { data, error } = await supabase
         .from('portfolios')
         .insert({
             name: body.name,
             objective: body.objective,
-            flat_brokerage: body.flatBrokerage,
             user_id: session.user.id
         })
         .select();
 
         if (error) throw new Error(`Error creating portfolio: ${error}`);
 
-        newAdvice({
-            portfolio: data[0],
-            amount: body.value,
-            session,
-        });
+        if (body.value) {
+            newAdvice({
+                portfolio: data[0],
+                amount: body.value,
+                session,
+            });
+        }
 
         // redirect user to new portfolio
         return NextResponse.redirect(new URL(`/portfolio/${data[0].id}`, req.url));

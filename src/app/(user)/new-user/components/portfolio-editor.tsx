@@ -220,7 +220,7 @@ export default function PortfolioEditor({ onChange }: EditPortfolioProps) {
                     type="search"
                     className="pl-8"
                     maxLength={18}
-                    placeholder="Search for..."
+                    placeholder="e.g. CBA, BHP"
                     value={searchString}
                     onChange={searchStocks}
                 />
