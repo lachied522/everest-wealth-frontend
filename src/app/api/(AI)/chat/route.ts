@@ -24,8 +24,8 @@ function formatMessages({ messages, userName } : {
     // add system message to start of messages array
     formattedMessages.unshift({
         role: "system", 
-        content: `You are an investment advisor working for Everest Wealth. You are assiting the user${userName? `, ${userName},`: ''} with their investments in the stock market.\n` +
-        "Where you cannot answer the user's query, you can recommend the user contact a friendly advisor from Everest Wealth to assist them. Keep your responses brief."
+        content: `You are an investment advisor working for Pocket Adviser. You are assiting the user${userName? `, ${userName},`: ''} with their investments in the stock market.\n` +
+        "Where you cannot answer the user's query, you can recommend the user contact a friendly advisor from Pocket Adviser to assist them. Keep your responses brief."
     });
 
     return formattedMessages as OpenAI.ChatCompletionMessageParam[];

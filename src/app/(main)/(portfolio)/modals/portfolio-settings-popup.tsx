@@ -55,7 +55,6 @@ export const FormSchema = z.object({
     percentBrokerage: z.coerce.number().optional(),
     flatBrokerage: z.coerce.number().optional(),
     active: z.number().nullable(),
-    international: z.number().nullable(),
     preferences: z.record(
         z.string(),
         z.union([z.literal("like"), z.literal("dislike")]),
@@ -411,30 +410,6 @@ export default function PortfolioSettingsPopup() {
                                             control={form.control}
                                             name="active"
                                             render={({ field }) => (
-                                                <FormItem className="flex gap-4 space-y-0 items-center justify-center">
-                                                    <FormControl>
-                                                        <Slider
-                                                            min={0}
-                                                            max={100}
-                                                            step={1}
-                                                            defaultValue={[field.value || 50]}
-                                                            onValueChange={(value: number[]) => field.onChange(value[0])}
-                                                            className="w-[240px] cursor-pointer"
-                                                        />
-                                                    </FormControl>
-                                                    <div className="font-semibold">{field.value}</div>
-                                                </FormItem>
-                                            )}
-                                        />
-                                    </div>
-                                    <div>
-                                        <div className="text-base text-slate-800 mb-3">
-                                            Portion of your portfolio invested in international stocks
-                                        </div>
-                                        <FormField
-                                            control={form.control}
-                                            name="international"
-                                            render={({field}) => (
                                                 <FormItem className="flex gap-4 space-y-0 items-center justify-center">
                                                     <FormControl>
                                                         <Slider

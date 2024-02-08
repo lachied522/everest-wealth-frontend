@@ -18,12 +18,12 @@ export default function Logo({ width, height, withText }: LogoProps) {
         >
             <Image
                 src="/everest-logo-transparent-background.png"
-                alt="Everest Logo"
+                alt="Pocket Adviser Logo"
                 width={w}
                 height={h}
                 className="transform transition duration-300 relative"
             />
-            {withText && <h2 className="text-slate-700 text-2xl font-serif font-semibold mb-0">Everest Wealth</h2>}
+            {withText && <h2 className="text-slate-700 text-2xl font-serif font-semibold mb-0">Pocket Adviser</h2>}
         </Link>
     )
 }

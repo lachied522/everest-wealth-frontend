@@ -173,7 +173,7 @@ export default function SideBar() {
           <Link href="/">
             <Image
               src="/everest-logo-transparent-background.png"
-              alt="Everest Logo"
+              alt="Pocket Adviser Logo"
               width={55}
               height={40}
             />

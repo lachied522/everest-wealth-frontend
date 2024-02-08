@@ -65,7 +65,7 @@ export default function SignupPage() {
               >
                 <Image
                   src="/everest-logo-transparent-background.png"
-                  alt="Everest Logo"
+                  alt="Pocket Adviser Logo"
                   width={48}
                   height={48}
                 />
