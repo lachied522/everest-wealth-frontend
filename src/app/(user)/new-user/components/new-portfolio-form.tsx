@@ -80,8 +80,7 @@ export const NewPortfolioForm = ({ onSuccess, navigateBack }: NewPortfolioFormPr
                     <div className="flex flex-col justify-center gap-2">
                         <h3 className="text-xl font-medium">Create your first portfolio</h3>
                         <p className="text-slate-800 w-[660px]">
-                            You may add an existing portfolio or we can recommend one for
-                            you.
+                            You may link an existing portfolio or start from scratch.
                         </p>
                     </div>
                 </div>
@@ -261,10 +260,13 @@ export const NewPortfolioForm = ({ onSuccess, navigateBack }: NewPortfolioFormPr
                         </>
                         ) : (
                         <>
-                            <div className="text-lg font-medium text-slate-800">
-                                What is the intended value of this portfolio?
+                            <div className="flex flex-col items-center gap-3 text-center">
+                                <div className="text-lg font-medium text-slate-800">
+                                    What is the intended value of this portfolio?
+                                </div>
+                                <p>This will inform the recommendations we make for this portfolio.</p>
                             </div>
-                            <FormField 
+                            <FormField
                                 control={form.control}
                                 name="value"
                                 render={({field}) => (
@@ -298,7 +300,7 @@ export const NewPortfolioForm = ({ onSuccess, navigateBack }: NewPortfolioFormPr
                     {!isLoading ? (
                     <Button type="submit" onClick={() => console.log(form.formState.errors)}>Submit</Button>
                     ) : (
-                    <Button type="button" disabled>Please wait...</Button>
+                    <Button type="button" disabled>Creating portfolio...</Button>
                     )}
                 </div>
             </form>

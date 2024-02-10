@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useRouter } from "next/navigation";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -62,13 +63,14 @@ export const FormSchema = z.object({
 });
 
 export default function PortfolioSettingsPopup() {
-    const { updatePortfolioSettings, onPortfolioDelete } = useGlobalContext() as GlobalState;
-    const { currentPortfolio } = usePortfolioContext() as PortfolioState;
+    const { onPortfolioDelete } = useGlobalContext() as GlobalState;
+    const { currentPortfolio, updateSettings} = usePortfolioContext() as PortfolioState;
     const [openTab, setOpenTab] = useState<'settings' | 'preferences'>('settings');
     const [isLoading, setIsLoading] = useState(false);
     const [loadingDelete, setLoadingDelete] = useState(false);
     const [brokerageType, setBrokerageType] = useState("$");
     const [confirmDelete, setConfirmDelete] = useState(false);
+    const router = useRouter();
     const closeRef = useRef<HTMLButtonElement | null>(null);
 
   if (!currentPortfolio) throw new Error('currentPortfolio undefined');
@@ -136,7 +138,7 @@ export default function PortfolioSettingsPopup() {
             success = await commitChanges(newValues);
 
             if (success) {
-                updatePortfolioSettings(currentPortfolio!.id, newValues);
+                updateSettings(newValues);
             }
         } else {
             console.log("no changes");
@@ -150,6 +152,8 @@ export default function PortfolioSettingsPopup() {
         // delete portfolio
         setLoadingDelete(true);
         const success = await onPortfolioDelete(currentPortfolio.id);
+        // navigate to dashboard
+        router.replace('/dashboard');
         // close dialog
         if (success && closeRef.current) closeRef.current.click();
     };

@@ -18,7 +18,7 @@ export default async function DashboardPage() {
 
   // get featured stock list
   const { data, error } = await supabase
-  .from('universe')
+  .from('stocks')
   .select('symbol')
   .contains('tags', ['Featured']);
 

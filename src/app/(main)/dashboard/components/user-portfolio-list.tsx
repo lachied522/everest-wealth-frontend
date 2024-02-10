@@ -1,4 +1,5 @@
 "use client";
+import { useMemo } from "react";
 import Link from "next/link";
 
 import { BiBriefcaseAlt } from "react-icons/bi";
@@ -17,11 +18,11 @@ import {
 
 import { Button } from "@/components/ui/button";
 
-import { GlobalState, useGlobalContext } from "@/context/GlobalState";
 import NewPortfolioPopup from "@/components/modals/new-portfolio-popup";
 
-import type { PortfolioData } from "@/types/types";
+import { useGlobalContext, type GlobalState } from "@/context/GlobalState";
 
+import type { PortfolioData } from "@/types/types";
 
 const EntityMap: { [key: string]: typeof LuUser2 } = {
     individual: LuUser2,
@@ -29,6 +30,16 @@ const EntityMap: { [key: string]: typeof LuUser2 } = {
     company: LuFactory,
     trust: LuScrollText,
     super: LuPiggyBank,
+}
+
+const AdviceNotification = ({ value }: { value: number }) => {
+    if (!(value > 0)) return null;
+
+    return (
+        <div className="absolute flex top-0 right-0 items-center justify-center rounded-full h-4 w-4 text-xs bg-red-400 text-white">
+            {value}
+        </div>
+    )
 }
 
 const PortfolioEntityIndicator = ({ entity } : { entity: string }) => {
@@ -54,6 +65,13 @@ const PortfolioEntityIndicator = ({ entity } : { entity: string }) => {
 }
 
 const PortfolioListItem = ({ portfolio }: { portfolio: PortfolioData }) => {
+    const hasRecomTransactions = useMemo(() => {
+        const advice = portfolio.advice[0];
+        if (advice) {
+            if (advice.recom_transactions && !(advice.status==="actioned")) return advice.recom_transactions.length;
+        }
+        return 0;
+    }, [portfolio.advice]);
 
     return (
         <div className="grid grid-cols-1 xl:grid-cols-2 justify-stretch gap-6 xl:gap-0">
@@ -86,12 +104,18 @@ const PortfolioListItem = ({ portfolio }: { portfolio: PortfolioData }) => {
                 </div>
             </div>
             <div className="flex items-end justify-center justify-self-center xl:justify-self-end gap-4">
-                <Link href={`/portfolio/${portfolio.id}`} className="no-underline">
-                    <Button variant="ghost" size="lg" className="flex text-slate-700 gap-2">
-                        <BiBriefcaseAlt />
-                        Portfolio
-                    </Button>
-                </Link>
+                <div className="relative">
+                    <AdviceNotification value={hasRecomTransactions} />
+                    <Link href={{
+                        pathname: `/portfolio/${portfolio.id}`,
+                        query: { tab: hasRecomTransactions? 'recommendations': 'overview'}
+                    }} className="no-underline">
+                        <Button variant="ghost" size="lg" className="flex text-slate-700 gap-2">
+                            <BiBriefcaseAlt />
+                            Portfolio
+                        </Button>
+                    </Link>
+                </div>
                 <Link href={`/performance/${portfolio.id}`} className="no-underline">
                     <Button variant="ghost" size="lg" className="flex text-slate-700 gap-2">
                         <LuFileLineChart />
@@ -127,7 +151,7 @@ export default function UserPortfolioList() {
                     </Button>
                 </NewPortfolioPopup>
             </div>
-            <div className="grid md:grid-cols-1 gap-8 px-8">
+            <div className="grid md:grid-cols-1 gap-8">
                 {portfolioData.map((portfolio, index) => (
                     <PortfolioListItem 
                         key={index}

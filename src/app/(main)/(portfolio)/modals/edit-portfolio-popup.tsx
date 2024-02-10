@@ -167,8 +167,7 @@ const HoldingRow = ({ holding, update } : {
 };
 
 export default function EditPortfolioPopup() {
-  const { setPortfolio } = useGlobalContext() as GlobalState;
-  const { currentPortfolio } = usePortfolioContext() as PortfolioState;
+  const { currentPortfolio, updateHoldings } = usePortfolioContext() as PortfolioState;
   const [searchString, setSearchString] = useState('');
   const [searchHits, setSearchHits] = useState<StockInfo[]>([]);
   const [allHoldingData, setAllHoldingData] = useState<PartialHolding[]>([]); // contains all existing holdings and new holdings
@@ -255,10 +254,7 @@ export default function EditPortfolioPopup() {
           ...data,
         ];
         
-        setPortfolio(
-          currentPortfolio.id,
-          newPortfolioState,
-        );
+        updateHoldings(newPortfolioState);
       });
     }
   }

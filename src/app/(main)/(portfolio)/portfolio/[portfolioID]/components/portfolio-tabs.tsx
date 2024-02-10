@@ -14,11 +14,11 @@ import RecommendationsTable from "./RecommendationsTable/recommendations-table";
 // define tabs and columns to display
 const TABS = [
     {
-        tabName: "Recommendations",
+        tabName: "recommendations",
         visibleColumns: []
     },
     {
-        tabName: "Overview",
+        tabName: "overview",
         visibleColumns: [
             "symbol",
             "name",
@@ -31,7 +31,7 @@ const TABS = [
         ]
     },
     {
-        tabName: "Earnings",
+        tabName: "earnings",
         visibleColumns: [
             "symbol",
             "units",
@@ -44,7 +44,7 @@ const TABS = [
         ]
     },
     {
-        tabName: "Income",
+        tabName: "income",
         visibleColumns: [
             "symbol",
             "units",
@@ -83,7 +83,7 @@ export default function PortfolioTabs() {
         if (tab) {
             setCurrentTab(tab);
         } else {
-            // set 'Overview' tab as default
+            // set 'overview' tab as default
             router.push(`/portfolio/${currentPortfolio.id}?tab=${TABS[1].tabName}`);
         }
     }, [searchParams, router, currentPortfolio.id]);
@@ -126,7 +126,7 @@ export default function PortfolioTabs() {
                         )}
                         onClick={() => {onTabClick(index)}}
                     >
-                        {tab.tabName}
+                        {tab.tabName.charAt(0).toUpperCase() + tab.tabName.slice(1)}
                     </Button>
                 </div>
                 ))}

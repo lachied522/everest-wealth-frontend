@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef, ReactNode } from "react";
+import { useState, useRef, ReactNode, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -31,6 +31,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
+import { useGlobalContext, type GlobalState } from "@/context/GlobalState";
+
 const FormSchema = z.object({
     name: z.string().default('My Portfolio'),
     entity: z.string().default('individual'),
@@ -45,19 +47,28 @@ const FormSchema = z.object({
 export default function NewPortfolioPopup({ children } : {
     children: ReactNode
 }) {
+    const { createPortfolio } = useGlobalContext() as GlobalState;
+    const [currentStep, setCurrentStep] = useState(0);
+    const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
-    const [currentStep, setCurrentStep] = useState(0)
-    const [isLoading, setIsLoading] = useState(false)
-    const closeRef = useRef<HTMLButtonElement | null>(null)
+    const closeRef = useRef<HTMLButtonElement | null>(null);
 
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {},
-    })
+    });
 
-    function onSubmit(values: z.infer<typeof FormSchema>) {
+    const onSuccess = useCallback((data: any) => {
+        // create new portfolio in global state
+        createPortfolio(data);
+        // navigate to new portfolio
+        router.replace(`/portfolio/${data.id}?tab=overview`);
+        if (closeRef.current) closeRef.current.click(); // close modal
+    }, [router]);
+
+    async function onSubmit(values: z.infer<typeof FormSchema>) {
         setIsLoading(true);
-        fetch('/api/new-portfolio', {
+        const data = await fetch('/api/new-portfolio', {
             method: "POST",
             body: JSON.stringify(values),
             headers: {
@@ -65,13 +76,20 @@ export default function NewPortfolioPopup({ children } : {
             }
         })
         .then((res) => {
-            if (res.redirected) router.replace(res.url);
+            if (!res.ok) throw new Error('Api error');
+            return res.json();
         })
         .catch((err) => console.log(err));
+
+        if (data) onSuccess(data);
+
+        setIsLoading(false);
     }
 
     const onClose = () => {
-        // pass
+        // reset state
+        setCurrentStep(0);
+        setIsLoading(false);
     }
 
     return (

@@ -6,7 +6,7 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
-export interface Database {
+export type Database = {
   public: {
     Tables: {
       advice: {
@@ -96,7 +96,7 @@ export interface Database {
         Insert: {
           active?: number | null
           created_at?: string
-          entity?: string | null
+          entity?: string
           flat_brokerage?: number
           id?: string
           international?: number | null
@@ -109,7 +109,7 @@ export interface Database {
         Update: {
           active?: number | null
           created_at?: string
-          entity?: string | null
+          entity?: string
           flat_brokerage?: number
           id?: string
           international?: number | null
@@ -255,6 +255,27 @@ export interface Database {
           }
         ]
       }
+      stocks: {
+        Row: {
+          id: string
+          link_to_equity_research: string | null
+          symbol: string | null
+          tags: string[] | null
+        }
+        Insert: {
+          id?: string
+          link_to_equity_research?: string | null
+          symbol?: string | null
+          tags?: string[] | null
+        }
+        Update: {
+          id?: string
+          link_to_equity_research?: string | null
+          symbol?: string | null
+          tags?: string[] | null
+        }
+        Relationships: []
+      }
       transactions: {
         Row: {
           brokerage: number | null
@@ -296,36 +317,6 @@ export interface Database {
           }
         ]
       }
-      universe: {
-        Row: {
-          active: boolean | null
-          domestic: boolean | null
-          id: number
-          link_to_equity_research: string | null
-          sector: string | null
-          symbol: string | null
-          tags: string[] | null
-        }
-        Insert: {
-          active?: boolean | null
-          domestic?: boolean | null
-          id?: number
-          link_to_equity_research?: string | null
-          sector?: string | null
-          symbol?: string | null
-          tags?: string[] | null
-        }
-        Update: {
-          active?: boolean | null
-          domestic?: boolean | null
-          id?: number
-          link_to_equity_research?: string | null
-          sector?: string | null
-          symbol?: string | null
-          tags?: string[] | null
-        }
-        Relationships: []
-      }
       users: {
         Row: {
           created_at: string | null
@@ -340,7 +331,7 @@ export interface Database {
           email?: string | null
           id: string
           name?: string | null
-          notifications?: Json[] | null
+          notifications?: Json[]
           watchlist?: string[]
         }
         Update: {
@@ -348,7 +339,7 @@ export interface Database {
           email?: string | null
           id?: string
           name?: string | null
-          notifications?: Json[] | null
+          notifications?: Json[]
           watchlist?: string[]
         }
         Relationships: [

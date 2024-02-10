@@ -23,7 +23,12 @@ export default function Logo({ width, height, withText }: LogoProps) {
                 height={h}
                 className="transform transition duration-300 relative"
             />
-            {withText && <h2 className="text-slate-700 text-2xl font-serif font-semibold mb-0">Pocket Adviser</h2>}
+            {withText && (
+                <h2>
+                    <span className="text-slate-700 text-2xl font-serif font-semibold mb-0">Pocket Adviser </span>
+                    <span>Demo</span>
+                </h2>
+            )}
         </Link>
     )
 }

@@ -25,17 +25,6 @@ export default async function Home() {
     <main className="h-full">
       <div className="z-10 w-full flex items-center justify-between px-12 py-6 bg-white fixed">
           <Logo withText={true} />
-          <div className="flex gap-8">
-              {/* <Link href='/' className="text-base text-slate-700 no-underline">
-                Features
-              </Link>
-              <Link href='/' className="text-base text-slate-700 no-underline">
-                Pricing
-              </Link>
-              <Link href='/' className="text-base text-slate-700 no-underline">
-                Resources
-              </Link> */}
-          </div>
           {session ? (
           <Link href='/dashboard'>
             <Button>

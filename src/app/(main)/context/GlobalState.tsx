@@ -9,10 +9,10 @@ import React, {
 } from "react";
 import { createClientComponentClient, Session } from "@supabase/auth-helpers-nextjs";
 
-import type { Database, TablesUpdate } from '@/types/supabase';
-import type { PortfolioData, PopulatedHolding, AdviceData } from "@/types/types";
+import type { Database } from '@/types/supabase';
+import type { PortfolioData } from "@/types/types";
 
-import GlobalReducer from "./GlobalReducer";
+import { GlobalReducer, type Action } from "./GlobalReducer";
 
 const GlobalContext = createContext<any>(null);
 
@@ -30,29 +30,14 @@ export type GlobalState = {
   portfolioData: PortfolioData[]
   watchlist: string[]
   notifications: Notification[]
-  dispatch: React.Dispatch<{
-    type: string,
-    payload: {
-      id: string,
-      data?: any
-      totalValue?: number
-    },
-  }>
-  setPortfolio: (id: string, data: PopulatedHolding[]) => void
-  updatePortfolioSettings: (id: string, data: TablesUpdate<'portfolios'>) => void
-  setAdvice: (id: string, data: Partial<AdviceData>) => void
+  dispatch: React.Dispatch<Action>
+  createPortfolio: (data: PortfolioData) => void
   toggleFavourite: (id: string) => Promise<void>
   toggleWatchlist: (symbol: string) => Promise<void>
   onPortfolioDelete: (id: string) => Promise<boolean>
 }
 
-export type Reducer = (
-  prevState: PortfolioData[], 
-  action: {
-    type: string
-    payload: any
-  }
-) => PortfolioData[];
+type Reducer = typeof GlobalReducer;
 
 interface GlobalProviderProps {
   children: ReactNode,
@@ -75,27 +60,19 @@ export const GlobalProvider = ({
   const [watchlist, setWatchlist] = useState<string[]>(userData.watchlist);
   const [notifications, setNotifications] = useState<string[]>(userData.notifications);
 
-  const setPortfolio = useCallback(async (id: string, data: PopulatedHolding[]) => {
-    if (!data || !session) return;
-    // remove zero unit holdings
-    const filteredData = data.filter((obj) => obj.units !== 0) || [];
-
-    const totalValue = filteredData.reduce((acc, obj) => acc + obj.value, 0);
-    // update state
+  const createPortfolio = useCallback((data: any) => {
+    const newState = [
+      ...portfolioData,
+      { ...data, totalValue: 0, holdings: [], advice: [] }
+    ]
     dispatch({
-      type: "UPDATE_DATA",
-      payload: {
-        id,
-        data: filteredData,
-        totalValue,
-      },
-    });
-  }, [session, dispatch]);
+      type: 'SET_DATA',
+      payload: newState,
+    })
+  }, [portfolioData, dispatch]);
 
   const toggleFavourite = useCallback(
     async (id: string) => {
-      if (!session) return;
-
       const { error } = await supabase.rpc("toggle_locked", {
         holding_id: id,
       });
@@ -103,7 +80,7 @@ export const GlobalProvider = ({
       if (!error) {
         // update state
         dispatch({
-          type: "TOGGLE_FAVOURITE",
+          type: "TOGGLE_LOCKED",
           payload: {
             id,
           },
@@ -111,29 +88,7 @@ export const GlobalProvider = ({
       } else {
         console.log(error);
       }
-  }, [supabase, session, dispatch]);
-
-  const setAdvice = useCallback(
-    (id: string, data: Partial<AdviceData>) => {
-      dispatch({
-        type: "SET_ADVICE",
-        payload: {
-          id,
-          data
-        }
-      })
-  }, []);
-
-  const updatePortfolioSettings = useCallback(
-    (id: string, data: TablesUpdate<'portfolios'>) => {
-      dispatch({
-        type: "UPDATE_SETTINGS",
-        payload: {
-          id,
-          data,
-        }
-      });
-  }, [dispatch]);
+  }, [supabase, dispatch]);
 
   const onPortfolioDelete = useCallback(async (id: string) => {
     // delete record from DB
@@ -175,10 +130,8 @@ export const GlobalProvider = ({
         watchlist,
         notifications,
         dispatch,
-        setPortfolio,
+        createPortfolio,
         toggleFavourite,
-        updatePortfolioSettings,
-        setAdvice,
         onPortfolioDelete,
         toggleWatchlist
       }}

@@ -53,7 +53,7 @@ const PortfolioMenuItem = ({ portfolio, activePath, dropdownOpen, toggleDropdown
         isOpen && "flex"
         )}>
         <Link
-            href={`/portfolio/${portfolio.id}?tab=Overview`}
+            href={`/portfolio/${portfolio.id}?tab=overview`}
             className={cn(
               "w-full flex gap-2 text-[#24242b] text-sm no-underline transition-none cursor-pointer hover:text-[#1476ff]",
               activePath===`/portfolio/${portfolio.id}` && "text-[#1476ff]"

@@ -67,8 +67,8 @@ export async function POST(req: Request) {
             });
         }
 
-        // redirect user to new portfolio
-        return NextResponse.redirect(new URL(`/portfolio/${data[0].id}`, req.url));
+        // return new portfolio record
+        return NextResponse.json(data[0]);
 
     } catch (e) {
         console.log(e);

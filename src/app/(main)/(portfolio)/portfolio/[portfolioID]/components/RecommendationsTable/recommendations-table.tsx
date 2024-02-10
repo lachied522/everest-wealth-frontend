@@ -53,8 +53,7 @@ function populateTransactionsData(transactions: Tables<'recom_transactions'>[]) 
 }
 
 export default function RecommendationsTable<TData>() {
-    const { setPortfolio, setAdvice } = useGlobalContext() as GlobalState;
-    const { currentPortfolio } = usePortfolioContext() as PortfolioState;
+    const { currentPortfolio, setAdvice, updateHoldings } = usePortfolioContext() as PortfolioState;
     const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
     const router = useRouter();
 
@@ -100,23 +99,20 @@ export default function RecommendationsTable<TData>() {
             ...currentPortfolio.holdings.filter((holding: Tables<'holdings'>) => !updatedSymbols.includes(holding.symbol)),
             ...data,
         ];
-        setPortfolio(currentPortfolio.id, newHoldings);
-    }, [currentPortfolio.id, currentPortfolio.holdings, setPortfolio]);
+        updateHoldings(newHoldings);
+    }, [currentPortfolio.holdings, updateHoldings]);
 
     const navigateToOverview = useCallback(() => {
         // switch to 'Overview' tab
-        router.push(`/portfolio/${currentPortfolio.id}?tab=Overview`);
+        router.push(`/portfolio/${currentPortfolio.id}?tab=overview`);
     }, [router, currentPortfolio.id]);
 
     const setAdviceStatus = useCallback((status: string) => {
-        setAdvice(
-            currentPortfolio.id,
-            {
-                ...currentPortfolio.advice[0],
-                status,
-            }
-        )
-    }, [currentPortfolio.id, currentPortfolio.advice, setAdvice]);
+        setAdvice({
+            ...currentPortfolio.advice[0],
+            status,
+        })
+    }, [currentPortfolio.advice, setAdvice]);
 
     const onAdviceAction = useCallback((action: 'confirm'|'dismiss') => {
         const data = action==='confirm'? selectedData: [];

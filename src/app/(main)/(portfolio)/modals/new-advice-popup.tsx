@@ -49,8 +49,8 @@ async function* readStream(reader: ReadableStreamDefaultReader): AsyncGenerator<
 
 
 export default function NewAdvicePopup() {
-    const { session, setAdvice } = useGlobalContext() as GlobalState;
-    const { currentPortfolio } = usePortfolioContext() as PortfolioState;
+    const { session } = useGlobalContext() as GlobalState;
+    const { currentPortfolio, setAdvice, resetAdvice } = usePortfolioContext() as PortfolioState;
     const router = useRouter();
     const [adviceType, setAdviceType] = useState<'deposit'|'withdraw'|'review'>('deposit'); // deposit, withdraw, or review
     const [amount, setAmount] = useState<number>(0);
@@ -58,17 +58,23 @@ export default function NewAdvicePopup() {
     const [proposedValue, setProposedValue] = useState(0); // value after proposed transaction
     const closeRef = useRef<HTMLButtonElement | null>(null);
 
-    if (!currentPortfolio) throw new Error('currentPortfolio undefined');
+    if (!currentPortfolio) return null;
+
+    const updateAdviceState = useCallback(
+        (key: 'recom_transactions'|'url'|'id', value: any, finished: boolean = false) => {
+            // update specified key in advice state
+            setAdvice({
+                ...currentPortfolio.advice[0],
+                status: finished? "finished": "generating",
+                [key]: value
+            })
+        },
+        [currentPortfolio.advice, setAdvice]
+    );
     
     const handleRequest = useCallback(async (amount: number, reason: string) => {
         // reset advice data in global state
-        setAdvice(
-            currentPortfolio.id, 
-            {
-                status: 'generating',
-                recom_transactions: [],
-            }
-        );
+        resetAdvice();
     
         const response = await fetch(`${process.env.NEXT_PUBLIC_WEB_SERVER_BASE_URL}/new_advice/${currentPortfolio.id}`, {
             method: "POST",
@@ -87,42 +93,22 @@ export default function NewAdvicePopup() {
         const reader = response.body.getReader();
         
         for await (const res of readStream(reader)) {
-            // TO DO: handle state changes more compactly
-            console.log(res);
             switch (res.type) {
                 case ("transactions") : {
-                    setAdvice (
-                        currentPortfolio.id, 
-                        {
-                            ...currentPortfolio.advice[0],
-                            recom_transactions: res.payload,
-                        }
-                    );
+                    updateAdviceState("recom_transactions", res.payload);
                     break;
                 }
                 case ("url") : {
-                    setAdvice (
-                        currentPortfolio.id, 
-                        {
-                            ...currentPortfolio.advice[0],
-                            url: res.payload,
-                            status: 'finished',
-                        }
-                    );
+                    updateAdviceState("url", res.payload);
                     break;
                 }
                 case ("id") : {
-                    setAdvice(
-                        currentPortfolio.id, 
-                        {
-                            ...currentPortfolio.advice[0],
-                            id: res.payload,
-                        }
-                    );
+                    updateAdviceState("id", res.payload, true);
+                    break;
                 }
             };
         }
-    }, [currentPortfolio.id, session]);
+    }, [currentPortfolio.id, session.access_token, updateAdviceState, resetAdvice]);
 
     useEffect(() => {
         setCurrentValue(currentPortfolio.totalValue);
@@ -156,7 +142,7 @@ export default function NewAdvicePopup() {
     const onSubmit = () => {
         handleRequest(amount, adviceType);
         // navigate to Recommendations tab
-        router.push(`/portfolio/${currentPortfolio.id}?tab=Recommendations`);
+        router.push(`/portfolio/${currentPortfolio.id}?tab=recommendations`);
         // close modal
         if (closeRef.current) closeRef.current.click();
     } 
