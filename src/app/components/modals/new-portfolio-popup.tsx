@@ -64,7 +64,7 @@ export default function NewPortfolioPopup({ children } : {
         // navigate to new portfolio
         router.replace(`/portfolio/${data.id}?tab=overview`);
         if (closeRef.current) closeRef.current.click(); // close modal
-    }, [router]);
+    }, [router, createPortfolio]);
 
     async function onSubmit(values: z.infer<typeof FormSchema>) {
         setIsLoading(true);

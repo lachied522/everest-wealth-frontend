@@ -18,7 +18,7 @@ export default function LinkPopup({ setPublicToken }: LinkPopupProps) {
     const onSuccess = useCallback((publicToken: string) => {
         setIsLinked(true);
         setPublicToken(publicToken);
-    }, [])
+    }, [setIsLinked, setPublicToken])
 
     const { open, ready } = usePlaidLink({
         token: LinkToken,

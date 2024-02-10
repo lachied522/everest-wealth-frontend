@@ -58,7 +58,7 @@ export default function NewAdvicePopup() {
     const [proposedValue, setProposedValue] = useState(0); // value after proposed transaction
     const closeRef = useRef<HTMLButtonElement | null>(null);
 
-    if (!currentPortfolio) return null;
+    if (!currentPortfolio) throw new Error('currentPortfolio undefined');
 
     const updateAdviceState = useCallback(
         (key: 'recom_transactions'|'url'|'id', value: any, finished: boolean = false) => {

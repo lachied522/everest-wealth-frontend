@@ -49,7 +49,7 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
                 data,
             },
         })
-    }, [currentPortfolio]);
+    }, [currentPortfolio, dispatch]);
 
     const setAdvice = useCallback((data: AdviceData) => {
         if (!currentPortfolio) return;
@@ -60,7 +60,7 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
                 data,
             },
         })
-    }, [currentPortfolio]);
+    }, [currentPortfolio, dispatch]);
 
     const resetAdvice = useCallback(() => {
         if (!currentPortfolio) return;
@@ -70,7 +70,7 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
                 id: currentPortfolio.id,
             },
         })
-    }, [currentPortfolio]);
+    }, [currentPortfolio, dispatch]);
 
     const updateSettings = useCallback((data: any) => {
         if (!currentPortfolio) return;
@@ -81,7 +81,7 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
                 data,
             },
         })
-    }, [currentPortfolio]);
+    }, [currentPortfolio, dispatch]);
 
     const removePortfolio = useCallback(() => {
         if (!currentPortfolio) return;
@@ -91,7 +91,7 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
               id: currentPortfolio.id,
             },
         });
-    }, [currentPortfolio]);
+    }, [currentPortfolio, dispatch]);
 
     return (
         <PortfolioContext.Provider value={{ 
