@@ -29,7 +29,7 @@ export type Action = {
     type: 'SET_SETTINGS'
     payload: {
         id: string // portfolio id
-        data: any
+        data: any // TODO
     }
 } | {
     type: 'DELETE_PORTFOLIO'

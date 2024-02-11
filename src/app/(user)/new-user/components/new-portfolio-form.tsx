@@ -75,16 +75,14 @@ export const NewPortfolioForm = ({ onSuccess, navigateBack }: NewPortfolioFormPr
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="max-w-6xl flex flex-col items-center gap-12 p-6 space-y-8">
-                <div className="flex items-center gap-6 mb-4 mx-auto">
-                    <BiBriefcaseAlt size={42} />
-                    <div className="flex flex-col justify-center gap-2">
-                        <h3 className="text-xl font-medium">Create your first portfolio</h3>
-                        <p className="text-slate-800 w-[660px]">
-                            You may link an existing portfolio or start from scratch.
-                        </p>
-                    </div>
+                <div className="grid grid-cols-[50px_1fr] grid-rows-2 items-center gap-x-6 mb-4 mx-auto">
+                    <BiBriefcaseAlt size={42} className="row-span-2"/>
+                    <h3 className="text-xl font-medium">Create your first portfolio</h3>
+                    <p className="text-slate-800 max-w-[540px]">
+                        You may link an existing portfolio or start from scratch.
+                    </p>
                 </div>
-                <Card className="flex flex-col gap-36 items-center p-16 pb-48 m-4">
+                <Card className="flex flex-col gap-36 items-center px-6 sm:px-12 py-16 m-4">
                     <div className="grid grid-cols-2 place-items-center gap-16">
                         <div className="text-lg font-medium text-slate-800">Portfolio Name</div>
                         <FormField 
@@ -140,7 +138,7 @@ export const NewPortfolioForm = ({ onSuccess, navigateBack }: NewPortfolioFormPr
                             )}
                         />
                     </div>
-                    <div className="flex flex-col gap-24 items-center">
+                    <div className="flex flex-col gap-16 items-center">
                         <h3 className="text-2xl font-medium">Preferences</h3>
                         <div className="text-lg font-medium text-slate-800">
                             What proportion of your portfolio do you wish to invest in
@@ -158,7 +156,7 @@ export const NewPortfolioForm = ({ onSuccess, navigateBack }: NewPortfolioFormPr
                                             step={1}
                                             defaultValue={[field.value || 50]}
                                             onValueChange={(value: number[]) => field.onChange(value[0])}
-                                            className="w-[240px] cursor-pointer"
+                                            className="w-[180px] sm:w-[240px] cursor-pointer"
                                         />
                                     </FormControl>
                                     <div className="text-lg font-semibold">{field.value || 50}%</div>

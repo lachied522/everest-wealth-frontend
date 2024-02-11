@@ -18,7 +18,7 @@ export default function AICompanionTrigger() {
     }, [setIsSilent]);
 
     return (
-        <div className="bg-slate-50 shadow-lg rounded-full fixed bottom-16 right-24 p-4 cursor-pointer hover:rounded-2xl group">
+        <div className="bg-slate-50 shadow-lg rounded-full fixed bottom-4 right-6 sm:bottom-12 sm:right-18 p-4 cursor-pointer hover:rounded-2xl group">
             <div className="hidden rounded-full bg-white/90 p-1 -top-0.5 -right-0.5 absolute hover:scale-110 group-hover:block" onClick={toggleIsSilent} >
                 {isSilent ? <LuBell size={16} className="text-slate-700" /> : <LuBellMinus size={16} className="text-slate-700" />}
             </div>
@@ -27,7 +27,7 @@ export default function AICompanionTrigger() {
                     toast && "flex items-center justify-center gap-2"
                 )}>
                     <div className={cn(
-                        "text-lg text-slate-800 font-medium translate-x-full transition-transform duration-300 ease-in-out",
+                        "text-sm sm:text-lg text-slate-800 font-medium translate-x-full transition-transform duration-300 ease-in-out",
                         toast && "translate-x-0"
                     )}>
                         {toast}

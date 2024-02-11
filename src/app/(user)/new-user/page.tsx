@@ -4,7 +4,7 @@ import { cookies } from 'next/headers';
 import Link from "next/link";
 import Image from "next/image";
 
-import { NewUserForm } from './components/new-user-tabs';
+import { NewUserTabs } from './components/new-user-tabs';
 import Footer from 'src/app/footer';
 
 import type { Database } from '@/types/supabase';
@@ -33,9 +33,9 @@ export default async function NewUserPage() {
                         />
                     </Link>
                 </div>
-                <div className="h-full flex flex-col justify-center justify-items-center items-center px-12">
+                <div className="h-full flex flex-col justify-center justify-items-center items-center">
                     <h1 className='text-lg font-medium mb-4'>Welcome {user?.user_metadata['name'] || 'Name'}</h1>
-                    <NewUserForm />
+                    <NewUserTabs />
                 </div>
             </div>
             <Footer />

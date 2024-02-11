@@ -23,8 +23,7 @@ import { useGlobalContext, GlobalState } from '@/context/GlobalState';
 import type { Institution } from 'plaid';
 
 export default function BrokerPopup() {
-    const { dispatch } = useGlobalContext() as GlobalState;
-    const { currentPortfolio } = usePortfolioContext() as PortfolioState;
+    const { currentPortfolio, updateSettings } = usePortfolioContext() as PortfolioState;
     const [institutionData, setInstitutionData] = useState<Institution | null>(null);
     const [LinkToken, setLinkToken] = useState<string | null>(null);
     const [isLoadingUnlink, setIsLoadingUnlink] = useState<boolean>(false);
@@ -46,17 +45,9 @@ export default function BrokerPopup() {
         });
 
         if (response.ok) {
-            dispatch({
-                type: "UPDATE_SETTINGS",
-                payload: {
-                    id: currentPortfolio.id,
-                    data: {
-                        item_access_token: true,
-                    }
-                }
-            })
+            updateSettings({ item_access_token: true })
         }
-    }, [currentPortfolio.id, dispatch]);
+    }, [currentPortfolio.id, updateSettings]);
 
     const { open, ready } = usePlaidLink({
         token: LinkToken,
@@ -105,10 +96,10 @@ export default function BrokerPopup() {
         }
     }, [isLinked, setInstitutionData, fetchInstitution]);
 
-    const onUnlink = useCallback(() => {
+    const onUnlink = useCallback(async () => {
         setIsLoadingUnlink(true);
 
-        fetch('/api/remove-token', {
+        const response =  await fetch('/api/remove-token', {
             method: "POST",
             body: JSON.stringify({
                 portfolio_id: currentPortfolio.id,
@@ -116,23 +107,15 @@ export default function BrokerPopup() {
             headers: {
                 "Content-Type": "application/json",
             }
-          })
-        .then(res => res.json())
-        .then(({ success } : { success: boolean }) => {
-            if (success) {
-                dispatch({
-                    type: "UPDATE_SETTINGS",
-                    payload: {
-                        id: currentPortfolio.id,
-                        data: {
-                            item_access_token: false,
-                        }
-                    }
-                })
-            }
-        })
-        .finally(() => setIsLoadingUnlink(false));
-    }, [currentPortfolio.id, setIsLoadingUnlink, dispatch]);
+        });
+
+        if (response.ok) {
+            // remove access token from state
+            updateSettings({ item_access_token: false })
+        }
+
+        setIsLoadingUnlink(false)
+    }, [currentPortfolio.id, setIsLoadingUnlink, updateSettings]);
 
     return (
         <>

@@ -60,23 +60,21 @@ export const NewProfileForm = ({ onSuccess } : NewProfileFormProps) => {
     
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="max-w-6xl flex flex-col items-center gap-6 p-6 space-y-8">
-                <div className="flex items-center gap-6 mb-4 mx-auto">
-                    <LuUser2 size={48} />
-                    <div className="flex flex-col justify-center gap-2">
-                        <h3 className="text-xl font-medium">Your Profile</h3>
-                        <p className="text-slate-800 w-[660px]">
-                            Your profile helps us make recommendations that are
-                            appropriate for you. It is important to make sure your profile
-                            is update to date.
-                        </p>
-                    </div>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="max-w-6xl flex flex-col items-stretch gap-6 space-y-8">
+                <div className="grid grid-cols-[50px_1fr] grid-rows-2 items-center gap-x-6 mb-4 mx-auto">
+                    <LuUser2 size={48} className="row-span-2"/>
+                    <h3 className="text-xl font-medium">Your Profile</h3>
+                    <p className="text-slate-800 max-w-[540px]">
+                        Your profile helps us make recommendations that are
+                        appropriate for you. It is important to make sure your profile
+                        is update to date.
+                    </p>
                 </div>
-                <Card className="flex flex-col gap-12 items-center p-16 m-4">
+                <Card className="flex flex-col gap-12 items-center px-6 sm:px-12 py-16 m-4">
                     <h3 className="text-2xl font-medium">Finances</h3>
-                    <div className="grid grid-cols-2 items-center justify-items-center gap-12 p-16 m-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 items-center justify-items-center gap-12 p-12 m-4">
                         <div className="w-full text-left text-lg text-slate-800">
-                            Employment type
+                            What is your employment type?
                         </div>
                         <FormField
                             control={form.control}
@@ -195,7 +193,7 @@ export const NewProfileForm = ({ onSuccess } : NewProfileFormProps) => {
                         />
                     </div>
                     <h3 className="text-2xl font-medium">Experience</h3>
-                    <div className="grid grid-cols-2 items-center justify-items-center gap-12 p-16 m-4">
+                    <div className="grid grid-col-1 sm:grid-cols-2 items-center justify-items-center gap-12 p-16 m-4">
                         <div className="text-lg text-slate-800">
                             How many years&#x27; experience do you have investing in
                             stocks?
@@ -243,7 +241,7 @@ export const NewProfileForm = ({ onSuccess } : NewProfileFormProps) => {
                                     <RadioGroup
                                         onValueChange={field.onChange}
                                         defaultValue={String(field.value)}
-                                        className="w-full grid grid-cols-5 items-center justify-center gap-4 p-4"
+                                        className="w-full flex flex-wrap items-center justify-center gap-6"
                                     >
                                         <FormItem className="flex items-center space-x-3 space-y-0">
                                         <FormControl>
@@ -304,7 +302,7 @@ export const NewProfileForm = ({ onSuccess } : NewProfileFormProps) => {
                                         <RadioGroup
                                             onValueChange={field.onChange}
                                             defaultValue={String(field.value)}
-                                            className="w-full grid grid-cols-5 items-center justify-center gap-4 p-4"
+                                            className="w-full flex flex-wrap items-center justify-center gap-6"
                                         >
                                             <FormItem className="flex items-center space-x-3 space-y-0">
                                             <FormControl>
@@ -364,7 +362,7 @@ export const NewProfileForm = ({ onSuccess } : NewProfileFormProps) => {
                                     <RadioGroup
                                         onValueChange={field.onChange}
                                         defaultValue={String(field.value)}
-                                        className="w-full grid grid-cols-5 items-center justify-center gap-4 p-4"
+                                        className="w-full flex flex-wrap items-center justify-center gap-6"
                                     >
                                         <FormItem className="flex items-center space-x-3 space-y-0">
                                         <FormControl>
@@ -426,7 +424,7 @@ export const NewProfileForm = ({ onSuccess } : NewProfileFormProps) => {
                                     <RadioGroup
                                         onValueChange={field.onChange}
                                         defaultValue={String(field.value)}
-                                        className="w-full grid grid-cols-5 items-center justify-center gap-4 p-4"
+                                        className="w-full flex flex-wrap items-center justify-center gap-6"
                                     >
                                         <FormItem className="flex items-center space-x-3 space-y-0">
                                         <FormControl>

@@ -9,6 +9,8 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
+import Footer from 'src/app/footer';
+
 import type { Database } from '@/types/supabase';
 
 export default function Page() {
@@ -137,8 +139,7 @@ export default function Page() {
             </div>
         </Card>
       </div>
-      <div className="h-10 col-span-2 bg-slate-300/30 mt-6">
-      </div>
+      <Footer />
     </div>
   );
 }

@@ -156,7 +156,7 @@ export default function IndustryPreferences({ value, handleChange }: IndustryPre
           </div>
         </div>
         <ScrollArea className="h-[480px]">
-          <div className="flex flex-wrap text-center items-center justify-center p-8 gap-8 mx-auto">
+          <div className="flex flex-wrap text-center items-center justify-center gap-4 sm:gap-8 mx-auto">
             {SECTORS.map((sector, index) => (
                 <SectorPrefence 
                     key={index}

@@ -63,12 +63,10 @@ export const GlobalProvider = ({
   const createPortfolio = useCallback((data: any) => {
     const newState = [
       ...portfolioData,
-      { ...data, totalValue: 0, holdings: [], advice: [] }
-    ]
-    dispatch({
-      type: 'SET_DATA',
-      payload: newState,
-    })
+      { ...data, totalValue: 0, holdings: [], advice: [] },
+    ];
+
+    dispatch({ type: 'SET_DATA', payload: newState });
   }, [portfolioData, dispatch]);
 
   const toggleFavourite = useCallback(

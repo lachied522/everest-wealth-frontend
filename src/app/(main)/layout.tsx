@@ -125,7 +125,7 @@ export default async function RootLayout({ children } : { children: React.ReactN
                         <Sidebar />
                         <div className="flex-1">
                             <Header userName={session.user.user_metadata['name'] || 'Name'} />
-                            <div className="h-full min-h-[calc(100vh-152px)] bg-white px-8 py-16">
+                            <div className="h-full min-h-[calc(100vh-152px)] bg-white py-16">
                                 <Container>
                                     {children}
                                 </Container>

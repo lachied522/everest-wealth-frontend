@@ -12,6 +12,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 
+import Footer from "src/app/footer";
+
 import type { Database } from "@/types/supabase";
 
 export default function SignupPage() {
@@ -56,7 +58,7 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="h-[100vh] grid grid-cols-2">
+    <div className="h-[100vh] grid grid-cols-1 sm:grid-cols-2">
         <div>
           <div className="flex items-center justify-center py-8">
               <Link
@@ -190,8 +192,7 @@ export default function SignupPage() {
           </div>
         </div>
         <div />
-        <div className="h-10 col-span-2 bg-slate-300/30 mt-6">
-        </div>
+        <Footer />
     </div>
   );
 }

@@ -23,7 +23,7 @@ interface FormData {
     }
 }
 
-export const NewUserForm = () => {
+export const NewUserTabs = () => {
     const router = useRouter()
     const [activeTab, setActiveTab] = useState<number>(1)
     const [loading, setLoading] = useState(false)
@@ -87,11 +87,13 @@ export const NewUserForm = () => {
                 ))}
             </div>
             <Separator className="my-8" />
-            {activeTab === 1 ? (
-            <NewProfileForm onSuccess={onProfileSubmit} />
-            ) : activeTab === 2 ? (
-            <NewPortfolioForm onSuccess={onPortfolioSubmit} navigateBack={navigateBack}/>
-            ) : null}
+            <div className="px-6 sm:px-12 lg:px-24">
+                {activeTab === 1 ? (
+                <NewProfileForm onSuccess={onProfileSubmit} />
+                ) : activeTab === 2 ? (
+                <NewPortfolioForm onSuccess={onPortfolioSubmit} navigateBack={navigateBack}/>
+                ) : null}
+            </div>
         </>
     );
 };
