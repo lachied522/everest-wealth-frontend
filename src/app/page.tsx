@@ -10,6 +10,7 @@ import { LuLink } from 'react-icons/lu';
 
 import Logo from './logo';
 import Footer from './footer';
+import DemoLoginButton from './demo-login-button';
 
 import type { Database } from '@/types/supabase';
 
@@ -38,11 +39,7 @@ export default async function Home() {
               Login
             </Button>
           </Link>
-          <Link href='/signup'>
-            <Button>
-              Try Free
-            </Button>
-          </Link>
+          <DemoLoginButton />
         </div>
         )}
       </div>
@@ -74,11 +71,7 @@ export default async function Home() {
                       Login
                     </Button>
                   </Link>
-                  <Link href='/signup'>
-                    <Button className="shadow-sm">
-                      Try Free
-                    </Button>
-                  </Link>
+                  <DemoLoginButton />
                 </>
                 )}
               </div>
@@ -191,17 +184,23 @@ export default async function Home() {
               <h2 className="text-3xl font-medium">Try us out for free.</h2>
               <p className="text-lg">Let us help you begin your investing journey.</p>
             </div>
-            <div className="flex gap-4">
-              <Link href='/login'>
-                <Button variant="secondary">
-                  Login
-                </Button>
-              </Link>
-              <Link href='/signup'>
+            <div className="flex gap-6">
+              {session ? (
+              <Link href='/dashboard'>
                 <Button>
-                  Try Free
+                  Dashboard
                 </Button>
               </Link>
+              ) : (
+              <>
+                <Link href='/login'>
+                  <Button variant="secondary" className="shadow-sm">
+                    Login
+                  </Button>
+                </Link>
+                <DemoLoginButton />
+              </>
+              )}
             </div>
           </div>
           <div className="col-span-2 sm:col-span-1">

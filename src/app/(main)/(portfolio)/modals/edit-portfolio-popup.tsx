@@ -18,8 +18,7 @@ import { LuPencil, LuSearch, LuTrash } from "react-icons/lu";
 
 import debounce from "lodash.debounce";
 
-import { useGlobalContext, GlobalState } from "@/context/GlobalState";
-import { usePortfolioContext, PortfolioState } from "@/context/PortfolioState";
+import { usePortfolioContext, type PortfolioState } from "@/context/PortfolioState";
 
 import type { PopulatedHolding, StockInfo } from "@/types/types";
 
@@ -53,9 +52,10 @@ const SearchHit = ({ hit, selectHit } : {
     );
 };
 
-const HoldingRow = ({ holding, update } : { 
+const HoldingRow = ({ holding, updateHolding, removeHolding } : { 
   holding: PartialHolding,
-  update: (holding: PartialHolding) => void
+  updateHolding: (holding: PartialHolding) => void
+  removeHolding: (holding: PartialHolding) => void
 }) => {
     const [stockPrice, setStockPrice] = useState<number | null>(null); // current stock price - must be fetched from api
 
@@ -82,42 +82,31 @@ const HoldingRow = ({ holding, update } : {
     const changeValue = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         if (!stockPrice) return;
         const input = parseFloat(e.target.value);
-        update({
+        updateHolding({
           ...holding,
           value: input,
           units: Math.max(Math.floor(input / stockPrice), 1),
         });
-    }, [holding, update, stockPrice]);
+    }, [holding, updateHolding, stockPrice]);
     
     const changeUnits = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         if (!stockPrice) return;
         const input = parseFloat(e.target.value);
-        update({
+        updateHolding({
           ...holding,
           value: input * stockPrice,
           units: input,
         });
-    }, [holding, update, stockPrice]);
+    }, [holding, updateHolding, stockPrice]);
 
     const changeCost = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
       const input = parseFloat(e.target.value);
-      update({
+      updateHolding({
         ...holding,
         cost: input / holding.units,
         totalCost: input,
       });
-    }, [holding, update]);
-
-    const removeHolding = useCallback(() => {
-      // holding is removed by setting units to zero
-      update({
-        ...holding,
-        value: 0,
-        units: 0,
-      });
-    }, [holding, update]);
-
-    if (!(holding.units > 0)) return null;
+    }, [holding, updateHolding]);
 
     return (
         <div className="grid grid-rows-[auto] gap-0 grid-cols-[0.5fr_0.75fr_1fr_1fr_20px] auto-cols-[1fr] items-center justify-items-center p-1.5">
@@ -160,7 +149,7 @@ const HoldingRow = ({ holding, update } : {
             />
             <LuTrash 
                 className="cursor-pointer transition-colors duration-300 hover:text-[#dc2b2b]"
-                onClick={removeHolding}
+                onClick={() => removeHolding(holding)}
             />
         </div>
     );
@@ -223,6 +212,12 @@ export default function EditPortfolioPopup() {
   const updateHolding = useCallback((holding: PartialHolding) => {
     setAllHoldingData((prevArray) => (
       prevArray.map((obj) => obj.symbol === holding.symbol? holding: obj)
+    ));
+  }, [setAllHoldingData]);
+
+  const removeHolding = useCallback((holding: PartialHolding) => {
+    setAllHoldingData((prevArray) => (
+      prevArray.filter((obj) => obj.symbol !== holding.symbol)
     ));
   }, [setAllHoldingData]);
 
@@ -324,7 +319,8 @@ export default function EditPortfolioPopup() {
                     <HoldingRow 
                         key={index}
                         holding={holding}
-                        update={updateHolding}
+                        updateHolding={updateHolding}
+                        removeHolding={removeHolding}
                     />
                   ))}
                 </ScrollArea>

@@ -259,12 +259,12 @@ export type Database = {
         Row: {
           id: string
           link_to_equity_research: string | null
-          symbol: string | null
+          symbol: string
           tags: string[] | null
         }
         Insert: {
           id?: string
-          link_to_equity_research?: string | null
+          link_to_equity_research?: string
           symbol?: string | null
           tags?: string[] | null
         }

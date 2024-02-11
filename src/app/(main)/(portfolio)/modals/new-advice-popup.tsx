@@ -26,7 +26,7 @@ const USDollar = new Intl.NumberFormat("en-US", {
 });
 
 type AdviceResponse = {
-    type: "transactions"|"url"|"id"
+    type: "transactions"|"url"|"id"|"error"
     payload: any
 }
 
@@ -71,10 +71,15 @@ export default function NewAdvicePopup() {
         },
         [currentPortfolio.advice, setAdvice]
     );
+
+    const onError = useCallback(() => {
+        // TODO - add error indicator to UI
+        resetAdvice();
+    }, [resetAdvice])
     
     const handleRequest = useCallback(async (amount: number, reason: string) => {
         // reset advice data in global state
-        resetAdvice();
+        updateAdviceState("recom_transactions", []);
     
         const response = await fetch(`${process.env.NEXT_PUBLIC_WEB_SERVER_BASE_URL}/new_advice/${currentPortfolio.id}`, {
             method: "POST",
@@ -106,9 +111,14 @@ export default function NewAdvicePopup() {
                     updateAdviceState("id", res.payload, true);
                     break;
                 }
+                case ("error") : {
+                    console.log(res.payload);
+                    onError();
+                    break;
+                }
             };
         }
-    }, [currentPortfolio.id, session.access_token, updateAdviceState, resetAdvice]);
+    }, [currentPortfolio.id, session.access_token, updateAdviceState, onError]);
 
     useEffect(() => {
         setCurrentValue(currentPortfolio.totalValue);

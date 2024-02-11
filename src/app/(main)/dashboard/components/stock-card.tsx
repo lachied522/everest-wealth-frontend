@@ -19,7 +19,7 @@ const USDollar = new Intl.NumberFormat("en-US", {
     currency: "USD",
 });
 
-export default function StockCard({ symbol }: { symbol: string | null }) {
+export default function StockCard({ symbol }: { symbol: string }) {
     const [data, setData] = useState<StockInfo | null>(null);
 
     useEffect(() => {
@@ -30,7 +30,7 @@ export default function StockCard({ symbol }: { symbol: string | null }) {
         }
 
         async function getData() {
-            const params = new URLSearchParams({ s: symbol! });
+            const params = new URLSearchParams({ s: symbol });
             const data = await fetch(`/api/get-stock-info?${params}`).then(res => res.json());
             if (active) setData(data);
         }

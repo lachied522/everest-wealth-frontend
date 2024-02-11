@@ -5,7 +5,7 @@ import StockCard from "./stock-card";
 
 interface FeaturedStocksCarouselProps {
     data: {
-        symbol: string | null
+        symbol: string
     }[]
 }
 

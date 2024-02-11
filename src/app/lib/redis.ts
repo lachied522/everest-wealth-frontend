@@ -105,7 +105,7 @@ function formatSector(sectorString: string) {
 }
 
 function parseData(data: Data) {
-  if (Object.keys(data).length === 0) return
+  if (Object.keys(data).length === 0) return;
   const parsedData: { [key: string]: any } = new Object();
 
   // convert any numbers to Number type
@@ -125,17 +125,18 @@ function parseData(data: Data) {
   // format sector
   if (data.sector) parsedData['sector'] = formatSector(data.sector);
 
-  return parsedData as StockInfo
+  return parsedData as StockInfo;
 }
 
 export const fetchSymbol = async (symbol: string) => {
   await connect();
 
   try {
-    const data = await universeRepository.fetch(symbol) as Data;
+    // all symbols in universe are uppercase
+    const upperSymbol = symbol.toUpperCase();
+    const data = await universeRepository.fetch(upperSymbol) as Data;
 
     if (data) return parseData(data);
-    
   } catch (e) {
     console.log(e);
   }
