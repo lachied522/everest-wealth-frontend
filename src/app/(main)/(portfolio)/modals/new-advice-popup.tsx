@@ -20,6 +20,8 @@ import { LuPiggyBank, LuRefreshCw, LuTrendingUp } from "react-icons/lu";
 import { useGlobalContext, type GlobalState } from "@/context/GlobalState";
 import { usePortfolioContext, type PortfolioState } from "@/context/PortfolioState";
 
+import type { AdviceData } from "@/types/types";
+
 const USDollar = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
@@ -51,26 +53,14 @@ async function* readStream(reader: ReadableStreamDefaultReader): AsyncGenerator<
 export default function NewAdvicePopup() {
     const { session } = useGlobalContext() as GlobalState;
     const { currentPortfolio, setAdvice, resetAdvice } = usePortfolioContext() as PortfolioState;
-    const router = useRouter();
     const [adviceType, setAdviceType] = useState<'deposit'|'withdraw'|'review'>('deposit'); // deposit, withdraw, or review
     const [amount, setAmount] = useState<number>(0);
     const [currentValue, setCurrentValue] = useState(0); // current value of portfolio
     const [proposedValue, setProposedValue] = useState(0); // value after proposed transaction
     const closeRef = useRef<HTMLButtonElement | null>(null);
+    const router = useRouter();
 
     if (!currentPortfolio) throw new Error('currentPortfolio undefined');
-
-    const updateAdviceState = useCallback(
-        (key: 'recom_transactions'|'url'|'id', value: any, finished: boolean = false) => {
-            // update specified key in advice state
-            setAdvice({
-                ...currentPortfolio.advice[0],
-                status: finished? "finished": "generating",
-                [key]: value
-            })
-        },
-        [currentPortfolio.advice, setAdvice]
-    );
 
     const onError = useCallback(() => {
         // TODO - add error indicator to UI
@@ -79,7 +69,7 @@ export default function NewAdvicePopup() {
     
     const handleRequest = useCallback(async (amount: number, reason: string) => {
         // reset advice data in global state
-        updateAdviceState("recom_transactions", []);
+        resetAdvice();
     
         const response = await fetch(`${process.env.NEXT_PUBLIC_WEB_SERVER_BASE_URL}/new_advice/${currentPortfolio.id}`, {
             method: "POST",
@@ -96,19 +86,27 @@ export default function NewAdvicePopup() {
         if (!(response.ok && response.body)) return;
         
         const reader = response.body.getReader();
+
+        // initialise new advice object, update as data comes in
+        const newAdvice: Partial<AdviceData> = {
+            portfolio_id: currentPortfolio.id,
+            status: "generating",
+            recom_transactions: []
+        }
         
         for await (const res of readStream(reader)) {
             switch (res.type) {
                 case ("transactions") : {
-                    updateAdviceState("recom_transactions", res.payload);
+                    newAdvice["recom_transactions"] = res.payload;
                     break;
                 }
                 case ("url") : {
-                    updateAdviceState("url", res.payload);
+                    newAdvice["url"] = res.payload;
                     break;
                 }
                 case ("id") : {
-                    updateAdviceState("id", res.payload, true);
+                    newAdvice["id"] = res.payload;
+                    newAdvice["status"] = "finished";
                     break;
                 }
                 case ("error") : {
@@ -117,8 +115,10 @@ export default function NewAdvicePopup() {
                     break;
                 }
             };
+
+            setAdvice(newAdvice);
         }
-    }, [currentPortfolio.id, session.access_token, updateAdviceState, onError]);
+    }, [currentPortfolio.id, session.access_token, resetAdvice, onError]);
 
     useEffect(() => {
         setCurrentValue(currentPortfolio.totalValue);

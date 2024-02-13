@@ -9,7 +9,7 @@ import type { PortfolioData, AdviceData, PopulatedHolding } from "@/types/types"
 export type PortfolioState = {
     currentPortfolio?: PortfolioData
     updateHoldings: (data: PopulatedHolding[]) => void
-    setAdvice: (data: AdviceData) => void
+    setAdvice: (data: Partial<AdviceData>) => void
     updateSettings: (data: any) => void
     resetAdvice: () => void
     removePortfolio: () => void
@@ -51,7 +51,7 @@ export const PortfolioProvider = ({ children }: { children: React.ReactNode }) =
         })
     }, [currentPortfolio, dispatch]);
 
-    const setAdvice = useCallback((data: AdviceData) => {
+    const setAdvice = useCallback((data: Partial<AdviceData>) => {
         if (!currentPortfolio) return;
         dispatch({
             type: 'SET_ADVICE',
