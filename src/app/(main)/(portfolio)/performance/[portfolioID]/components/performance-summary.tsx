@@ -19,8 +19,8 @@ const USDollar = new Intl.NumberFormat("en-US", {
 });
 
 interface PerformanceSummaryProps {
-    performance: TimeSeriesDataPoint[]
-    dividends: TimeSeriesDataPoint[]
+    performance?: TimeSeriesDataPoint[]
+    dividends?: TimeSeriesDataPoint[]
 }
 
 export default function PerformanceSummaryTable({ performance, dividends }: PerformanceSummaryProps) {
@@ -35,7 +35,8 @@ export default function PerformanceSummaryTable({ performance, dividends }: Perf
     }, [currentPortfolio]);
 
     const totalDividends = useMemo(() => {
-        return dividends.reduce((acc, obj) => acc + obj.value, 0);
+        if (dividends) return dividends.reduce((acc, obj) => acc + obj.value!, 0);
+        return 0;
     }, [dividends]);
 
     return (

@@ -25,9 +25,9 @@ const TABS = [
 ]
 
 interface PortfolioPerformanceTabsProps {
-    performance: TimeSeriesDataPoint[]
-    dividends: TimeSeriesDataPoint[]
-    benchmark: TimeSeriesDataPoint[]
+    performance?: TimeSeriesDataPoint[]
+    dividends?: TimeSeriesDataPoint[]
+    benchmark?: TimeSeriesDataPoint[]
 }
 
 export default function PerformanceTabs({

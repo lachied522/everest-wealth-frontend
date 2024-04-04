@@ -5,6 +5,8 @@ import { BarChart, Bar, Rectangle, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
 import { Button } from '@/components/ui/button';
 import { cn } from '@/components/lib/utils';
 
+import type { TimeSeriesDataPoint } from '@/types/types';
+
 const USDollar = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
@@ -34,13 +36,8 @@ const TIMEFRAMES: Timeframe[] = [
     },
 ]
 
-type TimeSeriesDataPoint = {
-    date: Date;
-    value: number;
-};
-
 interface DividendChartProps {
-    data: TimeSeriesDataPoint[]
+    data?: TimeSeriesDataPoint[]
     name: string
 }
 
@@ -63,6 +60,7 @@ export default function DividendChart({ data, name }: DividendChartProps) {
                 </Button>
             ))}
             </div>
+            {data ? (
             <ResponsiveContainer width='75%' minWidth={600} height={400}>
                 <BarChart
                     data={data.slice(1).slice(-timeframe.length)}
@@ -92,6 +90,9 @@ export default function DividendChart({ data, name }: DividendChartProps) {
                     />
                 </BarChart>
             </ResponsiveContainer>
+            ) : (
+            <div className="h-[400px] flex items-center justify-center">No data to display</div>
+            )}
         </>
       );
 }

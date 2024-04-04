@@ -1,5 +1,7 @@
 import type { Tables } from "./supabase";
 
+export type ResolvedPromise<T> = T extends Promise<infer R> ? R: never;
+
 export type UserMetaData = {
     name?: string
     DOB?: string
@@ -64,5 +66,5 @@ export type PortfolioData = (
 
 export type TimeSeriesDataPoint = {
     date: Date
-    value: number
+    value: number | null
 };

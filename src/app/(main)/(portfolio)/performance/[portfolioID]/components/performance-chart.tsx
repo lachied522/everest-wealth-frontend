@@ -12,13 +12,29 @@ function formatValue(value: number) {
     const thousand = 1e3;
   
     if (Math.abs(value) >= million) {
-      return `$${(value / million)}m`;
+      return `$${(value / million).toFixed(0)}m`;
     } else if (Math.abs(value) >= thousand) {
-      return `$${(value / thousand)}k`;
+      return `$${(value / thousand).toFixed(0)}k`;
     } else {
-      return `$${value.toFixed(2)}`;
+      return `$${value.toFixed(0)}`;
     }
 }
+
+const CustomTooltip = ({ active, payload } : {
+    active: boolean,
+    payload: any,
+}) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="flex flex-col bg-white rounded-sm shadow-sm p-2">
+          <p className="text-sm">Portfolio {formatValue(payload[0].value)}</p>
+          <p className="text-sm">Benchmark {payload[1].value.toFixed(0)}</p>
+        </div>
+      );
+    }
+  
+    return null;
+  };
 
 type Timeframe = {
     label: '1M'|'3M'|'1Y'|'5Y'|'ALL'
@@ -56,8 +72,8 @@ const TIMEFRAMES: Timeframe[] = [
 
 interface PerformanceChartProps {
     name: string
-    data: TimeSeriesDataPoint[]
-    benchmark: TimeSeriesDataPoint[]
+    data?: TimeSeriesDataPoint[]
+    benchmark?: TimeSeriesDataPoint[]
 }
 
 export default function PerformanceChart({
@@ -83,7 +99,8 @@ export default function PerformanceChart({
                 </Button>
             ))}
             </div>
-            <ResponsiveContainer width='75%' minWidth={600} height={400}>
+            {data ? (
+            <ResponsiveContainer width='75%' minWidth={600} height={440}>
                 <LineChart
                     margin={{
                         top: 5,
@@ -109,10 +126,14 @@ export default function PerformanceChart({
                     />
                     <YAxis
                         yAxisId="left"
+                        domain={['auto', 'auto']}
                         tickFormatter={formatValue}
                     />
-                    <YAxis yAxisId="right" orientation="right" />
-                    <Legend />
+                    <YAxis
+                        yAxisId="right"
+                        domain={['auto', 'auto']}
+                        orientation="right"
+                    />
                     <Line
                         data={data.slice(1).slice(-timeframe.length)}
                         xAxisId="performance"
@@ -121,12 +142,13 @@ export default function PerformanceChart({
                         dataKey="value"
                         stroke="#2962FF"
                         strokeWidth={2}
-                        isAnimationActive={false}
                         dot={false}
+                        isAnimationActive={false}
                         name={name}
                     />
+                    {benchmark && (
                     <Line
-                        data={benchmark.slice(1).slice(-timeframe.length*4)}
+                        data={benchmark.slice(1).slice(-timeframe.length)}
                         xAxisId="benchmark"
                         yAxisId="right"
                         type="monotone"
@@ -137,8 +159,14 @@ export default function PerformanceChart({
                         dot={false}
                         name="MSCI World Index"
                     />
+                    )}
+                    <Legend />
+                    <Tooltip content={({ active, payload }) => <CustomTooltip active={active!} payload={payload} />}/>
                 </LineChart>
             </ResponsiveContainer>
+            ) : (
+            <div className="h-[400px] flex items-center justify-center">No data to display</div>
+            )}
         </>
       );
 }
